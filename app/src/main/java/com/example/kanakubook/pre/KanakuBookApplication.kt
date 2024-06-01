@@ -1,0 +1,99 @@
+package com.example.kanakubook.pre
+
+import android.app.Application
+import com.example.data.dao.UserDao
+import com.example.data.database.ApplicationDatabase
+import com.example.data.repositoryImpl.RepositoryImpl
+import com.example.data.repositoryImpl.UserRepositoryImpl
+import com.example.domain.repository.GroupRepository
+import com.example.domain.repository.UserRepository
+import com.example.domain.usecase.GroupUseCaseImpl
+import com.example.domain.usecase.LoginUseCase
+import com.example.domain.usecase.ProfilePictureUseCase
+import com.example.domain.usecase.SignUpUseCase
+import com.example.domain.usecase.UserUseCase
+import com.example.domain.usecase.UserUseCaseImpl
+import com.example.kanakubook.StorageHelperImpl
+import com.example.kanakubook.delegation.GroupRepositoryFunctionProviderDelegateImpl
+import com.example.data.dao.GroupDao
+import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
+
+class KanakuBookApplication : Application() {
+
+    companion object{
+        val PREF_IS_USER_LOGIN = "PREF_LOGIN_BOOLEAN_KEY"
+        val PREF_USER_ID = "PREF_LOGIN_USER_ID"
+    }
+
+    private val userUseCaseImpl : UserUseCaseImpl by lazy {
+        UserUseCaseImpl(
+            userInfoRepository,
+            userAuthenticationRepository,
+            groupRepositoryProfilePhoto,
+            userProfileRepository
+        )
+    }
+    private val userDao : UserDao by lazy {
+        val db = ApplicationDatabase.getDatabase(this)
+        db.getMyUserDao()
+    }
+
+    private val groupDao : GroupDao by lazy{
+        val db = ApplicationDatabase.getDatabase(this)
+        db.getMyGroupDao()
+    }
+
+    private val profilePhotoDao: ProfilePhotoDao by lazy {
+        val db = ApplicationDatabase.getDatabase(this)
+        db.getMyProfilePhotoDao()
+    }
+
+    private val storageHelperImpl : StorageHelperImpl by lazy {
+        StorageHelperImpl(this)
+    }
+
+    private val userRepositoryImpl: UserRepositoryImpl by lazy {
+        UserRepositoryImpl(userDao,profilePhotoDao, storageHelperImpl)
+    }
+
+    private val userInfoRepository : UserRepository.Info by lazy {
+        userRepositoryImpl
+    }
+    private val userProfileRepository : UserRepository.UserProfile by lazy {
+        userRepositoryImpl
+    }
+    private val userAuthenticationRepository : UserRepository.Authentication by lazy {
+        userRepositoryImpl
+    }
+
+    private val groupRepositoryImpl :RepositoryImpl by lazy {
+        RepositoryImpl(groupDao, profilePhotoDao, storageHelperImpl)
+    }
+
+    private val groupRepository: GroupRepository.Info by lazy {
+        groupRepositoryImpl
+    }
+
+    private val groupRepositoryProfilePhoto : GroupRepository.Profile  by lazy {
+        groupRepositoryImpl
+    }
+
+    private val groupRepositoryFunctionProviderDelegateImpl : GroupRepositoryFunctionProviderDelegateImpl by lazy {
+        GroupRepositoryFunctionProviderDelegateImpl(groupRepositoryImpl,userRepositoryImpl)
+    }
+
+    private val groupUseCaseImpl: GroupUseCaseImpl by lazy {
+        GroupUseCaseImpl(groupRepositoryFunctionProviderDelegateImpl)
+    }
+
+    val userUseCaseOfGroupUseCase: UserUseCase.GroupUseCase by lazy { groupUseCaseImpl }
+
+    val signUpUseCase: SignUpUseCase by lazy { userUseCaseImpl }
+
+
+    val loginUseCase: LoginUseCase by lazy { userUseCaseImpl }
+
+    val friendsUseCase: UserUseCase.FriendsUseCase by lazy { userUseCaseImpl }
+
+    val profilePictureUseCase: ProfilePictureUseCase by lazy { userUseCaseImpl }
+}

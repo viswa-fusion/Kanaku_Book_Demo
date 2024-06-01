@@ -1,0 +1,43 @@
+package com.example.kanakubook.pre.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.domain.model.UserProfileSummary
+import com.example.domain.usecase.LoginUseCase
+import com.example.domain.usecase.response.PresentationLayerResponse
+import com.example.kanakubook.pre.KanakuBookApplication
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+
+class LoginViewModel (
+    private val useCase: LoginUseCase
+) : ViewModel() {
+    private val _userDataDetail = MutableLiveData<PresentationLayerResponse<UserProfileSummary>>()
+    val userDataDetails: LiveData<PresentationLayerResponse<UserProfileSummary>> = _userDataDetail
+
+    fun authenticateUser(phone: Long, password: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = useCase.authenticateUser(phone, password)
+            _userDataDetail.postValue(result)
+        }
+    }
+
+    companion object{
+        val FACTORY = object : ViewModelProvider.Factory{
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+
+                val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+                val applicationDataInjection = application!!.applicationContext as KanakuBookApplication
+                val loginUseCase = applicationDataInjection.loginUseCase
+
+                return LoginViewModel(loginUseCase) as T
+            }
+        }
+    }
+}

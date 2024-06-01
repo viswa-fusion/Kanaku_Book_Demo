@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            android:elevation="4dp"/>
+
+
+        <LinearLayout
+            android:id="@+id/boxesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/topBar"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_medium">
+
+
+            <LinearLayout
+                android:id="@+id/youWillGetBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_box_primary"
+                android:clipChildren="true"
+                android:gravity="center"
+                android:padding="@dimen/spacing_medium">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="you_will_get"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_size_medium"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/youWillBuyBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_box_primary"
+                android:gravity="center"
+                android:padding="@dimen/spacing_medium">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="you_will_buy"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_size_medium"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/transactionsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/boxesContainer"
+            android:padding="@dimen/spacing_medium"/>
+
+    </RelativeLayout>
+
+
+</ScrollView>

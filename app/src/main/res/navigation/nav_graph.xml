@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.kanakubook.pre.fragment.HomeFragment"
+        android:label="HomeFragment"
+        tools:layout="@layout/main_screen_fragment"/>
+    <fragment
+        android:id="@+id/navigation_friends"
+        android:name="com.example.kanakubook.pre.fragment.FriendsFragment"
+        android:label="FriendsScreenFragment"
+        tools:layout="@layout/main_screen_fragment"/>
+    <fragment
+        android:id="@+id/navigation_activity"
+        android:name="com.example.kanakubook.pre.fragment.ActivityFragment"
+        android:label="ActivityScreenFragment"
+        tools:layout="@layout/login_screen_fragment"/>
+</navigation>

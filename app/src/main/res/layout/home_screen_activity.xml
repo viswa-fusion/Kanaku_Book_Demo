@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/homeScreenSearchView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="10sp"
+        android:hint="Search...">
+
+
+    </com.google.android.material.search.SearchView>
+
+
+    <fragment
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        android:layout_above="@id/bottom_navigation"
+        android:layout_alignParentTop="true"
+        app:navGraph="@navigation/nav_graph" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+    android:id="@+id/bottom_navigation"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+    app:menu="@menu/bottom_navigation_menu" />
+</RelativeLayout>
