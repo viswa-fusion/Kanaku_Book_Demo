@@ -1,15 +1,14 @@
 package com.example.domain.repository
 
 import android.graphics.Bitmap
-import com.example.domain.model.Group
 import com.example.domain.model.GroupData
-import com.example.domain.model.GroupSummery
+import com.example.domain.model.GroupEntry
 import com.example.domain.repository.response.DataLayerResponse
 
 interface GroupRepository {
     interface  Info{
-        suspend fun insertGroup(group: GroupData): DataLayerResponse<Boolean>
-        suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<Group>>
+        suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Boolean>
+        suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<GroupData>>
     }
 
     interface Profile{

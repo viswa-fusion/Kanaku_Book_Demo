@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:clipToOutline="true"
+            app:shapeAppearanceOverlay="@style/roundedShape"
+            android:src="@drawable/default_profile_image" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Naveen Kumar"
+                android:textStyle="bold"
+                android:textFontWeight="500"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_large"
+                />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1.5dp"
+                android:text="+91 9847382945"
+                android:textSize="@dimen/text_size_small"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/settle_up_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/text_size_medium"
+            android:padding="5dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:clipToOutline="true"
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/roundedShape"
+            android:background="@drawable/circular_fill_background"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:layout_gravity="end|center_vertical">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:src="@drawable/receipt_long_24px" />
+        </LinearLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+    <include
+        android:id="@+id/empty_template"
+        layout="@layout/no_transaction"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="invisible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/createFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_medium"
+        android:contentDescription="Create Expense"
+        android:elevation="5dp"
+        android:src="@drawable/add_plus_24px"
+        android:text="Create Expense"
+        android:visibility="visible"
+        android:layout_alignParentBottom="true"
+        app:shapeAppearanceOverlay="@style/roundedShape"
+        android:layout_alignParentEnd="true"/>
+</RelativeLayout>

@@ -6,8 +6,7 @@ plugins {
 
 }
 
-//buildscript {
-//    dependencies{
-//        classpath(libs.hilt.android.gradle.plugin)
-//    }
-//}
+buildscript {
+    dependencies {
+    }
+}

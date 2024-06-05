@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 data class GroupEntity(
     val groupName: String,
     val createdBy: Long,
+    val lastActive: Long,
 
     @PrimaryKey(autoGenerate = true)
     val groupId: Long = 0,

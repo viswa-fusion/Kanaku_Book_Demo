@@ -4,10 +4,10 @@ package com.example.kanakunote.data_layer.crossreference
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.example.data.entity.UserEntity
 
 @Entity(
-    primaryKeys = ["user1Id","user2Id"],
     foreignKeys = [
         ForeignKey(
             entity = UserEntity::class,
@@ -24,5 +24,8 @@ import com.example.data.entity.UserEntity
 )
 data class FriendsConnectionCrossRef(
     val user1Id: Long,
-    val user2Id: Long
+    val user2Id: Long,
+
+    @PrimaryKey(autoGenerate = true)
+    val connectionId: Long = 0
 )

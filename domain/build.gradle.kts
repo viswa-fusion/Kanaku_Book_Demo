@@ -41,6 +41,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation("androidx.room:room-common:2.6.1")
+
 //    implementation(libs.dagger.android)
 //    kapt(libs.dagger.compiler)
 //    implementation (libs.google.dagger.android)

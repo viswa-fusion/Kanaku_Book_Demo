@@ -12,12 +12,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.model.UserProfileSummary
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.FriendsViewHolderCardBinding
+import com.example.kanakubook.databinding.FriendsViewHolderCardTestBinding
 import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
+import kotlin.random.Random
 
 class FriendsProfileListAdapter(
     private val callback :Callbacks
@@ -66,11 +68,12 @@ class FriendsProfileListAdapter(
     }
 
     inner class ProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val binding = FriendsViewHolderCardBinding.bind(itemView)
+        private val binding = FriendsViewHolderCardTestBinding.bind(itemView)
         private var bindImageReferenceCheck : Long = -1
         private val textViewName: TextView = binding.textViewName
         private val textViewAmount: TextView = binding.textViewAmount
         private val image: ShapeableImageView = binding.imageViewProfile
+        private val phone: TextView = binding.number
 
         init {
             binding.cardView.setOnClickListener {
@@ -89,17 +92,18 @@ class FriendsProfileListAdapter(
             bindImageReferenceCheck = profile.userId
             textViewName.text = profile.name
             val decimalFormat = DecimalFormat("#,###")
-            val formattedAmount = "₹${decimalFormat.format(profile.phone)}"
+            val formattedAmount = "₹${decimalFormat.format(Random.nextInt(1111,9999))}"
             textViewAmount.text = formattedAmount
-            if(profile.bitmap != null){
-                image.setImageBitmap(profile.bitmap)
+            phone.text = profile.phone.toString()
+            if(profile.profile != null){
+                image.setImageBitmap(profile.profile)
             }else {
                 CoroutineScope(Dispatchers.IO).launch {
                     val bitmap = callback.getImage(profile.userId)
-                    profile.bitmap = bitmap
+                    profile.profile = bitmap
                     withContext(Dispatchers.Main){
-                        if(bindImageReferenceCheck  == profile.userId && profile.bitmap != null) {
-                            image.setImageBitmap(profile.bitmap)
+                        if(bindImageReferenceCheck  == profile.userId && profile.profile != null) {
+                            image.setImageBitmap(profile.profile)
                         }
                     }
                 }
@@ -115,82 +119,3 @@ class FriendsProfileListAdapter(
 }
 
 
-//package com.example.kanakubook.pre.adapter
-//
-//import android.graphics.Bitmap
-//import android.os.Handler
-//import android.os.Looper
-//import android.view.LayoutInflater
-//import android.view.View
-//import android.view.ViewGroup
-//import android.widget.TextView
-//import androidx.recyclerview.widget.DiffUtil
-//import androidx.recyclerview.widget.RecyclerView
-//import com.example.domain.model.UserProfileSummery
-//import com.example.kanakubook.R
-//import com.google.android.material.imageview.ShapeableImageView
-//import kotlinx.coroutines.*
-//import java.text.DecimalFormat
-//
-//class FriendsProfileListAdapter(
-//    private var profileList: List<UserProfileSummery>,
-//    private val callback: suspend (Long) -> Bitmap?
-//) : RecyclerView.Adapter<FriendsProfileListAdapter.ProfileViewHolder>() {
-//
-//    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder {
-//        val view = LayoutInflater.from(parent.context)
-//            .inflate(R.layout.friends_view_holder_card_test, parent, false)
-//        return ProfileViewHolder(view)
-//    }
-//
-//    override fun onBindViewHolder(holder: ProfileViewHolder, position: Int) {
-//        holder.bind(profileList[position])
-//    }
-//
-//    override fun getItemCount(): Int = profileList.size
-//
-//    fun updateList(newList: List<UserProfileSummery>) {
-//        val diffCallback = ProfileDiffCallback(profileList, newList)
-//        val diffResult = DiffUtil.calculateDiff(diffCallback)
-//        profileList = newList
-//        diffResult.dispatchUpdatesTo(this)
-//    }
-//
-//    inner class ProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-//        private val textViewName: TextView = itemView.findViewById(R.id.textViewName)
-//        private val textViewAmount: TextView = itemView.findViewById(R.id.textViewAmount)
-//        private val image: ShapeableImageView = itemView.findViewById(R.id.imageViewProfile)
-//        private var job: Job? = null
-//
-//        fun bind(profile: UserProfileSummery) {
-//            textViewName.text = profile.name
-//            val decimalFormat = DecimalFormat("#,###")
-//            val formattedAmount = "₹${decimalFormat.format(profile.phone)}"
-//            textViewAmount.text = formattedAmount
-//
-//            job?.cancel()
-//            job = CoroutineScope(Dispatchers.Main).launch {
-//                val bitmap = withContext(Dispatchers.IO) {
-//                    callback(profile.userId)
-//                }
-//                image.setImageBitmap(bitmap)
-//            }
-//        }
-//    }
-//
-//    private class ProfileDiffCallback(
-//        private val oldList: List<UserProfileSummery>,
-//        private val newList: List<UserProfileSummery>
-//    ) : DiffUtil.Callback() {
-//        override fun getOldListSize(): Int = oldList.size
-//        override fun getNewListSize(): Int = newList.size
-//
-//        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-//            return oldList[oldItemPosition].userId == newList[newItemPosition].userId
-//        }
-//
-//        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-//            return oldList[oldItemPosition] == newList[newItemPosition]
-//        }
-//    }
-//}

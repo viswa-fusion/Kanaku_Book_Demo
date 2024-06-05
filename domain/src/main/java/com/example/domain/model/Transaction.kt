@@ -1,11 +1,9 @@
 package com.example.domain.model
 
-import com.example.domain.enum.PaidStatus
-
 data class Transaction(
     val id: Long,
-    val sender: UserData,
-    val receiver: UserData,
+    val sender: UserEntryData,
+    val receiver: UserEntryData,
     val amount: Double,
     val note: String,
     val date: Long

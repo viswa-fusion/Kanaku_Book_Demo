@@ -38,7 +38,7 @@ class LoginScreenFragment: Fragment(R.layout.login_screen_fragment) {
 
         binding.buttonLogin.setOnClickListener {
             viewModel.authenticateUser(
-                binding.editTextPhoneNumber.text.toString().toLong(),
+                binding.amount.text.toString().toLong(),
                 binding.editTextPassword.text.toString()
             )
         }

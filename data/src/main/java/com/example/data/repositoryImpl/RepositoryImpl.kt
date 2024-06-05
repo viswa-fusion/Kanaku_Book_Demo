@@ -6,10 +6,11 @@ import com.example.domain.repository.GroupRepository
 import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
 import com.example.data.util.StorageHelper
-import com.example.data.util.toGroup
+import com.example.data.util.toGroupData
 import com.example.data.util.toGroupEntity
-import com.example.domain.model.Group
 import com.example.domain.model.GroupData
+import com.example.domain.model.GroupEntry
+import com.example.domain.repository.response.DataLayerErrorCode
 import com.example.domain.repository.response.DataLayerResponse
 import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
 import kotlinx.coroutines.async
@@ -31,33 +32,31 @@ class RepositoryImpl(
             return fileDir
         }
 
-    override suspend fun insertGroup(group: GroupData): DataLayerResponse<Boolean> {
-        val groupEntity = group.toGroupEntity()
-        val groupId = groupDao.insertGroup(groupEntity)
-        val crossRef = mutableListOf<GroupMemberCrossRef>()
-        Log.i("testCase","id: $groupId")
+    override suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Boolean> {
+        return try {
+            val groupEntity = group.toGroupEntity()
+            val groupId = groupDao.insertGroup(groupEntity)
+            val crossRef = group.members.map { member -> GroupMemberCrossRef(groupId, member) }
 
-        group.members.forEach {
-            crossRef.add(GroupMemberCrossRef(groupId, it))
-        }
-        coroutineScope {
-            val crossRefResult = async { groupDao.insertGroupMembers(crossRef) }
-            val imageUploadResult = async {
-                if(group.profilePicture != null){
-                    saveProfileImage(groupId, group.profilePicture)
+            coroutineScope {
+                val crossRefResult = async { groupDao.insertGroupMembers(crossRef) }
+                val imageUploadResult = async {
+                    group.profilePicture?.let { profilePicture ->
+                        saveProfileImage(groupId, profilePicture)
+                    }
                 }
+                awaitAll(crossRefResult, imageUploadResult)
             }
-            awaitAll(crossRefResult,imageUploadResult)
+            DataLayerResponse.Success(true)
+        } catch (e: Exception) {
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
-        return DataLayerResponse.Success(true)
     }
 
-    override suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<Group>> {
+
+    override suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<GroupData>> {
         val listOfGroupEntity = groupDao.getGroupsWithMembersByUserId(userId)
-        val listOfGroup = listOfGroupEntity.map {
-            Log.i("testData","raw dat: ${it.members}")
-            val file = File(groupProfileImageFileDir, "${it.group.groupId}groupId${StorageHelper.IMAGE_TYPE_JPG}").absolutePath
-            it.toGroup(groupProfileImageFileDir.absolutePath) }
+        val listOfGroup = listOfGroupEntity.map { it.toGroupData() }
         return DataLayerResponse.Success(listOfGroup)
     }
 

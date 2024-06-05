@@ -4,29 +4,27 @@ package com.example.kanakubook.pre.fragment
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.data.util.PreferenceHelper
+import com.example.domain.model.GroupData
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
-import com.example.kanakubook.databinding.MainScreenFragmentBinding
 import com.example.kanakubook.pre.KanakuBookApplication
-import com.example.kanakubook.pre.activity.AddFriendActivity
 import com.example.kanakubook.pre.activity.AddGroupActivity
 import com.example.kanakubook.pre.activity.AppEntryPoint
+import com.example.kanakubook.pre.activity.GroupDetailPageActivity
 import com.example.kanakubook.pre.adapter.GroupsListAdapter
 import com.example.kanakubook.pre.viewmodel.FabViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
 import com.example.kanakubook.util.CustomAnimationUtil
 
-class HomeFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
+class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private val fabViewModel: FabViewModel by viewModels()
     private var isFabRotated = false
@@ -112,7 +110,7 @@ class HomeFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                         binding.emptyTemplate.emptyTemplate.visibility = View.VISIBLE
                     }
                     else{
-                        binding.emptyTemplate.emptyTemplate.visibility = View.GONE
+                        binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
                         val adapter = binding.recyclerview.adapter
                         if (adapter is GroupsListAdapter) {
                             adapter.updateData(it.data)
@@ -156,9 +154,23 @@ class HomeFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
 
     private fun initialSetUp(){
-        binding.recyclerview.adapter = GroupsListAdapter{ groupId ->
-            return@GroupsListAdapter viewModel.getProfile(groupId)
-        }
+        binding.recyclerview.adapter = GroupsListAdapter(object : GroupsListAdapter.CallBack{
+            override suspend fun getImage(groupId: Long): Bitmap? {
+                return viewModel.getProfile(groupId)
+            }
+
+            override fun onClickItemListener(groupData: GroupData) {
+                val intent = Intent(requireActivity(), GroupDetailPageActivity::class.java)
+                intent.putExtra("groupName",groupData.name)
+                intent.putExtra("groupId",groupData.id)
+                intent.putExtra("createdBy",groupData.createdBy)
+                val bundle = Bundle()
+                bundle.putLongArray("members",groupData.members.map { it.userId }.toLongArray())
+                intent.putExtra("bundle",bundle)
+                startActivity(intent)
+            }
+        })
+
         binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity())
     }
 }

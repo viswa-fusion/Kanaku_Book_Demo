@@ -13,14 +13,16 @@ import com.example.domain.usecase.UserUseCase
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.domain.usecase.util.ImageDirectoryType
 import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.pre.fragment.MultiUserPickListFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class FriendsViewModel(
     private val useCase: UserUseCase.FriendsUseCase,
     private val profileUseCase: ProfilePictureUseCase
 ) : ViewModel() {
+
+    var selectedList = mutableListOf<MultiUserPickListFragment.MySelectableUserData>()
 
     private val _friendsList =
         MutableLiveData<PresentationLayerResponse<List<UserProfileSummary>>>()

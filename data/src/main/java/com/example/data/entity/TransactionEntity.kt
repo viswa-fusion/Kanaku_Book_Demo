@@ -24,7 +24,6 @@ import com.example.data.entity.UserEntity
     ],
     indices = [Index(value = ["payerId"]), Index(value = ["receiverId"])]
 )
-
 data class TransactionEntity(
     val senderId: Long,
     val receiverId: Long,

@@ -142,10 +142,16 @@
     <color name="md_theme_surfaceContainerHighest_highContrast">#373438</color>
 
 
+    <color name="hint_enhance_black">#DAAEADAD</color>
     <color name="black">#ffffff</color>
+    <color name="black_fade">#D5D5D5</color>
     <color name="white">#000000</color>
     <color name="blur">#A44A4949</color>
     <color name="extended_fab">#E9DFEC</color>
     <color name="test1">#216DDE</color>
     <color name="test">#D19EFF</color>
+    <color name="pick_list_selection">#52FFFFFF</color>
+    <color name="md_theme_primaryContainer_faded">#A8D9B7FA</color>
+    <color name="fade_black">#2EFFFFFF</color>
+
 </resources>

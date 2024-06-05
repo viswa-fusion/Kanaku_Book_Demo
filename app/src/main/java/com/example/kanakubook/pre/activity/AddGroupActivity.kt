@@ -2,35 +2,35 @@ package com.example.kanakubook.pre.activity
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.commit
 import com.example.data.util.PreferenceHelper
 import com.example.domain.usecase.response.PresentationLayerResponse
+import com.example.kanakubook.R
 import com.example.kanakubook.databinding.AddGroupScreenActivityBinding
 import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.pre.fragment.MultiUserPickListFragment
+import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
-import com.example.kanakubook.util.ImageConversionHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
-import java.net.URL
 
-class AddGroupActivity: AppCompatActivity() {
+class AddGroupActivity : AppCompatActivity() {
 
     private lateinit var binding: AddGroupScreenActivityBinding
-    private val viewModel : GroupViewModel by viewModels { GroupViewModel.FACTORY }
+    private val viewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
+    private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private var isBottomSheetOpen = false
     private var profileUri: Uri? = null
     private val PROFILE_URI_KEY = "group profile"
-    private lateinit var preferenceHelper : PreferenceHelper
+    private lateinit var preferenceHelper: PreferenceHelper
+    private val fragment : MultiUserPickListFragment by lazy { MultiUserPickListFragment() }
 
     private val startActivityResultForProfilePhoto =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -42,6 +42,7 @@ class AddGroupActivity: AppCompatActivity() {
                     binding.imageview.setImageURI(selectedImageUri)
                 }
             }
+            isBottomSheetOpen = false
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +50,15 @@ class AddGroupActivity: AppCompatActivity() {
         initialSetUp()
         setListener()
         setObserver()
+
+        supportFragmentManager.commit {
+            fragment.apply {
+            arguments = Bundle().apply {
+                putLong("userId",loggedInUserId())
+            }
+        }
+            replace(R.id.fragment_container_view, fragment)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -68,9 +78,31 @@ class AddGroupActivity: AppCompatActivity() {
         }
     }
 
-    private fun setListener(){
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.add_group_toolbar_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            R.id.done -> {
+                val logUserId = loggedInUserId()
+                val groupName = binding.groupname.text.toString()
+                val membersId = friendsViewModel.selectedList.map {
+                    it.userId
+                }.toMutableList()
+                membersId.add(logUserId)
+                viewModel.createGroup(this, logUserId, groupName, profileUri, membersId)
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+
+    }
+
+    private fun setListener() {
         binding.imageview.setOnClickListener {
-            if(!isBottomSheetOpen){
+            if (!isBottomSheetOpen) {
                 val intent =
                     Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                 startActivityResultForProfilePhoto.launch(intent)
@@ -78,28 +110,23 @@ class AddGroupActivity: AppCompatActivity() {
             }
         }
 
-        binding.button2.setOnClickListener {
-            val groupName = binding.groupname.text.toString()
-            val ids = binding.members.text.toString().split(",").map {
-                it.toLong()
-            }.toMutableList()
-            val logUserId = loggedInUserId()
-            ids.add(logUserId)
-            viewModel.createGroup(this, logUserId, groupName, profileUri, ids)
+        binding.close.setOnClickListener {
+            finish()
         }
+
     }
 
-    private fun setObserver(){
-        viewModel.groupCreateResponse.observe(this){
-            when(it){
+    private fun setObserver() {
+        viewModel.groupCreateResponse.observe(this) {
+            when (it) {
                 is PresentationLayerResponse.Success -> {
-                    Toast.makeText(this,"success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
                     setResult(RESULT_OK)
                     finish()
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(this,"fail", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show()
                     setResult(RESULT_CANCELED)
                     finish()
                 }
@@ -109,7 +136,7 @@ class AddGroupActivity: AppCompatActivity() {
 
     private fun loggedInUserId(): Long {
         return if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
-             preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
+            preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
         } else {
             val intent = Intent(this, AppEntryPoint::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -119,9 +146,11 @@ class AddGroupActivity: AppCompatActivity() {
         }
     }
 
-    private fun initialSetUp(){
+    private fun initialSetUp() {
         binding = AddGroupScreenActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.title =""
 
         preferenceHelper = PreferenceHelper(this)
     }

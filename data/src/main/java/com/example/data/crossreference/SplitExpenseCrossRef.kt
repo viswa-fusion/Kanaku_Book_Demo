@@ -22,7 +22,7 @@ import com.example.data.entity.SplitEntity
     ],
     indices = [Index(value = ["expenseId"]),Index(value = ["splitId"])]
 )
-data class ExpenseSplitCrossRef(
+data class SplitExpenseCrossRef(
     val expenseId: Long,
     val splitId: Long,
 )

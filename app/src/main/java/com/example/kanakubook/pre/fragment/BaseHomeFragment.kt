@@ -9,6 +9,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.MainScreenFragmentBinding
+import com.example.kanakubook.pre.activity.AddExpenseActivity
 import com.example.kanakubook.pre.activity.ProfileActivity
 
 open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentLayoutId) {
@@ -23,6 +24,11 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
             val intent = Intent(requireActivity(), ProfileActivity::class.java)
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right,R.anim.dont_slide)
+        }
+
+        binding.createExpense.setOnClickListener {
+            val intent = Intent(requireActivity(),AddExpenseActivity::class.java)
+            startActivity(intent)
         }
 
     }

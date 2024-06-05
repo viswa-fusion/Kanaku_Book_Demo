@@ -12,6 +12,7 @@ import com.example.kanakubook.pre.KanakuBookApplication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class SignUpViewModel (
@@ -22,8 +23,11 @@ class SignUpViewModel (
 
     fun signUp(name: String, phone: Long, password: String, repeatPassword: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _userId.postValue(signUpUseCase.addUser(name, phone, password, repeatPassword))
-            delay(500)
+            val value = signUpUseCase.addUser(name, phone, password, repeatPassword)
+            withContext(Dispatchers.Main){
+                _userId.value = value
+            }
+
         }
     }
 

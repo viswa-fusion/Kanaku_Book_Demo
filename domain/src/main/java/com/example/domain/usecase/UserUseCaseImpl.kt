@@ -3,7 +3,7 @@ package com.example.domain.usecase
 
 import android.graphics.Bitmap
 import com.example.domain.helper.CryptoHelper
-import com.example.domain.model.UserData
+import com.example.domain.model.UserEntryData
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.repository.GroupRepository
 import com.example.domain.repository.UserRepository
@@ -20,7 +20,8 @@ class UserUseCaseImpl(
     ) : SignUpUseCase,
     LoginUseCase,
     ProfilePictureUseCase,
-    UserUseCase.FriendsUseCase {
+    UserUseCase.FriendsUseCase,
+    UserUseCase.CommonUserUseCase{
 
     override suspend fun addUser(
         name: String,
@@ -29,12 +30,12 @@ class UserUseCaseImpl(
         repeatPassword: String
     ): PresentationLayerResponse<Long> {
 
-        val userData = UserData(
+        val userEntryData = UserEntryData(
             name,
             phone,
             password
         )
-        return when (val result = userInfoRepo.insertUser(userData, password)) {
+        return when (val result = userInfoRepo.insertUser(userEntryData, password)) {
             is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
         }
@@ -131,4 +132,14 @@ class UserUseCaseImpl(
         }
     }
 
+    override suspend fun getUserById(userId: Long): PresentationLayerResponse<UserProfileSummary> {
+        val id = CryptoHelper.decrypt(userId)
+        return when(val user = userInfoRepo.getUser(id)){
+            is DataLayerResponse.Success -> {
+                val encryptData = user.data.copy(userId = CryptoHelper.decrypt(user.data.userId))
+                PresentationLayerResponse.Success(encryptData)
+            }
+            is DataLayerResponse.Error -> PresentationLayerResponse.Error(user.errorCode.toString())
+        }
+    }
 }

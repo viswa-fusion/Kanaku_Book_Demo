@@ -10,13 +10,18 @@ package com.example.domain.model
 //    val title: String
 //)
 
-data class Expense(
-    val id: Long,
-    val sender: UserData,
-    val amount: Double,
+data class ExpenseEntry(
+    val spenderId: Long,
+    val totalAmount: Double,
     val date: Long,
-    val note: String,
-    val title: String,
-    val group: Group
+    val note: String?
 )
 
+data class ExpenseData(
+    val expenseId: Long,
+    val spender: UserProfileSummary,
+    val totalAmount: Double,
+    val date: Long,
+    val note: String?,
+    val listOfSplits: List<SplitEntry>
+)

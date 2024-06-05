@@ -1,6 +1,7 @@
 package com.example.kanakubook.pre
 
 import android.app.Application
+import com.example.data.dao.ExpenseDao
 import com.example.data.dao.UserDao
 import com.example.data.database.ApplicationDatabase
 import com.example.data.repositoryImpl.RepositoryImpl
@@ -16,6 +17,11 @@ import com.example.domain.usecase.UserUseCaseImpl
 import com.example.kanakubook.StorageHelperImpl
 import com.example.kanakubook.delegation.GroupRepositoryFunctionProviderDelegateImpl
 import com.example.data.dao.GroupDao
+import com.example.data.dao.SplitDao
+import com.example.data.repositoryImpl.SplitExpenseRepositoryImpl
+import com.example.domain.repository.SplitExpenseRepository
+import com.example.domain.usecase.SplitExpenseUseCase
+import com.example.domain.usecase.SplitExpenseUseCaseImpl
 import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
 
 class KanakuBookApplication : Application() {
@@ -23,6 +29,7 @@ class KanakuBookApplication : Application() {
     companion object{
         val PREF_IS_USER_LOGIN = "PREF_LOGIN_BOOLEAN_KEY"
         val PREF_USER_ID = "PREF_LOGIN_USER_ID"
+        val PREF_DEFAULT_DATA_INJECTED ="PREF_DEFAULT_DATA_INJECTED"
     }
 
     private val userUseCaseImpl : UserUseCaseImpl by lazy {
@@ -46,6 +53,15 @@ class KanakuBookApplication : Application() {
     private val profilePhotoDao: ProfilePhotoDao by lazy {
         val db = ApplicationDatabase.getDatabase(this)
         db.getMyProfilePhotoDao()
+    }
+
+    private val expenseDao: ExpenseDao by lazy {
+        val db = ApplicationDatabase.getDatabase(this)
+        db.getMyExpenseDao()
+    }
+    private val splitDao: SplitDao by lazy {
+        val db = ApplicationDatabase.getDatabase(this)
+        db.getMySplitDao()
     }
 
     private val storageHelperImpl : StorageHelperImpl by lazy {
@@ -85,6 +101,21 @@ class KanakuBookApplication : Application() {
     private val groupUseCaseImpl: GroupUseCaseImpl by lazy {
         GroupUseCaseImpl(groupRepositoryFunctionProviderDelegateImpl)
     }
+    private val splitExpenseRepositoryImpl : SplitExpenseRepositoryImpl by lazy {
+        SplitExpenseRepositoryImpl(expenseDao,splitDao,userDao)
+    }
+
+    private val groupExpenseRepository :SplitExpenseRepository.GroupExpense by lazy {
+        splitExpenseRepositoryImpl
+    }
+
+    private val friendsExpenseRepository :SplitExpenseRepository.FriendExpense by lazy {
+        splitExpenseRepositoryImpl
+    }
+
+    private val splitExpenseUseCaseImpl: SplitExpenseUseCaseImpl by lazy {
+        SplitExpenseUseCaseImpl(groupExpenseRepository,friendsExpenseRepository)
+    }
 
     val userUseCaseOfGroupUseCase: UserUseCase.GroupUseCase by lazy { groupUseCaseImpl }
 
@@ -96,4 +127,8 @@ class KanakuBookApplication : Application() {
     val friendsUseCase: UserUseCase.FriendsUseCase by lazy { userUseCaseImpl }
 
     val profilePictureUseCase: ProfilePictureUseCase by lazy { userUseCaseImpl }
+
+    val userUseCaseCommonUserUseCase: UserUseCase.CommonUserUseCase by lazy { userUseCaseImpl }
+
+    val groupExpenseUseCase : SplitExpenseUseCase.GroupExpense by lazy { splitExpenseUseCaseImpl }
 }

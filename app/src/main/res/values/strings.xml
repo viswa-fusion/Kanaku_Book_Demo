@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">kanaku note</string>
+    <string name="app_name">kanaku Book</string>
     <string name="name">Name</string>
     <string name="phone_number">Phone Number</string>
     <string name="password">Password</string>

@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(project(":data"))
     implementation(project(":domain"))
+    implementation(libs.androidx.exifinterface)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,6 +65,9 @@ dependencies {
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.4.0")
     implementation("androidx.navigation:navigation-ui-ktx:2.4.0")
+
+
+    implementation("com.github.javafaker:javafaker:1.0.2")
 //    implementation("androidx.navigation:navigation-ui-ktx:2.4.2")
 //    implementation("androidx.navigation:navigation-fragment-ktx:2.4.2")
 //    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.4.2")

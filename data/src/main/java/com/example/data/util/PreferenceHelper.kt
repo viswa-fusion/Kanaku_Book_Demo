@@ -53,5 +53,4 @@ class PreferenceHelper(private val context: Context) {
         return sharedPreferences!!.getLong(key, -1)
     }
 
-
 }

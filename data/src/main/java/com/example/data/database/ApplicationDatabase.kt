@@ -4,26 +4,42 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.data.crossreference.ExpenseCrossRef
+import com.example.data.dao.ExpenseDao
 import com.example.kanakunote.data_layer.crossreference.FriendsConnectionCrossRef
 import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
+import com.example.data.dao.SplitDao
 import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
 import com.example.data.dao.UserDao
+import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.GroupEntity
+import com.example.data.entity.SplitEntity
 import com.example.data.entity.UserEntity
+import com.example.domain.Converters.Converters
+import com.example.kanakunote.data_layer.crossreference.SplitExpenseCrossRef
 
 @Database(
     entities = [
         UserEntity::class,
         FriendsConnectionCrossRef::class,
         GroupEntity::class,
-        GroupMemberCrossRef::class
+        GroupMemberCrossRef::class,
+        ExpenseEntity::class,
+        SplitEntity::class,
+        ExpenseCrossRef::class,
+        SplitExpenseCrossRef::class
     ], version = 1
 )
+@TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {
     abstract fun getMyUserDao(): UserDao
     abstract fun getMyGroupDao(): GroupDao
     abstract fun getMyProfilePhotoDao(): ProfilePhotoDao
+    abstract fun getMyExpenseDao(): ExpenseDao
+    abstract fun getMySplitDao(): SplitDao
+
 
     companion object {
         private var INSTANCE: ApplicationDatabase? = null

@@ -1,10 +1,15 @@
 package com.example.kanakubook.util
 
+import android.accessibilityservice.AccessibilityButtonController.AccessibilityButtonCallback
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
+import android.widget.EditText
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.text.DecimalFormat
 
 internal object CustomAnimationUtil {
 
@@ -68,4 +73,34 @@ internal object CustomAnimationUtil {
         friendFab.visibility = View.GONE
     }
 
+
+}
+class NumberTextWatcher(private val editText: EditText, private val buttonCallback: (Boolean) -> Unit) : TextWatcher {
+
+    private val df = DecimalFormat("#,###.##")
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+    override fun afterTextChanged(s: Editable?) {
+        editText.removeTextChangedListener(this)
+
+        val input = s.toString().replace(",", "")
+
+        val formatted = if (input.isNotEmpty()) {
+            val value = input.toDouble()
+            if(value > 0) buttonCallback(true)
+            else buttonCallback(false)
+            df.format(value)
+        } else {
+            buttonCallback(false)
+            ""
+        }
+
+        editText.setText(formatted)
+        editText.setSelection(formatted.length)
+
+        editText.addTextChangedListener(this)
+    }
 }

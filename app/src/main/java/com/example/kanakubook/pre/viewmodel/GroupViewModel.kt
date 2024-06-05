@@ -3,15 +3,19 @@ package com.example.kanakubook.pre.viewmodel
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
+import android.view.DisplayShape
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.domain.model.Group
+import com.example.domain.model.ExpenseData
 import com.example.domain.model.GroupData
+import com.example.domain.model.GroupEntry
 import com.example.domain.usecase.ProfilePictureUseCase
+import com.example.domain.usecase.SplitExpenseUseCase
 import com.example.domain.usecase.UserUseCase
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.domain.usecase.util.ImageDirectoryType
@@ -22,40 +26,87 @@ import kotlinx.coroutines.launch
 
 class GroupViewModel(
     private val useCase: UserUseCase.GroupUseCase,
-    private val profilePictureUseCase: ProfilePictureUseCase
-): ViewModel() {
+    private val profilePictureUseCase: ProfilePictureUseCase,
+    private val expenseUseCase: SplitExpenseUseCase.GroupExpense
+) : ViewModel() {
+
 
     private val _groupCreateResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
-    val groupCreateResponse : LiveData<PresentationLayerResponse<Boolean>> = _groupCreateResponse
+    val groupCreateResponse: LiveData<PresentationLayerResponse<Boolean>> = _groupCreateResponse
 
-    private val _getAllGroups = MutableLiveData<PresentationLayerResponse<List<Group>>>()
-    val getAllGroups : LiveData<PresentationLayerResponse<List<Group>>> = _getAllGroups
+    private val _getAllGroups = MutableLiveData<PresentationLayerResponse<List<GroupData>>>()
+    val getAllGroups: LiveData<PresentationLayerResponse<List<GroupData>>> = _getAllGroups
 
-    fun createGroup(context: Context,userId: Long, groupName: String, imageUri: Uri?, memberList: List<Long>){
-        viewModelScope.launch {
-            val image = ImageConversionHelper.loadBitmapFromUri(context, imageUri)
-            val response = useCase.addGroup(
-                GroupData(
-                    groupName,
-                    image,
-                    userId,
-                    memberList
+    private val _groupExpenseCreateResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
+    val groupExpenseCreateResponse: LiveData<PresentationLayerResponse<Boolean>> =
+        _groupExpenseCreateResponse
+
+    private val _getAllGroupExpenseResponse = MutableLiveData< PresentationLayerResponse<List<ExpenseData>>>()
+    val getAllGroupExpenseResponse: LiveData< PresentationLayerResponse<List<ExpenseData>>> =
+        _getAllGroupExpenseResponse
+
+    fun createExpense(
+        groupId: Long,
+        ownerId: Long,
+        totalAmount: Double,
+        note: String,
+        splitList: List<Pair<Long, Double>>
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _groupExpenseCreateResponse.postValue(
+                expenseUseCase.addNewGroupExpense(
+                    groupId,
+                    ownerId,
+                    totalAmount,
+                    note,
+                    splitList
                 )
             )
+        }
+    }
+
+    fun getAllExpenseByGroupId(groupId: Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            val data = expenseUseCase.getGroupExpenseById(groupId)
+            _getAllGroupExpenseResponse.postValue(data)
+        }
+    }
+
+
+    fun createGroup(
+        context: Context,
+        userId: Long,
+        groupName: String,
+        imageUri: Uri?,
+        memberList: List<Long>
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("timeCheck", "time1: ${System.currentTimeMillis()}")
+            val image = imageUri?.let { ImageConversionHelper.loadBitmapFromUri(context, imageUri) }
+            Log.i("timeCheck", "time2: ${System.currentTimeMillis()}")
+
+            val response = useCase.addGroup(
+                groupName,
+                image,
+                userId,
+                memberList
+            )
+            Log.i("timeCheck", "time3: ${System.currentTimeMillis()}")
+
             _groupCreateResponse.postValue(response)
         }
     }
 
-    fun getAllMyGroups(userId: Long){
+    fun getAllMyGroups(userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = useCase.fetchLoggedInUserGroups(userId)
             _getAllGroups.postValue(result)
         }
     }
 
-    suspend fun getProfile(groupId: Long): Bitmap?{
+    suspend fun getProfile(groupId: Long): Bitmap? {
         val result = profilePictureUseCase.getProfileImage(ImageDirectoryType.Group(groupId))
-        return when(result){
+        return when (result) {
             is PresentationLayerResponse.Success -> {
                 result.data
             }
@@ -65,7 +116,6 @@ class GroupViewModel(
             }
         }
     }
-
 
 
     companion object {
@@ -78,8 +128,9 @@ class GroupViewModel(
                     application!!.applicationContext as KanakuBookApplication
                 val useCase = applicationDataInjection.userUseCaseOfGroupUseCase
                 val profileUseCase = applicationDataInjection.profilePictureUseCase
+                val groupExpenseUseCase = applicationDataInjection.groupExpenseUseCase
 
-                return GroupViewModel(useCase,profileUseCase) as T
+                return GroupViewModel(useCase, profileUseCase,groupExpenseUseCase) as T
             }
         }
     }

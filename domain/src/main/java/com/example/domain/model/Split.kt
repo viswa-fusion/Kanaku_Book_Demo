@@ -1,11 +1,9 @@
 package com.example.domain.model
 
-import com.example.domain.enum.PaidStatus
+import com.example.domain.Converters.PaidStatus
 
-data class Split(
-    val id: Long,
-    val expense: Expense,
-    val userData: UserData,
-    val amount: Double,
-    val paidStatus: com.example.domain.enum.PaidStatus
+data class SplitEntry(
+    val splitUserId: Long,
+    val splitAmount: Double,
+    val paidStatus: PaidStatus,
 )

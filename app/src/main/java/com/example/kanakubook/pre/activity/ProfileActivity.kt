@@ -1,13 +1,14 @@
 package com.example.kanakubook.pre.activity
 
+
 import android.content.Intent
-import android.os.Binder
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.data.util.PreferenceHelper
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.ProfilePageActivityBinding
 import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.pre.fragment.MultiUserPickListFragment
 
 class ProfileActivity: AppCompatActivity() {
 
@@ -28,6 +29,7 @@ class ProfileActivity: AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
     }
 
     override fun finish() {

@@ -9,6 +9,7 @@ import com.example.kanakubook.R
 import com.example.kanakubook.pre.fragment.LoginScreenFragment
 import com.example.kanakubook.databinding.AppEntryPointActivityBinding
 import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.util.DefaultDataInjection
 
 class AppEntryPoint : AppCompatActivity() {
 
@@ -22,6 +23,10 @@ class AppEntryPoint : AppCompatActivity() {
         binding = AppEntryPointActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (!preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_DEFAULT_DATA_INJECTED)){
+            DefaultDataInjection(applicationContext).addDefault()
+            preferenceHelper.writeBooleanToPreference(KanakuBookApplication.PREF_DEFAULT_DATA_INJECTED,true)
+        }
         if(savedInstanceState == null){
             if(preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)){
                 val intent = Intent(this,MainActivity::class.java)
