@@ -23,4 +23,5 @@ data class UserProfileSummary(
     val phone: Long
 ){
     var profile: Bitmap? = null
+    var connectionId: Long? = null
 }

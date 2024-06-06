@@ -9,6 +9,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.example.data.util.PreferenceHelper
 import com.example.domain.usecase.response.PresentationLayerResponse
@@ -45,7 +47,8 @@ class LoginScreenFragment: Fragment(R.layout.login_screen_fragment) {
 
         binding.signUp.setOnClickListener {
             parentFragmentManager.commit {
-                add(R.id.fragment_container_view, SignUpScreenFragment())
+                val frag = SignUpScreenFragment()
+                replace(R.id.fragment_container_view, frag)
                 addToBackStack("signUpFragment")
             }
         }
@@ -55,20 +58,31 @@ class LoginScreenFragment: Fragment(R.layout.login_screen_fragment) {
         viewModel.userDataDetails.observe(viewLifecycleOwner){
             when(it){
                 is PresentationLayerResponse.Success -> {
-                    preferenceHelper.writeLongToPreference(KanakuBookApplication.PREF_USER_ID,it.data.userId)
-                    preferenceHelper.writeBooleanToPreference(KanakuBookApplication.PREF_IS_USER_LOGIN,true)
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.putExtra("userId", it.data.userId)
-                    Log.i(TAG,"data : ${it.data}")
-                    requireActivity().startActivity(intent)
-                    requireActivity().finish()
+                   login(it.data.userId)
+                    Toast.makeText(context,"Login successful!", Toast.LENGTH_SHORT).show()
                 }
 
                 is PresentationLayerResponse.Error -> {
                     Log.i(TAG,"data : ${it.message}")
-                    Toast.makeText(context,"error :  ${it.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,"error", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+        requireActivity().supportFragmentManager.setFragmentResultListener("userIdFromSignUp",viewLifecycleOwner){a,b ->
+            if(a == "userIdFromSignUp"){
+                val userId = b.getLong("userId")
+                if (userId > 0) login(userId)
+            }
+        }
+
+    }
+
+    private fun login(userId: Long){
+        preferenceHelper.writeLongToPreference(KanakuBookApplication.PREF_USER_ID,userId)
+        preferenceHelper.writeBooleanToPreference(KanakuBookApplication.PREF_IS_USER_LOGIN,true)
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra("userId", userId)
+        requireActivity().startActivity(intent)
+        requireActivity().finish()
     }
 }

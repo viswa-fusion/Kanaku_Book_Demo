@@ -23,6 +23,9 @@ class UserViewModel(
     private val _userData = MutableLiveData<List<UserProfileSummary>>()
     val userData : LiveData<List<UserProfileSummary>> = _userData
 
+    private val _allUserData = MutableLiveData<PresentationLayerResponse<List<UserProfileSummary>>>()
+    val allUserData : LiveData<PresentationLayerResponse<List<UserProfileSummary>>> = _allUserData
+
     fun getUser(userId: List<Long>){
         val members = mutableListOf<UserProfileSummary>()
         viewModelScope.launch(Dispatchers.IO) {
@@ -42,6 +45,13 @@ class UserViewModel(
                 }
             }
             _userData.postValue(members)
+        }
+    }
+
+
+    fun getAllKanakuBookUsers(userId: Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            _allUserData.postValue(useCase.getAllKanakuBookUsers(userId))
         }
     }
     companion object{

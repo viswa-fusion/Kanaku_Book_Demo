@@ -25,7 +25,8 @@ class GroupUseCaseImpl(private val repo: GroupRepositoryFunctionProviderDelegate
                             )
                         })
                 }
-                PresentationLayerResponse.Success(data)
+                val sortedData = data.sortedByDescending { it.lastActiveTime }
+                PresentationLayerResponse.Success(sortedData)
             }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error("Authentication Failed")
         }

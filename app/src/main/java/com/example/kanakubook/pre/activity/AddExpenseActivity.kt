@@ -3,7 +3,6 @@ package com.example.kanakubook.pre.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -14,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
+import com.example.data.entity.ExpenseType
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.usecase.response.PresentationLayerResponse
@@ -22,6 +22,7 @@ import com.example.kanakubook.databinding.AddExpenseScreenActivityBinding
 import com.example.kanakubook.pre.KanakuBookApplication
 import com.example.kanakubook.pre.adapter.SplitListAdapter
 import com.example.kanakubook.pre.fragment.SplitUserListFragment
+import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
 import com.example.kanakubook.pre.viewmodel.UserViewModel
 import com.example.kanakubook.util.NumberTextWatcher
@@ -34,10 +35,12 @@ class AddExpenseActivity : AppCompatActivity() {
     private lateinit var membersId: List<Long>
     private val userViewModel: UserViewModel by viewModels { UserViewModel.FACTORY }
     private val groupViewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
+    private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private var members: List<UserProfileSummary>? = null
     private var isFragmentAdded = false
-    private var groupId: Long = 0
+    private var id: Long = 0
     private lateinit var preferenceHelper: PreferenceHelper
+    private lateinit var expenseType: ExpenseType
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +55,7 @@ class AddExpenseActivity : AppCompatActivity() {
         }
         preferenceHelper = PreferenceHelper(this)
         binding.mainButton.isEnabled = false
-        setObserve()
+
 
         val bundle = intent.getBundleExtra("bundleFromDetailPage")
         bundle?.let {
@@ -60,7 +63,17 @@ class AddExpenseActivity : AppCompatActivity() {
                 membersId = data
             }
         }
-        groupId = intent.getLongExtra("groupId",-1L)
+        id = intent.getLongExtra("groupId", -1L).let {
+            if (it == -1L) {
+                intent.getLongExtra("connectionId",-1)
+            }else it
+        }
+        expenseType = if (intent.getBooleanExtra(
+                "ExpenseType",
+                false
+            )
+        ) ExpenseType.FriendsExpense else ExpenseType.GroupExpense
+        setObserve()
         getMembersDetail()
         binding.amount.addTextChangedListener(NumberTextWatcher(binding.amount) {
             binding.mainButton.isEnabled = it
@@ -110,17 +123,34 @@ class AddExpenseActivity : AppCompatActivity() {
         }
 
         binding.submitButton.setOnClickListener {
+            showLoading()
             val finalList = fragment.getList()
             val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
-            groupViewModel.createExpense(
-                groupId,
-                getLoggedUserId(),
-                totalAmount,
-                binding.note.text.toString(),
-                finalList.map {
-                    Pair(it.userId,it.amount.toDouble())
+            when(expenseType){
+                ExpenseType.GroupExpense -> {
+                    groupViewModel.createExpense(
+                        id,
+                        getLoggedUserId(),
+                        totalAmount,
+                        binding.note.text.toString(),
+                        finalList.map {
+                            Pair(it.userId, it.amount.toDouble())
+                        }
+                    )
                 }
-            )
+
+                ExpenseType.FriendsExpense -> {
+                    friendsViewModel.createExpense(
+                        id,
+                        getLoggedUserId(),
+                        totalAmount,
+                        binding.note.text.toString(),
+                        finalList.map {
+                            Pair(it.userId, it.amount.toDouble())
+                        }
+                    )
+                }
+            }
 
         }
 
@@ -139,19 +169,42 @@ class AddExpenseActivity : AppCompatActivity() {
             members = it
         }
 
+        when(expenseType ){
+            ExpenseType.GroupExpense -> {
+                groupViewModel.groupExpenseCreateResponse.observe(this) {
+                    when (it) {
+                        is PresentationLayerResponse.Success -> {
+                            Toast.makeText(this, "split added", Toast.LENGTH_SHORT).show()
+                            hideLoading()
+                            setResult(Activity.RESULT_OK)
+                        }
 
-        groupViewModel.groupExpenseCreateResponse.observe(this){
-            when(it){
-                is PresentationLayerResponse.Success -> {
-                    Toast.makeText(this,"split added",Toast.LENGTH_SHORT).show()
-                    setResult(Activity.RESULT_OK)
-                }
-                is PresentationLayerResponse.Error -> {
-                    Toast.makeText(this,"something went wrong",Toast.LENGTH_SHORT).show()
+                        is PresentationLayerResponse.Error -> {
+                            Toast.makeText(this, "something went wrong", Toast.LENGTH_SHORT).show()
 
+                        }
+                    }
+                    finish()
                 }
             }
-            finish()
+
+            ExpenseType.FriendsExpense ->{
+                friendsViewModel.friendsExpenseCreateResponse.observe(this){
+                    when (it) {
+                        is PresentationLayerResponse.Success -> {
+                            Toast.makeText(this, "split added", Toast.LENGTH_SHORT).show()
+                            hideLoading()
+                            setResult(Activity.RESULT_OK)
+                        }
+
+                        is PresentationLayerResponse.Error -> {
+                            Toast.makeText(this, "something went wrong", Toast.LENGTH_SHORT).show()
+
+                        }
+                    }
+                    finish()
+                }
+            }
         }
     }
 
@@ -192,7 +245,7 @@ class AddExpenseActivity : AppCompatActivity() {
         }
     }
 
-    private fun getLoggedUserId() :Long{
+    private fun getLoggedUserId(): Long {
         if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
             val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
             return userId
@@ -203,6 +256,14 @@ class AddExpenseActivity : AppCompatActivity() {
             finish()
             return -1
         }
+    }
+
+    private fun showLoading() {
+        binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
+    }
+
+    private fun hideLoading() {
+        binding.loadingScreen.loadingScreen.visibility = View.GONE
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.kanakubook.pre.adapter
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -12,8 +13,12 @@ import com.example.kanakubook.R
 import com.example.kanakubook.databinding.ExpenseLeftCardBinding
 import com.example.kanakubook.databinding.ExpenseRightCardBinding
 import com.example.kanakubook.pre.KanakuBookApplication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class ExpenseDetailScreenAdapter(val context: Context) :
+class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var loggedUserId: Long? = null
     private val preferenceHelper = PreferenceHelper(context)
@@ -51,7 +56,7 @@ class ExpenseDetailScreenAdapter(val context: Context) :
 
     fun updateData(dataResponse: List<ExpenseData>) {
         asyncListDiffer.submitList(dataResponse)
-        notifyItemInserted(dataResponse.size-1)
+        notifyItemInserted(dataResponse.size -1)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -62,19 +67,20 @@ class ExpenseDetailScreenAdapter(val context: Context) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType){
-            RIGHT_CARD ->{
+        return when (viewType) {
+            RIGHT_CARD -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.expense_right_card, parent, false)
                 RightViewHolder(ExpenseRightCardBinding.bind(view))
             }
 
-            LEFT_CARD ->{
+            LEFT_CARD -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.expense_left_card, parent, false)
                 LeftViewHolder(ExpenseLeftCardBinding.bind(view))
             }
-            else -> throw(Exception())
+
+            else -> throw (Exception())
         }
     }
 
@@ -82,7 +88,7 @@ class ExpenseDetailScreenAdapter(val context: Context) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = asyncListDiffer.currentList[position]
-        when(holder){
+        when (holder) {
             is RightViewHolder -> holder.bind(item)
             is LeftViewHolder -> holder.bind(item)
         }
@@ -91,14 +97,38 @@ class ExpenseDetailScreenAdapter(val context: Context) :
 
     inner class LeftViewHolder(val binding: ExpenseLeftCardBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        var bindImageReferenceCheck = -1L
+
+        private fun resetViewHolder() {
+            bindImageReferenceCheck = -1
+            binding.note.text = ""
+            binding.ownerName.text = ""
+            binding.amount.text = ""
+            binding.ownerProfile.setImageResource(R.drawable.default_profile_image)
+        }
 
         fun bind(item: ExpenseData) {
-            val amount = rupeeSymbol + item.listOfSplits.find { it.splitUserId == loggedUserId }?.splitAmount.toString()
+            bindImageReferenceCheck = item.expenseId
+            val amount =
+                rupeeSymbol + item.listOfSplits.find { it.splitUserId == loggedUserId }?.splitAmount.toString()
             binding.amount.text = amount
             if (!item.note.isNullOrEmpty()) {
                 binding.note.text = item.note
             }
             binding.ownerName.text = item.spender.name
+            if (item.spender.profile != null) {
+                binding.ownerProfile.setImageBitmap(item.spender.profile)
+            } else {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val bitmap = callback.getProfile(item.spender.userId)
+                    item.spender.profile = bitmap
+                    withContext(Dispatchers.Main) {
+                        if (bindImageReferenceCheck == item.expenseId && item.spender.profile != null) {
+                            binding.ownerProfile.setImageBitmap(item.spender.profile)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -108,9 +138,13 @@ class ExpenseDetailScreenAdapter(val context: Context) :
             if (!item.note.isNullOrEmpty()) {
                 binding.note.text = item.note
             }
-            val amount = rupeeSymbol + item.listOfSplits.find { it.splitUserId == loggedUserId }?.splitAmount.toString()
+            val amount = rupeeSymbol + item.totalAmount
             binding.amount.text = amount
 
         }
+    }
+
+    fun interface Callback {
+        suspend fun getProfile(userId: Long): Bitmap?
     }
 }

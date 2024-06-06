@@ -20,7 +20,7 @@ interface UserRepository {
         suspend fun addFriend(userId: Long, friendId: Long): DataLayerResponse<Boolean>
         suspend fun getFriendsOfUser(userId: Long): DataLayerResponse<List<UserProfileSummary>>
         suspend fun getUserProfileSummeryByUserId(userId: Long): DataLayerResponse<UserProfileSummary>
-        suspend fun getAllUsers(): DataLayerResponse<List<UserProfileSummary>>
+        suspend fun getAllUsersExceptMyFriends(userId: Long): DataLayerResponse<List<UserProfileSummary>>
     }
 
 

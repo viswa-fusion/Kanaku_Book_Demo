@@ -57,7 +57,7 @@
             app:layout_constraintTop_toBottomOf="@+id/layout_name">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/amount"
+                android:id="@+id/edit_text_phone_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="phone" />
@@ -127,5 +127,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_sign_up"/>
+
+        <include android:id="@+id/loadingScreen"
+            layout="@layout/loading_screen"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

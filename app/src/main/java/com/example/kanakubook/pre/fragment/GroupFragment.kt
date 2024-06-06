@@ -44,9 +44,13 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         preferenceHelper = PreferenceHelper(context)
     }
 
+    override fun onResume() {
+        super.onResume()
+        getGroupList()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getGroupList()
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

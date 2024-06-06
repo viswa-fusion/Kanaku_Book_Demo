@@ -6,11 +6,13 @@ import com.example.domain.helper.DateTimeHelper
 import com.example.domain.model.ExpenseData
 import com.example.domain.model.ExpenseEntry
 import com.example.domain.model.SplitEntry
+import com.example.domain.repository.GroupRepository
 import com.example.domain.repository.SplitExpenseRepository
 import com.example.domain.repository.response.DataLayerResponse
 import com.example.domain.usecase.response.PresentationLayerResponse
 
 class SplitExpenseUseCaseImpl(
+    private val updateGroup: GroupRepository.Info,
     private val splitGroupExpenseRepository: SplitExpenseRepository.GroupExpense,
     private val splitFriendsExpenseRepository: SplitExpenseRepository.FriendExpense,
 ) : SplitExpenseUseCase.GroupExpense, SplitExpenseUseCase.FriendsExpense {
@@ -21,10 +23,11 @@ class SplitExpenseUseCaseImpl(
         note: String,
         splitList: List<Pair<Long, Double>>
     ): PresentationLayerResponse<Boolean> {
+        val time = DateTimeHelper.getCurrentTime()
         val expense = ExpenseEntry(
             CryptoHelper.decrypt(ownerId),
             totalAmount,
-            DateTimeHelper.getCurrentTime(),
+            time,
             note
         )
         val listOfSplit = splitList.map {
@@ -36,7 +39,10 @@ class SplitExpenseUseCaseImpl(
         }
 
         return when(val result = splitGroupExpenseRepository.insertGroupExpenseWithSplits(CryptoHelper.decrypt(groupId), expense, listOfSplit)){
-            is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
+            is DataLayerResponse.Success -> {
+                updateGroup.updateGroupActiveTime(CryptoHelper.decrypt(groupId), time)
+                PresentationLayerResponse.Success(result.data)
+            }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
         }
     }
@@ -88,7 +94,8 @@ class SplitExpenseUseCaseImpl(
     }
 
     override suspend fun getFriendsExpenseById(connectionId: Long): PresentationLayerResponse<List<ExpenseData>> {
-        return when(val result = splitFriendsExpenseRepository.getFriendExpenseWithSplitsByConnectionId(connectionId)){
+
+        return when(val result = splitFriendsExpenseRepository.getFriendExpenseWithSplitsByConnectionId(CryptoHelper.decrypt(connectionId))){
             is DataLayerResponse.Success -> {
                 val encryptData = result.data.map {
                     it.copy(
@@ -101,7 +108,8 @@ class SplitExpenseUseCaseImpl(
                     )
 
                 }
-                PresentationLayerResponse.Success(encryptData)
+                val sortedData = encryptData.sortedByDescending { it.date }
+                PresentationLayerResponse.Success(sortedData)
             }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
         }

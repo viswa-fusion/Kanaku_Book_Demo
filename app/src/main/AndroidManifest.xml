@@ -25,7 +25,9 @@
         <activity android:name=".pre.activity.MainActivity" />
         <activity android:name=".pre.activity.ProfileActivity" />
         <activity android:name=".pre.activity.AddFriendActivity"/>
-        <activity android:name=".pre.activity.AddGroupActivity"/>
+        <activity
+            android:name=".pre.activity.AddGroupActivity"
+            android:windowSoftInputMode="adjustResize|stateUnchanged"/>
         <activity android:name=".pre.activity.FriendDetailPageActivity"/>
         <activity android:name=".pre.activity.GroupDetailPageActivity"/>
         <activity android:name=".pre.activity.AddExpenseActivity"/>

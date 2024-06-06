@@ -13,8 +13,10 @@ import com.example.domain.model.UserProfileSummary
 import com.example.domain.repository.UserRepository
 import com.example.domain.repository.response.DataLayerErrorCode
 import com.example.domain.repository.response.DataLayerResponse
-import com.example.kanakunote.data_layer.crossreference.FriendsConnectionCrossRef
+import com.example.data.crossreference.FriendsConnectionCrossRef
+import kotlinx.coroutines.delay
 import java.io.File
+import kotlin.random.Random
 
 class UserRepositoryImpl(
     private val userDao: UserDao,
@@ -29,7 +31,10 @@ class UserRepositoryImpl(
             return fileDir
         }
 
-    override suspend fun insertUser(userEntryData: UserEntryData, password: String): DataLayerResponse<Long> {
+    override suspend fun insertUser(
+        userEntryData: UserEntryData,
+        password: String
+    ): DataLayerResponse<Long> {
         val userEntity = userEntryData.toUserEntity(password)
         return userDao.insertUser(userEntity).run {
             if (this > 0) DataLayerResponse.Success(this)
@@ -75,23 +80,26 @@ class UserRepositoryImpl(
     }
 
     override suspend fun addFriend(userId: Long, friendId: Long): DataLayerResponse<Boolean> {
-        val friendsConnectionCrossRef = FriendsConnectionCrossRef(userId, friendId)
-        Log.i("testData", "data : $friendsConnectionCrossRef")
-        return userDao.insertFriendsConnection(friendsConnectionCrossRef).run {
-            DataLayerResponse.Success(true)
-        }
+        val friendsConnectionCrossRefMe = FriendsConnectionCrossRef(userId, friendId)
+
+        Log.i("testData", "data : $friendsConnectionCrossRefMe")
+//        try {
+            userDao.insertFriendsConnection(friendsConnectionCrossRefMe)
+//        } catch (e: Exception) {
+//            println(e.stackTrace)
+//        }
+        return DataLayerResponse.Success(true)
     }
 
     override suspend fun getFriendsOfUser(userId: Long): DataLayerResponse<List<UserProfileSummary>> {
-
         val userProfileSummaryList = mutableListOf<UserProfileSummary>()
 
-        userDao.getFriendsOfUser(userId).forEach {
+        userDao.getFriendsWithConnectionId(userId).forEach {
             val profilePath = File(
                 userProfileImageFileDir,
-                "${it.userId}${StorageHelper.IMAGE_TYPE_JPG}"
+                "${it.userEntity.userId}${StorageHelper.IMAGE_TYPE_JPG}"
             ).absolutePath
-            userProfileSummaryList.add(it.toUserProfileSummery())
+            userProfileSummaryList.add(it.userEntity.toUserProfileSummery(it.connectionId))
         }
         return DataLayerResponse.Success(userProfileSummaryList)
     }
@@ -110,8 +118,8 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun getAllUsers(): DataLayerResponse<List<UserProfileSummary>> {
-        return userDao.getAllUsers().run {
+    override suspend fun getAllUsersExceptMyFriends(userId: Long): DataLayerResponse<List<UserProfileSummary>> {
+        return userDao.getAllUsersExceptMyFriends(userId).run {
             val list = mutableListOf<UserProfileSummary>()
             this.forEach {
                 val profilePath = File(

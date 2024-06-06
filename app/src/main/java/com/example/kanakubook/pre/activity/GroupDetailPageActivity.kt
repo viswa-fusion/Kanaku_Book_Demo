@@ -17,6 +17,7 @@ import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.DetailPageActivityBinding
 import com.example.kanakubook.pre.adapter.ExpenseDetailScreenAdapter
+import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,14 +27,15 @@ class GroupDetailPageActivity : AppCompatActivity() {
 
     private lateinit var binding: DetailPageActivityBinding
     private val viewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
+    private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private lateinit var members: List<Long>
-    private var groupId : Long = 0
-    private val groupViewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
-    private val addExpenseActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode == Activity.RESULT_OK){
-            groupViewModel.getAllExpenseByGroupId(groupId)
+    private var groupId: Long = 0
+    private val addExpenseActivityResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                viewModel.getAllExpenseByGroupId(groupId)
+            }
         }
-    }
     private lateinit var adapter: ExpenseDetailScreenAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,27 +43,29 @@ class GroupDetailPageActivity : AppCompatActivity() {
         initialSetUp()
         setListener()
         setObserver()
-        groupViewModel.getAllExpenseByGroupId(groupId)
+        viewModel.getAllExpenseByGroupId(groupId)
     }
 
     private fun setObserver() {
-        groupViewModel.getAllGroupExpenseResponse.observe(this){
-            when(it){
+        viewModel.getAllGroupExpenseResponse.observe(this) {
+            when (it) {
                 is PresentationLayerResponse.Success -> {
-                    if (it.data.isEmpty()){
+                    if (it.data.isEmpty()) {
                         binding.emptyTemplate.emptyTemplate.visibility = View.VISIBLE
-                    }else{
+                    } else {
                         binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
                         adapter.updateData(it.data)
+                        binding.recyclerview.smoothScrollToPosition(0)
                     }
 
                     it.data.forEach {
-                        Log.i("dataTest","test : $it")
+                        Log.i("dataTest", "test : $it")
                     }
 
                 }
+
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(this,"fail", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -73,7 +77,9 @@ class GroupDetailPageActivity : AppCompatActivity() {
             val bundle = Bundle()
             bundle.putLongArray("members", members.toLongArray())
             intent.putExtra("bundleFromDetailPage", bundle)
-            intent.putExtra("groupId",groupId)
+            intent.putExtra("groupId", groupId)
+            intent.putExtra("ExpenseType",false)
+
             addExpenseActivityResult.launch(intent)
         }
     }
@@ -117,7 +123,9 @@ class GroupDetailPageActivity : AppCompatActivity() {
             }
         }
 
-        adapter = ExpenseDetailScreenAdapter(this)
+        adapter = ExpenseDetailScreenAdapter(this) {
+            friendsViewModel.getProfile(it)
+        }
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
         binding.recyclerview.layoutManager = layoutManager
         binding.recyclerview.adapter = adapter

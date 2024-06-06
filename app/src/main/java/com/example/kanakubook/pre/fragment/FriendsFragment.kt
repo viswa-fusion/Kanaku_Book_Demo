@@ -178,6 +178,8 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                 intent.putExtra("name",userProfileSummary.name)
                 intent.putExtra("phone",userProfileSummary.phone)
                 intent.putExtra("userId",userProfileSummary.userId)
+                val c = userProfileSummary.connectionId
+                intent.putExtra("connectionId",userProfileSummary.connectionId)
 
                 startActivity(intent)
             }
@@ -186,4 +188,4 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
     }
 
 }
-
+//94349

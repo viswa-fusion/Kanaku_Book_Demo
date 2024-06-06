@@ -7,6 +7,7 @@ import android.util.Log
 import com.example.data.database.ApplicationDatabase
 import com.example.data.repositoryImpl.UserRepositoryImpl
 import com.example.data.util.StorageHelper
+import com.example.domain.helper.CryptoHelper
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.StorageHelperImpl
@@ -26,8 +27,10 @@ class DefaultDataInjection(val context: Context) {
     private val ob = context as KanakuBookApplication
     private val db = ApplicationDatabase.getDatabase(context)
     private val viewModel = SignUpViewModel(ob.signUpUseCase)
-    private val photoViewModel = FriendsViewModel(ob.friendsUseCase, ob.profilePictureUseCase)
-    private val repo = UserRepositoryImpl(db.getMyUserDao(),db.getMyProfilePhotoDao(),StorageHelperImpl(context))
+    private val photoViewModel =
+        FriendsViewModel(ob.friendsUseCase, ob.profilePictureUseCase, ob.friendsExpenseUseCase)
+    private val repo =
+        UserRepositoryImpl(db.getMyUserDao(), db.getMyProfilePhotoDao(), StorageHelperImpl(context))
 
     private data class DefaultData(
         val name: String,
@@ -37,7 +40,6 @@ class DefaultDataInjection(val context: Context) {
     )
 
     fun addDefault() {
-
         setObserver()
         val faker = Faker()
         val dataList = mutableListOf<DefaultData>()
@@ -52,11 +54,8 @@ class DefaultDataInjection(val context: Context) {
 
         dataList.forEach {
             viewModel.signUp(it.name, it.phone, it.password, it.repeatPassword)
-            Log.i("initialData123","data : ${it.phone}")
+            Log.i("initialData123", "data : ${it.phone}")
         }
-
-
-
     }
 
     private fun setObserver() {
@@ -71,20 +70,18 @@ class DefaultDataInjection(val context: Context) {
         var userid: Long? = null
         viewModel.userId.observeForever {
             if (it is PresentationLayerResponse.Success) {
-                if (userid == null){
-                    userid = it.data
-                }else{
+                if (userid == null) {
+                    userid = CryptoHelper.decrypt(it.data)
+                } else {
                     CoroutineScope(Dispatchers.IO).launch {
-                        repo.addFriend(userid!!,it.data)
+                        repo.addFriend(userid!!, CryptoHelper.decrypt(it.data))
                     }
                 }
-                    val photoId = listOfProfile[Random.nextInt(0, 5)]
-                    val photo = BitmapFactory.decodeResource(context.resources, photoId)
-                    photoViewModel.addProfile(it.data, photo)
-                    Log.i("initialData321","data : ${it.data}")
+                val photoId = listOfProfile[Random.nextInt(0, 5)]
+                val photo = BitmapFactory.decodeResource(context.resources, photoId)
+                photoViewModel.addProfile(CryptoHelper.decrypt(it.data), photo)
+                Log.i("initialData321", "data : ${it.data}")
             }
-
         }
     }
-
 }

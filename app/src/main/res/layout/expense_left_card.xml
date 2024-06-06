@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         app:cardCornerRadius="25dp"
-        android:elevation="5dp"
+        android:elevation="10dp"
         android:minHeight="200dp"
         android:clickable="true"
         android:focusable="true"

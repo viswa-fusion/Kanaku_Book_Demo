@@ -1,6 +1,7 @@
 package com.example.kanakubook.pre.fragment
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -12,9 +13,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.data.util.PreferenceHelper
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.SignUpScreenFragmentBinding
+import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.pre.activity.MainActivity
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.SignUpViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,16 +27,23 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.random.Random
 
+
 class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
 
     private lateinit var binding: SignUpScreenFragmentBinding
+    private lateinit var preferenceHelper : PreferenceHelper
 
     private val viewModel: SignUpViewModel by viewModels { SignUpViewModel.FACTORY }
-    private val vm: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private var profileUri: Uri? = null
     private val PROFILE_URI_KEY = "profile_uri"
     private var isBottomSheetOpen = false
     private val TAG = "Tag"
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        preferenceHelper = PreferenceHelper(context)
+    }
 
     private val startActivityResultForProfilePhoto =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -51,28 +62,21 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
         super.onViewCreated(view, savedInstanceState)
         binding = SignUpScreenFragmentBinding.bind(view)
         setObserver()
+        setListener()
+    }
 
-
-
-
+    private fun setListener() {
         binding.imageProfile.setOnClickListener {
             selectImageFromGallery()
         }
         binding.buttonSignUp.setOnClickListener {
-            for (i in 1..100) {
-                viewModel.signUp(
-                    "viswa$i",
-                    9487212880 + i,
-                    "Test@123",
-                    "Test@123"
-                )
-            }
-//            saveUserData(
-//                binding.editTextName.text.toString(),
-//                binding.editTextPhoneNumber.text.toString().toLong(),
-//                binding.editTextPassword.text.toString(),
-//                binding.editTextRepeatPassword.text.toString(),
-//            )
+            showLoading()
+            viewModel.signUp(
+                binding.editTextName.text.toString(),
+                binding.editTextPhoneNumber.text.toString().toLong(),
+                binding.editTextPassword.text.toString(),
+                binding.editTextRepeatPassword.text.toString(),
+            )
         }
 
         binding.goBack.setOnClickListener {
@@ -107,21 +111,34 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
     }
 
     private fun setObserver() {
-        val listOfProfile = listOf(
-            R.raw.dummy_img_1,
-            R.raw.dummy_img_2,
-            R.raw.dummy_img_3,
-            R.raw.dummy_img_4,
-            R.raw.dummy_img_5,
-            R.raw.dummy_img_6
-        )
         viewModel.userId.observe(viewLifecycleOwner) {
-            val photoId = listOfProfile[Random.nextInt(0, 5)]
-            val photo = BitmapFactory.decodeResource(resources, photoId)
-            if (it is PresentationLayerResponse.Success) {
-                vm.addProfile(it.data, photo)
-            }
-        }
+            when (it) {
+                is PresentationLayerResponse.Success -> {
+                    hideLoading()
+                    preferenceHelper.writeLongToPreference(KanakuBookApplication.PREF_USER_ID,it.data)
+                    preferenceHelper.writeBooleanToPreference(KanakuBookApplication.PREF_IS_USER_LOGIN,true)
+                    val intent = Intent(context, MainActivity::class.java)
+                    intent.putExtra("userId", it.data)
+                    requireActivity().startActivity(intent)
+                    Toast.makeText(requireActivity(),"Signup successful",Toast.LENGTH_SHORT).show()
+                    requireActivity().finish()
+                }
 
+                is PresentationLayerResponse.Error -> {
+                    Toast.makeText(requireActivity(),"Signup failed",Toast.LENGTH_SHORT).show()
+                }
+            }
+
+        }
     }
+
+    private fun showLoading() {
+        binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
+    }
+
+    private fun hideLoading() {
+        binding.loadingScreen.loadingScreen.visibility = View.GONE
+    }
+
+
 }

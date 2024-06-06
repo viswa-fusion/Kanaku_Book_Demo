@@ -23,5 +23,9 @@ interface GroupDao {
     @Transaction
     @Query("SELECT * FROM groups WHERE groupId IN (SELECT groupId FROM GroupMemberCrossRef WHERE userId = :userId)")
     fun getGroupsWithMembersByUserId(userId: Long): List<GroupWithMembers>
+
+    @Transaction
+    @Query("UPDATE groups SET lastActive = :time WHERE groupId = :groupId")
+    fun updateGroupActiveTime(groupId: Long, time: Long)
 }
 

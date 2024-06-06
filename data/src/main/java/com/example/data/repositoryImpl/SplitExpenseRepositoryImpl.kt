@@ -48,7 +48,9 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
     }
 
     override suspend fun getFriendExpenseWithSplitsByConnectionId(connectionId: Long): DataLayerResponse<List<ExpenseData>> {
-        val data = commonGetOfExpenseAndSplit(connectionId, ExpenseType.GroupExpense)
+        val c = connectionId+1
+        val s =c
+        val data = commonGetOfExpenseAndSplit(connectionId, ExpenseType.FriendsExpense)
 
         return data
 

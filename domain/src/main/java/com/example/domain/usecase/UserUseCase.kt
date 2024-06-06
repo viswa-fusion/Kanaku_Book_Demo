@@ -11,6 +11,7 @@ import com.example.domain.usecase.response.PresentationLayerResponse
 interface UserUseCase {
     interface CommonUserUseCase{
         suspend fun getUserById(userId: Long): PresentationLayerResponse<UserProfileSummary>
+        suspend fun getAllKanakuBookUsers(userId: Long): PresentationLayerResponse<List<UserProfileSummary>>
     }
     interface GroupUseCase{
         suspend fun addGroup(name: String, image: Bitmap?, createdBy: Long, memberList: List<Long>): PresentationLayerResponse<Boolean>

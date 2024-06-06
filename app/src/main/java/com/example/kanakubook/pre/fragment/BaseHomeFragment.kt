@@ -27,8 +27,8 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         }
 
         binding.createExpense.setOnClickListener {
-            val intent = Intent(requireActivity(),AddExpenseActivity::class.java)
-            startActivity(intent)
+//            val intent = Intent(requireActivity(),AddExpenseActivity::class.java)
+//            startActivity(intent)
         }
 
     }

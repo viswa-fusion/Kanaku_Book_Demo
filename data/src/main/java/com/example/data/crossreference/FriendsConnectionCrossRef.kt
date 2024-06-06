@@ -1,4 +1,4 @@
-package com.example.kanakunote.data_layer.crossreference
+package com.example.data.crossreference
 
 
 import androidx.room.Entity
@@ -17,7 +17,7 @@ import com.example.data.entity.UserEntity
         ForeignKey(
             entity = UserEntity::class,
             parentColumns = ["userId"],
-            childColumns = ["user2Id"]
+            childColumns = ["user2Id"],
         )
     ],
     indices = [Index(value = ["user1Id"]),Index(value = ["user2Id"])]

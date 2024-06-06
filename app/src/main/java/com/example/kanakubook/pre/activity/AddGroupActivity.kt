@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -86,6 +87,7 @@ class AddGroupActivity : AppCompatActivity() {
 
         when (item.itemId) {
             R.id.done -> {
+                showLoading()
                 val logUserId = loggedInUserId()
                 val groupName = binding.groupname.text.toString()
                 val membersId = friendsViewModel.selectedList.map {
@@ -122,12 +124,14 @@ class AddGroupActivity : AppCompatActivity() {
                 is PresentationLayerResponse.Success -> {
                     Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
                     setResult(RESULT_OK)
+                    hideLoading()
                     finish()
                 }
 
                 is PresentationLayerResponse.Error -> {
                     Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show()
                     setResult(RESULT_CANCELED)
+                    hideLoading()
                     finish()
                 }
             }
@@ -151,7 +155,14 @@ class AddGroupActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title =""
-
         preferenceHelper = PreferenceHelper(this)
+    }
+
+    private fun showLoading(){
+        binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
+    }
+
+    private fun hideLoading(){
+        binding.loadingScreen.loadingScreen.visibility = View.GONE
     }
 }

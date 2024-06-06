@@ -17,6 +17,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
+import java.sql.Time
 
 class RepositoryImpl(
     private val groupDao: GroupDao,
@@ -59,6 +60,8 @@ class RepositoryImpl(
         val listOfGroup = listOfGroupEntity.map { it.toGroupData() }
         return DataLayerResponse.Success(listOfGroup)
     }
+
+    override suspend fun updateGroupActiveTime(groupId: Long, time: Long) = groupDao.updateGroupActiveTime(groupId,time)
 
     override suspend fun saveProfileImage(
         groupId: Long,

@@ -114,7 +114,7 @@ class KanakuBookApplication : Application() {
     }
 
     private val splitExpenseUseCaseImpl: SplitExpenseUseCaseImpl by lazy {
-        SplitExpenseUseCaseImpl(groupExpenseRepository,friendsExpenseRepository)
+        SplitExpenseUseCaseImpl(groupRepository,groupExpenseRepository,friendsExpenseRepository)
     }
 
     val userUseCaseOfGroupUseCase: UserUseCase.GroupUseCase by lazy { groupUseCaseImpl }
@@ -131,4 +131,6 @@ class KanakuBookApplication : Application() {
     val userUseCaseCommonUserUseCase: UserUseCase.CommonUserUseCase by lazy { userUseCaseImpl }
 
     val groupExpenseUseCase : SplitExpenseUseCase.GroupExpense by lazy { splitExpenseUseCaseImpl }
+
+    val friendsExpenseUseCase : SplitExpenseUseCase.FriendsExpense by lazy { splitExpenseUseCaseImpl }
 }

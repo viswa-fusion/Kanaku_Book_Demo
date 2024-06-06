@@ -73,7 +73,12 @@ class MultiUserPickListFragment : Fragment(R.layout.multi_user_pick_list_fragmen
                 val filteredList = listOfMySelectableUserData.filter {
                     it.name.lowercase(Locale.ROOT).contains(searchText)
                 }
-                verticalAdapter.updateData(filteredList)
+                if (filteredList.isEmpty()){
+                    binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
+                }else{
+                    binding.searchNotFound.emptyTemplate.visibility = View.GONE
+                    verticalAdapter.updateData(filteredList)
+                }
             }
         })
     }
@@ -91,7 +96,12 @@ class MultiUserPickListFragment : Fragment(R.layout.multi_user_pick_list_fragmen
                         )
                     }
                     listOfMySelectableUserData = list
-                    verticalAdapter.updateData(list)
+                    if (list.isEmpty()){
+                        binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
+                    }else{
+                        binding.searchNotFound.emptyTemplate.visibility = View.GONE
+                        verticalAdapter.updateData(list)
+                    }
                 }
 
                 is PresentationLayerResponse.Error -> {

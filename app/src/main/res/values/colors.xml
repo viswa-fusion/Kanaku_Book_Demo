@@ -141,6 +141,8 @@
     <color name="md_theme_surfaceContainerHigh_highContrast">#EDE6EC</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#E7E0E6</color>
 
+
+    <color name="searchBackground">#F0F0F0</color>
     <color name="hint_enhance_black">#DA2E2E2E</color>
     <color name="black">#000000</color>
     <color name="black_fade">#212020</color>

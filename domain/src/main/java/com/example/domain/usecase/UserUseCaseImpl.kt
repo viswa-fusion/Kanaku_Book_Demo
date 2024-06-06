@@ -36,7 +36,7 @@ class UserUseCaseImpl(
             password
         )
         return when (val result = userInfoRepo.insertUser(userEntryData, password)) {
-            is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
+            is DataLayerResponse.Success -> PresentationLayerResponse.Success(CryptoHelper.encrypt(result.data))
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
         }
     }
@@ -121,11 +121,10 @@ class UserUseCaseImpl(
         val id = CryptoHelper.decrypt(userId)
         return when(val listOfUsers = userInfoRepo.getFriendsOfUser(id)){
             is DataLayerResponse.Success -> {
-                PresentationLayerResponse.Success(
-                    listOfUsers.data.map{
-                        it.copy(userId = CryptoHelper.encrypt(it.userId))
-                    }
-                )
+                val decryptedList =listOfUsers.data.map{
+                    it.copy(userId = CryptoHelper.encrypt(it.userId)).apply { connectionId = CryptoHelper.encrypt(it.connectionId!!) }
+                }
+                PresentationLayerResponse.Success(decryptedList)
             }
 
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(listOfUsers.errorCode.toString())
@@ -141,5 +140,23 @@ class UserUseCaseImpl(
             }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(user.errorCode.toString())
         }
+    }
+
+    override suspend fun getAllKanakuBookUsers(userId: Long): PresentationLayerResponse<List<UserProfileSummary>> {
+        return when(val list = userInfoRepo.getAllUsersExceptMyFriends(CryptoHelper.decrypt(userId))){
+            is DataLayerResponse.Success -> {
+                val encryptList = list.data.map {
+                    it.copy(
+                        userId = CryptoHelper.encrypt(it.userId)
+                    )
+                }
+                PresentationLayerResponse.Success(encryptList)
+            }
+
+            is DataLayerResponse.Error -> {
+                PresentationLayerResponse.Error(list.errorCode.toString())
+            }
+        }
+
     }
 }

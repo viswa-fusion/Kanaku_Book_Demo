@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import com.example.data.util.PreferenceHelper
 import com.example.kanakubook.R
 import com.example.kanakubook.pre.fragment.LoginScreenFragment
@@ -19,7 +20,6 @@ class AppEntryPoint : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = AppEntryPointActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -34,7 +34,8 @@ class AppEntryPoint : AppCompatActivity() {
                 finish()
             }else {
                 supportFragmentManager.commit {
-                    add(R.id.fragment_container_view, loginScreenFragment)
+                    replace(R.id.fragment_container_view, loginScreenFragment)
+                    setReorderingAllowed(true)
                 }
             }
         }

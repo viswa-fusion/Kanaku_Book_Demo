@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.data.crossreference.ExpenseCrossRef
 import com.example.data.dao.ExpenseDao
-import com.example.kanakunote.data_layer.crossreference.FriendsConnectionCrossRef
+import com.example.data.crossreference.FriendsConnectionCrossRef
 import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
 import com.example.data.dao.SplitDao

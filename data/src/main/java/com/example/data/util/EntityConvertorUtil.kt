@@ -24,12 +24,12 @@ internal fun UserEntryData.toUserEntity(password: String = "fakePassword"): User
     )
 }
 
-internal fun UserEntity.toUserProfileSummery(): UserProfileSummary {
+internal fun UserEntity.toUserProfileSummery(connectionId: Long? = null): UserProfileSummary {
     return UserProfileSummary(
         this.userId,
         this.name,
         this.phone
-    )
+    ).apply { this.connectionId = connectionId }
 }
 
 internal fun UserEntity.toUserProfileData(
