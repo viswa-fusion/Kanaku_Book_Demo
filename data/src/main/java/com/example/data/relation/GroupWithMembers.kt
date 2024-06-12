@@ -3,7 +3,7 @@ package com.example.data.relation
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
+import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.entity.GroupEntity
 import com.example.data.entity.UserEntity
 

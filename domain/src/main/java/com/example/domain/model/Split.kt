@@ -6,4 +6,5 @@ data class SplitEntry(
     val splitUserId: Long,
     val splitAmount: Double,
     val paidStatus: PaidStatus,
+    val paidTime: Long? = null
 )

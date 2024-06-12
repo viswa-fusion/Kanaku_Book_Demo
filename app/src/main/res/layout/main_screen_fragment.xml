@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:splitMotionEvents="false"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -49,35 +50,113 @@
                         android:layout_height="40dp"
                         android:foreground="?android:attr/selectableItemBackground"
                         android:layout_gravity="center"
+                        android:scaleType="centerCrop"
                         android:clickable="true"
                         android:focusable="true"
                         android:clipToOutline="true"
                         app:shapeAppearanceOverlay="@style/roundedShape"
-                        android:src="@drawable/my_profile" />
+                        android:src="@drawable/default_profile_image" />
                 </LinearLayout>
 
             </com.google.android.material.appbar.MaterialToolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
-
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/boxesContainer"
             android:background="@color/white"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             android:splitMotionEvents="false"/>
 
+        <include android:id="@+id/loadingScreen"
+            layout="@layout/loading_screen"
+            />
+        </FrameLayout>
         <include
             android:id="@+id/empty_template"
             layout="@layout/empty_data"
             android:layout_below="@id/boxesContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             android:layout_centerInParent="true"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_anchor="@id/recyclerview"
+            android:elevation="@dimen/spacing_medium"
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+            app:layout_anchorGravity="end|bottom">
+            <View
+                android:id="@+id/blurFadeScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/blur"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="4dp"
+                android:visibility="gone"
+                />
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Group"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:elevation="5dp"
+                app:icon="@drawable/group_add_24px"
+                android:layout_alignParentEnd="true"
+                android:backgroundTint="@color/extended_fab"
+                android:visibility="invisible"
+                android:layout_above="@id/create_expense"/>
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/create_friend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Friend"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:elevation="15dp"
+                android:backgroundTint="@color/extended_fab"
+                android:visibility="invisible"
+                app:icon="@drawable/person_add_24px"
+                android:layout_alignParentEnd="true"
+                android:layout_above="@id/create_expense"/>
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/create_expense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Expense"
+                android:layout_marginVertical="16dp"
+                app:icon="@drawable/add_expense_24px"
+                android:backgroundTint="@color/extended_fab"
+                android:visibility="invisible"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:elevation="5dp"
+                android:layout_alignParentEnd="true"
+                android:layout_above="@id/createFab"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/createFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/spacing_medium"
+                android:contentDescription="Create"
+                android:elevation="5dp"
+                android:src="@drawable/add_plus_24px"
+                android:text="Create"
+                android:visibility="visible"
+                android:layout_alignParentBottom="true"
+                app:shapeAppearanceOverlay="@style/roundedShape"
+                android:layout_alignParentEnd="true"/>
+        </RelativeLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
@@ -134,68 +213,6 @@
 
 
 
-
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/add_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Group"
-        android:layout_marginEnd="@dimen/spacing_small"
-        android:elevation="5dp"
-        app:icon="@drawable/group_add_24px"
-        android:layout_alignParentEnd="true"
-        android:backgroundTint="@color/extended_fab"
-        android:visibility="invisible"
-        android:layout_above="@id/create_expense"/>
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/create_friend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Friend"
-        android:layout_marginEnd="@dimen/spacing_small"
-        android:elevation="15dp"
-        android:backgroundTint="@color/extended_fab"
-        android:visibility="invisible"
-        app:icon="@drawable/person_add_24px"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@id/create_expense"/>
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/create_expense"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create Expense"
-        android:layout_marginVertical="16dp"
-        app:icon="@drawable/add_expense_24px"
-        android:backgroundTint="@color/extended_fab"
-        android:visibility="invisible"
-        android:layout_marginEnd="@dimen/spacing_small"
-        android:elevation="5dp"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@id/createFab"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/createFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/spacing_medium"
-        android:contentDescription="Create"
-        android:elevation="5dp"
-        android:src="@drawable/add_plus_24px"
-        android:text="Create"
-        android:visibility="visible"
-        android:layout_alignParentBottom="true"
-        app:shapeAppearanceOverlay="@style/roundedShape"
-        android:layout_alignParentEnd="true"/>
-    <View
-        android:id="@+id/blurFadeScreen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/blur"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="4dp"
-        android:visibility="gone"
-        />
 </RelativeLayout>
+
+

@@ -13,6 +13,7 @@ class ActivityFragment :  BaseHomeFragment(R.layout.main_screen_fragment) {
 
         binding.createFab.visibility = View.GONE
         binding.boxesContainer.visibility = View.GONE
+        binding.emptyTemplate.emptyTemplate.visibility = View.VISIBLE
 
     }
 

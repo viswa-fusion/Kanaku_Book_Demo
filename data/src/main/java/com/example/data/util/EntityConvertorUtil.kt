@@ -24,12 +24,16 @@ internal fun UserEntryData.toUserEntity(password: String = "fakePassword"): User
     )
 }
 
-internal fun UserEntity.toUserProfileSummery(connectionId: Long? = null): UserProfileSummary {
+internal fun UserEntity.toUserProfileSummery(connectionId: Long? = null, pay:Double=0.0,get:Double=0.0): UserProfileSummary {
     return UserProfileSummary(
         this.userId,
         this.name,
         this.phone
-    ).apply { this.connectionId = connectionId }
+    ).apply {
+        this.connectionId = connectionId
+        this.pay = pay
+        this.get = get
+    }
 }
 
 internal fun UserEntity.toUserProfileData(
@@ -41,7 +45,6 @@ internal fun UserEntity.toUserProfileData(
         this.userId,
         this.name,
         this.phone,
-        profilePhotoFilePath,
         amountToGet,
         amountToGive
     )
@@ -117,5 +120,15 @@ internal fun SplitEntity.toSplitEntry(): SplitEntry{
         this.splitUserId,
         this.splitAmount,
         this.paidStatus
+    )
+}
+
+internal fun UserEntity.toUserProfileData(): UserProfileData {
+    return UserProfileData(
+        this.userId,
+        this.name,
+        this.phone,
+        this.amountToGet,
+        this.amountToGive
     )
 }

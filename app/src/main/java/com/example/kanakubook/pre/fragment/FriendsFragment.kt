@@ -32,7 +32,7 @@ import com.example.kanakubook.util.CustomAnimationUtil
 class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private lateinit var preferenceHelper: PreferenceHelper
-    var isFabRotated = false
+    private var isFabRotated = false
     private val fabViewModel: FabViewModel by activityViewModels()
 
     private val FAB_STATE = "fab state"
@@ -55,6 +55,10 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("check","data: friend:oncreate")
+    }
+
+    override fun onResume() {
+        super.onResume()
         getFriendsList()
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,7 +67,7 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         layoutInitialSetup()
         setListener()
         setObserver()
-
+        showLoading()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -121,6 +125,7 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         }
 
         viewModel.friendsList.observe(viewLifecycleOwner) {
+            hideLoading()
             when (it) {
                 is PresentationLayerResponse.Success -> {
                     if (it.data.isEmpty()) {
@@ -153,6 +158,18 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (isFabRotated) {
+            isFabRotated = CustomAnimationUtil.rotateFab(
+                binding.createFab,
+                binding.blurFadeScreen,
+                isFabRotated
+            )
+            fabViewModel.setFabVisibility(!fabViewModel.fabVisibility.value!!)
+        }
+    }
+
 
 
     private fun getFriendsList() {
@@ -168,7 +185,7 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private fun layoutInitialSetup() {
         binding.boxesContainer.visibility = View.INVISIBLE
-        binding.recyclerview.adapter = FriendsProfileListAdapter(object : FriendsProfileListAdapter.Callbacks{
+        binding.recyclerview.adapter = FriendsProfileListAdapter(requireActivity(),object : FriendsProfileListAdapter.Callbacks{
             override suspend fun getImage(userId: Long): Bitmap? {
                 return viewModel.getProfile(userId)
             }
@@ -187,5 +204,13 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity())
     }
 
+    private fun showLoading() {
+        binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
+    }
+
+    private fun hideLoading() {
+        binding.loadingScreen.loadingScreen.visibility = View.GONE
+    }
+
 }
-//94349
+

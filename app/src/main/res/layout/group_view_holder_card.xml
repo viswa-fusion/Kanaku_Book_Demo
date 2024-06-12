@@ -4,62 +4,78 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"
     android:paddingHorizontal="@dimen/spacing_medium">
 
 
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_marginHorizontal="@dimen/spacing_extra_small"
         android:layout_marginVertical="@dimen/spacing_extra_small"
         android:minHeight="70dp"
+        app:cardBackgroundColor="@color/card_background"
         app:cardCornerRadius="@dimen/spacing_medium"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:padding="@dimen/spacing_small">
+            android:paddingHorizontal="@dimen/spacing_small">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/shapeableImageView2"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:scaleType="centerCrop"
-                android:layout_centerVertical="true"
-                android:src="@drawable/default_group_profile"
                 android:layout_alignParentStart="true"
-                app:shapeAppearanceOverlay="@style/squareEdgeShaped"/>
+                android:scaleType="centerCrop"
+                android:layout_marginVertical="@dimen/spacing_small"
+                android:src="@drawable/default_group_profile"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5"
+                app:shapeAppearanceOverlay="@style/squareEdgeShaped" />
+
             <TextView
                 android:id="@+id/textViewName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="viswa"
-                android:layout_marginStart="@dimen/text_size_medium"
+                android:layout_toStartOf="@+id/textViewAmount"
                 android:layout_toEndOf="@id/shapeableImageView2"
+                android:singleLine="true"
+                android:text="viswa"
+                android:paddingHorizontal="@dimen/spacing_small"
                 android:textColor="@color/black"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textViewAmount"
+                app:layout_constraintStart_toEndOf="@+id/shapeableImageView2"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textViewAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:text="₹500"
                 android:layout_centerVertical="true"
+                android:text="₹500"
                 android:textColor="@color/black"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

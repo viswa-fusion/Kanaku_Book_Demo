@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -41,12 +42,18 @@ class AddFriendActivity : AppCompatActivity() {
         binding = MultiUserPickListFragmentBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.horizontalRecyclerView.visibility = View.GONE
+
+        binding.toolbar.visibility = View.VISIBLE
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(!isTaskRoot)
+        supportActionBar?.title = "Add Friend"
         setObserver()
         preferenceHelper = PreferenceHelper(this)
         adapter = UserListingAdapter(object : UserListingAdapter.Callback {
             override suspend fun getImage(userId: Long): Bitmap? {
                 return viewModel.getProfile(userId)
             }
+
 
             override fun clickListener(user: UserProfileSummary) {
                 showLoading()
@@ -56,7 +63,7 @@ class AddFriendActivity : AppCompatActivity() {
         })
         binding.verticalRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
         binding.verticalRecyclerView.adapter = adapter
-        userViewModel.getAllKanakuBookUsers(getLoggedUserId())
+
 
         binding.searchView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -79,6 +86,8 @@ class AddFriendActivity : AppCompatActivity() {
 
 
 
+
+
 //        binding.button.setOnClickListener {
 //            if(preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
 //                val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
@@ -97,6 +106,19 @@ class AddFriendActivity : AppCompatActivity() {
 //        }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> {
+                finish()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+    override fun onResume() {
+        super.onResume()
+        userViewModel.getAllKanakuBookUsers(getLoggedUserId())
+    }
+
     private fun setObserver() {
 
         userViewModel.allUserData.observe(this) {
@@ -107,12 +129,7 @@ class AddFriendActivity : AppCompatActivity() {
                     } else {
                         binding.searchNotFound.emptyTemplate.visibility = View.GONE
                         listOfMySelectableUserData = it.data
-                        if (it.data.isEmpty()){
-                            binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
-                        }else{
-                            binding.searchNotFound.emptyTemplate.visibility = View.GONE
-                            adapter.updateData(it.data)
-                        }
+                        adapter.updateData(it.data)
                     }
                 }
 

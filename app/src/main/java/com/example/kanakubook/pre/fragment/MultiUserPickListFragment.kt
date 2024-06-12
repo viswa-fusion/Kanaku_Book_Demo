@@ -1,14 +1,18 @@
 package com.example.kanakubook.pre.fragment
 
+import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -22,46 +26,59 @@ import com.example.kanakubook.databinding.MultiUserPickListFragmentBinding
 import com.example.kanakubook.databinding.SearchUserListLayout1Binding
 import com.example.kanakubook.databinding.SearchUserListLayout2Binding
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class MultiUserPickListFragment : Fragment(R.layout.multi_user_pick_list_fragment) {
+class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_pick_list_fragment) {
 
     private lateinit var searchView: EditText
     private lateinit var horizontalRecyclerView: RecyclerView
     private lateinit var verticalRecyclerView: RecyclerView
-
     private val viewModel: FriendsViewModel by activityViewModels { FriendsViewModel.FACTORY }
-
-
-    private var listOfMySelectableUserData = emptyList<MySelectableUserData>()
+    var isForBottomSheet = false
 
 
     private lateinit var binding: MultiUserPickListFragmentBinding
     private lateinit var verticalAdapter: VerticalAdapter
+    private lateinit var horizontalAdapter: HorizontalAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.i("lifecycleTest","onViewCreated")
+
         binding = MultiUserPickListFragmentBinding.bind(view)
         searchView = binding.searchView
         horizontalRecyclerView = binding.horizontalRecyclerView
         verticalRecyclerView = binding.verticalRecyclerView
+
+        if(isForBottomSheet) setForBottomSheet()
         setObserver()
 
-        val horizontalAdapter = HorizontalAdapter()
+        horizontalAdapter = HorizontalAdapter()
         horizontalRecyclerView.layoutManager =
             WrapperLinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)
         horizontalRecyclerView.adapter = horizontalAdapter
-
-        val userId = arguments?.getLong("userId")
-        viewModel.getMyFriends(userId!!)
         verticalAdapter = VerticalAdapter()
         verticalRecyclerView.layoutManager =
             LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
         verticalRecyclerView.adapter = verticalAdapter
+
+
+        binding.shapeableImageView3.setOnClickListener {
+            if (viewModel.selectedList.isNotEmpty()){
+                parentFragmentManager.setFragmentResult("addFriend",Bundle())
+                dismiss()
+            }else{
+                Toast.makeText(requireActivity(),"Select min 1 person",Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
         searchView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -70,42 +87,59 @@ class MultiUserPickListFragment : Fragment(R.layout.multi_user_pick_list_fragmen
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searchText = s.toString().lowercase(Locale.ROOT).trim()
-                val filteredList = listOfMySelectableUserData.filter {
+                val filteredList = viewModel.listOfMySelectableUserData.filter {
                     it.name.lowercase(Locale.ROOT).contains(searchText)
                 }
                 if (filteredList.isEmpty()){
                     binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
                 }else{
-                    binding.searchNotFound.emptyTemplate.visibility = View.GONE
-                    verticalAdapter.updateData(filteredList)
+                    binding.searchNotFound.emptyTemplate.visibility = View.INVISIBLE
                 }
+                verticalAdapter.updateData(filteredList)
             }
         })
+
+        val userId = arguments?.getLong("userId")
+
+        if(viewModel.listOfMySelectableUserData.isEmpty()){
+            viewModel.getMyFriends(userId!!)
+        }else{
+            horizontalAdapter.updateData( viewModel.selectedList)
+            verticalAdapter.updateData(viewModel.listOfMySelectableUserData)
+        }
+
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = BottomSheetDialog(requireContext(), theme)
+        dialog.behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        return dialog
     }
 
 
     private fun setObserver() {
-
         viewModel.friendsList.observe(viewLifecycleOwner) {
-            when (it) {
-                is PresentationLayerResponse.Success -> {
-                    val list = it.data.map { userData ->
-                        MySelectableUserData(
-                            userData.userId,
-                            userData.name
-                        )
+            if (viewModel.listOfMySelectableUserData.isEmpty()){
+                when (it) {
+                    is PresentationLayerResponse.Success -> {
+                        val list = it.data.map { userData ->
+                            MySelectableUserData(
+                                userData.userId,
+                                userData.name
+                            )
+                        }
+                        viewModel.listOfMySelectableUserData = list
+                        if (list.isEmpty()) {
+                            binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
+                        } else {
+                            binding.searchNotFound.emptyTemplate.visibility = View.GONE
+                            verticalAdapter.updateData(list)
+                        }
                     }
-                    listOfMySelectableUserData = list
-                    if (list.isEmpty()){
-                        binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
-                    }else{
-                        binding.searchNotFound.emptyTemplate.visibility = View.GONE
-                        verticalAdapter.updateData(list)
+
+                    is PresentationLayerResponse.Error -> {
+
                     }
-                }
-
-                is PresentationLayerResponse.Error -> {
-
                 }
             }
         }
@@ -255,7 +289,7 @@ class MultiUserPickListFragment : Fragment(R.layout.multi_user_pick_list_fragmen
 
             notifyItemChanged(asyncListDiffer.currentList.indexOf(item))
 
-            listOfMySelectableUserData.forEach {
+            viewModel.listOfMySelectableUserData.forEach {
                 if (it.userId == item.userId) {
                     it.isSelected = false
                     binding.searchView.text = binding.searchView.text
@@ -330,20 +364,13 @@ class MultiUserPickListFragment : Fragment(R.layout.multi_user_pick_list_fragmen
         @RecyclerView.Orientation orientation: Int,
         reverseLayout: Boolean
     ) : LinearLayoutManager(context, orientation, reverseLayout) {
-
-        override fun onLayoutChildren(
-            recycler: RecyclerView.Recycler?,
-            state: RecyclerView.State?
-        ) {
-//            try {
-                super.onLayoutChildren(recycler, state)
-//            } catch (e: IndexOutOfBoundsException ) {
-//                Log.e("TAG", "Inconsistency detected");
-//            }
-
-        }
         override fun supportsPredictiveItemAnimations(): Boolean {
             return false
         }
+    }
+
+    private fun setForBottomSheet(){
+        binding.topCard.visibility = View.VISIBLE
+        binding.shapeableImageView3.visibility = View.VISIBLE
     }
 }

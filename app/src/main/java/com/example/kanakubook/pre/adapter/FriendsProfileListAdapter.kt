@@ -1,11 +1,17 @@
 package com.example.kanakubook.pre.adapter
 
 
+import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.hardware.camera2.params.ColorSpaceTransform
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -19,9 +25,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
+import kotlin.math.abs
 import kotlin.random.Random
 
 class FriendsProfileListAdapter(
+    private val context: Context,
     private val callback :Callbacks
 ) :
     RecyclerView.Adapter<FriendsProfileListAdapter.ProfileViewHolder>() {
@@ -41,7 +49,7 @@ class FriendsProfileListAdapter(
             oldItem: UserProfileSummary,
             newItem: UserProfileSummary
         ): Boolean {
-            return oldItem == newItem
+            return oldItem == newItem && oldItem.get == newItem.get && oldItem.pay == newItem.pay
         }
     }
 
@@ -91,13 +99,31 @@ class FriendsProfileListAdapter(
             resetViewHolder()
             bindImageReferenceCheck = profile.userId
             textViewName.text = profile.name
-            val decimalFormat = DecimalFormat("#,###")
-            val formattedAmount = "₹${decimalFormat.format(Random.nextInt(1111,9999))}"
-            textViewAmount.text = formattedAmount
+            val decimalFormat = DecimalFormat("#,###.##")
+            val displayAmount = profile.get - profile.pay
+            val formattedAmount = "₹${decimalFormat.format(abs(displayAmount))}"
+
+            when {
+                displayAmount > 0 -> {
+                    textViewAmount.text = formattedAmount
+                    binding.statusBar.setCardBackgroundColor(context.getColor(R.color.amount_Green))
+                }
+
+                displayAmount < 0 -> {
+                    textViewAmount.text = formattedAmount
+                    binding.statusBar.setCardBackgroundColor(context.getColor(R.color.amount_Red))
+                }
+
+                else -> {
+                    textViewAmount.text = "no pending"
+                    binding.statusBar.setCardBackgroundColor(Color.GRAY)
+                }
+            }
+
             phone.text = profile.phone.toString()
             if(profile.profile != null){
                 image.setImageBitmap(profile.profile)
-            }else {
+            } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     val bitmap = callback.getImage(profile.userId)
                     profile.profile = bitmap
@@ -109,6 +135,7 @@ class FriendsProfileListAdapter(
                 }
             }
         }
+
     }
 
 
@@ -117,5 +144,3 @@ class FriendsProfileListAdapter(
         fun onClickItemListener(userProfileSummary: UserProfileSummary)
     }
 }
-
-

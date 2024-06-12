@@ -36,7 +36,7 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
         binding.recyclerview.itemAnimator = null
         binding.recyclerview.layoutManager =
             LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
-        adapter = SplitListAdapter(object : SplitListAdapter.Callback {
+        adapter = SplitListAdapter(requireActivity(),object : SplitListAdapter.Callback {
             override suspend fun getProfile(userId: Long): Bitmap? {
                 return friendsViewModel.getProfile(userId)
             }
@@ -73,6 +73,7 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
         binding.recyclerview.adapter = adapter
 
     }
+
 
     override fun setList(totalAmount: Double, members: List<SplitListAdapter.SplitList>) {
         this.totalAmount = totalAmount

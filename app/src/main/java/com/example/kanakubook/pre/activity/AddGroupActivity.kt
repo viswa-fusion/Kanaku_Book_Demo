@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.commit
 import com.example.data.util.PreferenceHelper
 import com.example.domain.usecase.response.PresentationLayerResponse
@@ -31,7 +33,8 @@ class AddGroupActivity : AppCompatActivity() {
     private var profileUri: Uri? = null
     private val PROFILE_URI_KEY = "group profile"
     private lateinit var preferenceHelper: PreferenceHelper
-    private val fragment : MultiUserPickListFragment by lazy { MultiUserPickListFragment() }
+    private val fragment: MultiUserPickListFragment by lazy { MultiUserPickListFragment() }
+    private var isFirstTimeValidation = true
 
     private val startActivityResultForProfilePhoto =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -54,11 +57,15 @@ class AddGroupActivity : AppCompatActivity() {
 
         supportFragmentManager.commit {
             fragment.apply {
-            arguments = Bundle().apply {
-                putLong("userId",loggedInUserId())
+                arguments = Bundle().apply {
+                    putLong("userId", loggedInUserId())
+                }
             }
-        }
-            replace(R.id.fragment_container_view, fragment)
+            val frag = supportFragmentManager.findFragmentByTag("fragAdd")
+            if (frag == null) {
+                replace(R.id.fragment_container_view, fragment, "fragAdd")
+            }
+            setReorderingAllowed(true)
         }
     }
 
@@ -83,23 +90,33 @@ class AddGroupActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.add_group_toolbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
             R.id.done -> {
-                showLoading()
-                val logUserId = loggedInUserId()
-                val groupName = binding.groupname.text.toString()
-                val membersId = friendsViewModel.selectedList.map {
-                    it.userId
-                }.toMutableList()
-                membersId.add(logUserId)
-                viewModel.createGroup(this, logUserId, groupName, profileUri, membersId)
+                if (validation()) {
+                    showLoading()
+                    val logUserId = loggedInUserId()
+                    val groupName = binding.groupname.text.toString()
+                    val membersId = friendsViewModel.selectedList.map {
+                        it.userId
+                    }.toMutableList()
+                    membersId.add(logUserId)
+                    viewModel.createGroup(this, logUserId, groupName, profileUri, membersId)
+                }
             }
         }
 
         return super.onOptionsItemSelected(item)
 
+    }
+
+    private fun validation(): Boolean {
+        isFirstTimeValidation = false
+        fieldValidation(binding.groupname.text)
+        val result = binding.layoutGroupName.error == null
+        return result
     }
 
     private fun setListener() {
@@ -116,6 +133,11 @@ class AddGroupActivity : AppCompatActivity() {
             finish()
         }
 
+        binding.groupname.addTextChangedListener {
+            if (!isFirstTimeValidation) {
+                fieldValidation(it)
+            }
+        }
     }
 
     private fun setObserver() {
@@ -154,15 +176,24 @@ class AddGroupActivity : AppCompatActivity() {
         binding = AddGroupScreenActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.title =""
+        supportActionBar?.title = ""
         preferenceHelper = PreferenceHelper(this)
     }
 
-    private fun showLoading(){
+    private fun showLoading() {
         binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
     }
 
-    private fun hideLoading(){
+    private fun hideLoading() {
         binding.loadingScreen.loadingScreen.visibility = View.GONE
+    }
+
+    private fun fieldValidation(value: Editable?) {
+        val size = value?.length
+        if (size == null || size < 3) {
+            binding.layoutGroupName.error = "group name contain min 3 letters"
+        } else {
+            binding.layoutGroupName.error = null
+        }
     }
 }

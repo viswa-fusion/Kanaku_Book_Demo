@@ -9,7 +9,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.GroupData
@@ -23,6 +25,7 @@ import com.example.kanakubook.pre.adapter.GroupsListAdapter
 import com.example.kanakubook.pre.viewmodel.FabViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
 import com.example.kanakubook.util.CustomAnimationUtil
+import com.example.kanakubook.util.CustomDividerItemDecoration
 
 class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
@@ -47,6 +50,7 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
     override fun onResume() {
         super.onResume()
         getGroupList()
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,7 +162,7 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
 
     private fun initialSetUp(){
-        binding.recyclerview.adapter = GroupsListAdapter(object : GroupsListAdapter.CallBack{
+        val adapter = GroupsListAdapter(object : GroupsListAdapter.CallBack{
             override suspend fun getImage(groupId: Long): Bitmap? {
                 return viewModel.getProfile(groupId)
             }
@@ -174,7 +178,11 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                 startActivity(intent)
             }
         })
-
+        binding.recyclerview.adapter = adapter
         binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity())
+        val dividerDrawable = ContextCompat.getDrawable(requireActivity(), R.drawable.divider)
+        binding.recyclerview.addItemDecoration(
+            CustomDividerItemDecoration(requireActivity(), dividerDrawable, 200,16)
+        )
     }
 }

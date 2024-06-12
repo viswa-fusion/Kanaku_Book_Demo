@@ -4,6 +4,7 @@ import androidx.room.*
 import com.example.data.crossreference.FriendsConnectionCrossRef
 import com.example.data.entity.UserEntity
 import com.example.data.relation.FriendsWithConnectionId
+import com.example.data.relation.PaymentStatus
 
 @Dao
 interface UserDao {
@@ -23,11 +24,11 @@ interface UserDao {
     suspend fun getAllUsers(): List<UserEntity>
 
     @Query("""SELECT * FROM users
-            WHERE userId NOT IN (
-            SELECT user1Id FROM FriendsConnectionCrossRef WHERE user2Id = :userId
+            WHERE userId NOT IN 
+            (SELECT user1Id FROM FriendsConnectionCrossRef WHERE user2Id = :userId
             UNION
             SELECT user2Id FROM FriendsConnectionCrossRef WHERE user1Id = :userId)
-            AND userId != :userId""")
+            AND userId != :userId Order BY name ASC""")
     suspend fun getAllUsersExceptMyFriends(userId: Long): List<UserEntity>
 
     @Query("Select * FROM users Where phone = :phone")
@@ -45,15 +46,41 @@ interface UserDao {
     @Query(
         """SELECT * FROM FriendsConnectionCrossRef
                 INNER JOIN users ON FriendsConnectionCrossRef.user1Id = users.userId
-                WHERE FriendsConnectionCrossRef.user2Id = :userId 
-                UNION 
-                SELECT * FROM FriendsConnectionCrossRef 
-                INNER JOIN users ON FriendsConnectionCrossRef.user2Id = users.userId 
-                WHERE FriendsConnectionCrossRef.user1Id = :userId"""
+                WHERE FriendsConnectionCrossRef.user2Id = :userId
+                UNION
+                SELECT * FROM FriendsConnectionCrossRef
+                INNER JOIN users ON FriendsConnectionCrossRef.user2Id = users.userId
+                WHERE FriendsConnectionCrossRef.user1Id = :userId ORDER BY name ASC"""
     )
     suspend fun getFriendsWithConnectionId(userId: Long): List<FriendsWithConnectionId>
 
-
+    @Query("""
+    SELECT 
+        SUM(CASE 
+            WHEN spl.userId = :userId AND spl.paidStatus != "Paid" THEN spl.splitAmount 
+            ELSE 0 
+        END) AS pay,
+        SUM(CASE 
+            WHEN spl.userId != :userId AND spl.paidStatus != "Paid" THEN spl.splitAmount 
+            ELSE 0
+        END) AS get
+    FROM 
+        FriendsConnectionCrossRef AS fcc
+    JOIN 
+        ExpenseCrossRef AS ec ON fcc.connectionId = ec.associatedId AND ec.expenseType != "GroupExpense"
+    JOIN 
+        SplitExpenseCrossRef AS sec ON  sec.expenseId = ec.expenseId
+    JOIN 
+        SplitEntity AS spl ON  spl.splitId = sec.splitId
+    WHERE 
+        fcc.connectionId = :connectionId
+""")
+    suspend fun getPaymentStatus(connectionId: Long, userId: Long): PaymentStatus
     @Query("SELECT * FROM users WHERE userId IN (SELECT userId FROM GroupMemberCrossRef WHERE userId = :groupId)")
     suspend fun getUsersByGroupId(groupId: Long): List<UserEntity>
 }
+
+
+
+
+

@@ -15,6 +15,8 @@ interface SplitExpenseUseCase {
         ): PresentationLayerResponse<Boolean>
 
         suspend fun getGroupExpenseById(groupId: Long): PresentationLayerResponse<List<ExpenseData>>
+
+        suspend fun payForExpense(expenseId: Long, userId: Long): PresentationLayerResponse<Boolean>
     }
 
     interface FriendsExpense{

@@ -41,11 +41,19 @@ class AddExpenseActivity : AppCompatActivity() {
     private var id: Long = 0
     private lateinit var preferenceHelper: PreferenceHelper
     private lateinit var expenseType: ExpenseType
+    private var isNextButtonClicked = false
+    private var NEXT_BUTTON_CLICKED_TAG = "is_next_clicked"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initialSetUp()
+        setListener()
+        setObserve()
+        getMembersDetail()
+    }
 
+    private fun initialSetUp(){
         binding = AddExpenseScreenActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -56,7 +64,9 @@ class AddExpenseActivity : AppCompatActivity() {
         preferenceHelper = PreferenceHelper(this)
         binding.mainButton.isEnabled = false
 
-
+        getIntentExtras()
+    }
+    private fun getIntentExtras(){
         val bundle = intent.getBundleExtra("bundleFromDetailPage")
         bundle?.let {
             it.getLongArray("members")?.toList()?.let { data ->
@@ -73,14 +83,16 @@ class AddExpenseActivity : AppCompatActivity() {
                 false
             )
         ) ExpenseType.FriendsExpense else ExpenseType.GroupExpense
-        setObserve()
-        getMembersDetail()
+    }
+
+    private fun setListener(){
         binding.amount.addTextChangedListener(NumberTextWatcher(binding.amount) {
             binding.mainButton.isEnabled = it
         })
 
         binding.amount.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
+                isNextButtonClicked = false
                 if (isFragmentAdded && supportFragmentManager.fragments.contains(fragment)) {
                     supportFragmentManager.commit {
                         remove(fragment)
@@ -95,14 +107,13 @@ class AddExpenseActivity : AppCompatActivity() {
             }
         }
 
-
         binding.mainButton.setOnClickListener {
+            isNextButtonClicked = true
             supportFragmentManager.commitNow {
                 replace(R.id.fragment_container_view, fragment)
             }
             val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
-            val calculateAmount =
-                totalAmount / membersId.size
+            val calculateAmount = totalAmount / membersId.size
 
             binding.submitButton.isEnabled = calculateAmount >= 1
 
@@ -124,42 +135,49 @@ class AddExpenseActivity : AppCompatActivity() {
 
         binding.submitButton.setOnClickListener {
             showLoading()
-            val finalList = fragment.getList()
-            val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
-            when(expenseType){
-                ExpenseType.GroupExpense -> {
-                    groupViewModel.createExpense(
-                        id,
-                        getLoggedUserId(),
-                        totalAmount,
-                        binding.note.text.toString(),
-                        finalList.map {
-                            Pair(it.userId, it.amount.toDouble())
-                        }
-                    )
-                }
-
-                ExpenseType.FriendsExpense -> {
-                    friendsViewModel.createExpense(
-                        id,
-                        getLoggedUserId(),
-                        totalAmount,
-                        binding.note.text.toString(),
-                        finalList.map {
-                            Pair(it.userId, it.amount.toDouble())
-                        }
-                    )
-                }
-            }
-
+            submitData()
         }
-
-        fragment.submitButtonState.observe(this) {
-            binding.submitButton.isEnabled = it
-        }
-
     }
 
+
+    private fun submitData(){
+        val finalList = fragment.getList()
+        val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
+        when(expenseType){
+            ExpenseType.GroupExpense -> {
+                groupViewModel.createExpense(
+                    id,
+                    getLoggedUserId(),
+                    totalAmount,
+                    binding.note.text.toString(),
+                    finalList.map {
+                        Pair(it.userId, it.amount.toDouble())
+                    }
+                )
+            }
+
+            ExpenseType.FriendsExpense -> {
+                friendsViewModel.createExpense(
+                    id,
+                    getLoggedUserId(),
+                    totalAmount,
+                    binding.note.text.toString(),
+                    finalList.map {
+                        Pair(it.userId, it.amount.toDouble())
+                    }
+                )
+            }
+        }
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(NEXT_BUTTON_CLICKED_TAG,isNextButtonClicked)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+            isNextButtonClicked = savedInstanceState.getBoolean(NEXT_BUTTON_CLICKED_TAG)
+    }
     private fun getMembersDetail() {
         userViewModel.getUser(membersId)
     }
@@ -167,6 +185,10 @@ class AddExpenseActivity : AppCompatActivity() {
     private fun setObserve() {
         userViewModel.userData.observe(this) {
             members = it
+        }
+
+        fragment.submitButtonState.observe(this) {
+            binding.submitButton.isEnabled = it
         }
 
         when(expenseType ){
@@ -210,6 +232,9 @@ class AddExpenseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if(isNextButtonClicked){
+            binding.mainButton.callOnClick()
+        }
         binding.amount.requestFocus()
     }
 

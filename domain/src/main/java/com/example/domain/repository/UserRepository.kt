@@ -2,6 +2,7 @@ package com.example.domain.repository
 
 import android.graphics.Bitmap
 import com.example.domain.model.UserEntryData
+import com.example.domain.model.UserProfileData
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.repository.response.DataLayerResponse
 
@@ -9,6 +10,7 @@ interface UserRepository {
 
     interface Authentication {
         suspend fun authenticateUser(phone: Long): DataLayerResponse<Pair<UserProfileSummary, String>>
+        suspend fun loggedUserByUserId(userId: Long): DataLayerResponse<UserProfileData>
     }
 
     interface Info{

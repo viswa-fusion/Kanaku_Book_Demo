@@ -45,6 +45,12 @@ class GroupViewModel(
     val getAllGroupExpenseResponse: LiveData< PresentationLayerResponse<List<ExpenseData>>> =
         _getAllGroupExpenseResponse
 
+    private val _addMembersResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
+    val addMembersResponse: LiveData<PresentationLayerResponse<Boolean>> = _addMembersResponse
+
+    private val _payResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
+    val payResponse : LiveData<PresentationLayerResponse<Boolean>> = _payResponse
+
     fun createExpense(
         groupId: Long,
         ownerId: Long,
@@ -62,6 +68,12 @@ class GroupViewModel(
                     splitList
                 )
             )
+        }
+    }
+
+    fun addMembers(groupId: Long, memberList: List<Long>){
+        viewModelScope.launch(Dispatchers.IO) {
+           _addMembersResponse.postValue(useCase.addMembers(groupId,memberList))
         }
     }
 
@@ -94,6 +106,12 @@ class GroupViewModel(
             Log.i("timeCheck", "time3: ${System.currentTimeMillis()}")
 
             _groupCreateResponse.postValue(response)
+        }
+    }
+
+    fun pay(expenseId: Long, userId: Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            _payResponse.postValue(expenseUseCase.payForExpense(expenseId,userId))
         }
     }
 

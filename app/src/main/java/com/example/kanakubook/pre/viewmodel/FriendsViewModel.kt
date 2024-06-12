@@ -25,7 +25,9 @@ class FriendsViewModel(
     private val expenseUseCase: SplitExpenseUseCase.FriendsExpense
 ) : ViewModel() {
 
+    var profileImage: Bitmap? = null
     var selectedList = mutableListOf<MultiUserPickListFragment.MySelectableUserData>()
+    var listOfMySelectableUserData = emptyList<MultiUserPickListFragment.MySelectableUserData>()
 
     private val _friendsList =
         MutableLiveData<PresentationLayerResponse<List<UserProfileSummary>>>()
@@ -103,8 +105,7 @@ class FriendsViewModel(
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
 
                 val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                val applicationDataInjection =
-                    application!!.applicationContext as KanakuBookApplication
+                val applicationDataInjection = application!!.applicationContext as KanakuBookApplication
                 val loginUseCase = applicationDataInjection.friendsUseCase
                 val profilePictureUseCase = applicationDataInjection.profilePictureUseCase
                 val friendsExpense = applicationDataInjection.friendsExpenseUseCase

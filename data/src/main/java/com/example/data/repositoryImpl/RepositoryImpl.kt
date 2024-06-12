@@ -3,7 +3,7 @@ package com.example.data.repositoryImpl
 import android.graphics.Bitmap
 import android.util.Log
 import com.example.domain.repository.GroupRepository
-import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
+import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
 import com.example.data.util.StorageHelper
 import com.example.data.util.toGroupData
@@ -17,7 +17,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
-import java.sql.Time
 
 class RepositoryImpl(
     private val groupDao: GroupDao,
@@ -62,6 +61,19 @@ class RepositoryImpl(
     }
 
     override suspend fun updateGroupActiveTime(groupId: Long, time: Long) = groupDao.updateGroupActiveTime(groupId,time)
+    override suspend fun addMembers(
+        groupId: Long,
+        membersList: List<Long>
+    ): DataLayerResponse<Boolean> {
+        return try{
+            val crossRef = membersList.map { memberId -> GroupMemberCrossRef(groupId, memberId) }
+            groupDao.insertGroupMembers(crossRef)
+            DataLayerResponse.Success(true)
+        }catch (e:Exception){
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+        }
+
+    }
 
     override suspend fun saveProfileImage(
         groupId: Long,
@@ -75,4 +87,5 @@ class RepositoryImpl(
         Log.i("dataTest","data : $file")
         return profilePhotoDao.getProfilePhoto(file.absolutePath)
     }
+
 }

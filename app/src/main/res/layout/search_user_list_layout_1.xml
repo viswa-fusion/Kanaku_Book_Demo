@@ -7,7 +7,6 @@
     android:layout_marginTop="1dp"
     android:paddingVertical="@dimen/spacing_small"
     android:layout_marginStart="@dimen/spacing_small">
-
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_profile"
         android:layout_width="40dp"
@@ -17,8 +16,8 @@
         android:src="@drawable/default_profile_image"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="@dimen/spacing_small"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/checkIcon"

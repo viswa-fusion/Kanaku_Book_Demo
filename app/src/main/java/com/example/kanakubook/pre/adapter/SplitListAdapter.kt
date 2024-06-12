@@ -1,8 +1,10 @@
 package com.example.kanakubook.pre.adapter
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SplitListAdapter(
-    val callback: Callback
+    private val context: Context,
+    private val callback: Callback
 ): RecyclerView.Adapter<SplitListAdapter.SplitViewHolder>() {
 
 
@@ -61,9 +64,11 @@ class SplitListAdapter(
                 if(item.isSelected) {
                     item.isSelected = false
                     binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GRAY)
+                    binding.checkIcon.visibility = View.INVISIBLE
                 }else{
                     item.isSelected = true
                     binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GREEN)
+                    binding.checkIcon.visibility = View.VISIBLE
                 }
                 val cData = asyncListDiffer.currentList
                 callback.reEvaluateAmount(cData)
@@ -81,11 +86,18 @@ class SplitListAdapter(
             binding.textviewName.text = item.name
             val amount = "₹${item.amount}"
             binding.textviewAmount.text = amount
-
+            if(item.amount.toDouble() == 0.0) {
+                binding.textviewAmount.setTextColor(Color.GRAY)
+            }else{
+                binding.textviewAmount.setTextColor(context.resources.getColor(R.color.black))
+            }
             if(item.isSelected) {
                 binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GREEN)
+                binding.checkIcon.visibility = View.VISIBLE
+
             }else{
                 binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GRAY)
+                binding.checkIcon.visibility = View.INVISIBLE
             }
 
            if(item.profile != null) {

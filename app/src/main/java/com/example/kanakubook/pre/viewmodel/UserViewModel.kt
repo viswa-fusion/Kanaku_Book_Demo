@@ -33,7 +33,6 @@ class UserViewModel(
                 this.async {useCase.getUserById(it)}
             }
             val data = asyncData.awaitAll()
-            val check = data.toList()
             data.forEach {
                 when(it){
                     is PresentationLayerResponse.Success ->{
@@ -46,6 +45,10 @@ class UserViewModel(
             }
             _userData.postValue(members)
         }
+    }
+
+    fun updateUser(userId: Long, name:String, oldPassword:String?, newPassword: String?){
+
     }
 
 

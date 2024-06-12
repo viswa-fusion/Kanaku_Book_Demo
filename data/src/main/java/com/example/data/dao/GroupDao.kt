@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
+import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.entity.GroupEntity
 import com.example.data.relation.GroupWithMembers
 

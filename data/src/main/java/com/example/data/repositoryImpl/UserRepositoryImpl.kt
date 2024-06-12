@@ -14,7 +14,13 @@ import com.example.domain.repository.UserRepository
 import com.example.domain.repository.response.DataLayerErrorCode
 import com.example.domain.repository.response.DataLayerResponse
 import com.example.data.crossreference.FriendsConnectionCrossRef
+import com.example.data.util.toUserProfileData
+import com.example.domain.model.UserProfileData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.random.Random
 
@@ -92,17 +98,27 @@ class UserRepositoryImpl(
     }
 
     override suspend fun getFriendsOfUser(userId: Long): DataLayerResponse<List<UserProfileSummary>> {
-        val userProfileSummaryList = mutableListOf<UserProfileSummary>()
+        return withContext(Dispatchers.IO) {
+            try {
+                val userProfileSummaryList = mutableListOf<UserProfileSummary>()
+                val data = userDao.getFriendsWithConnectionId(userId)
 
-        userDao.getFriendsWithConnectionId(userId).forEach {
-            val profilePath = File(
-                userProfileImageFileDir,
-                "${it.userEntity.userId}${StorageHelper.IMAGE_TYPE_JPG}"
-            ).absolutePath
-            userProfileSummaryList.add(it.userEntity.toUserProfileSummery(it.connectionId))
+                val profileSummariesDeferred = data.map { friend ->
+                    async {
+                        val calc = userDao.getPaymentStatus(friend.connectionId, userId)
+                        friend.userEntity.toUserProfileSummery(friend.connectionId, calc.pay, calc.get)
+                    }
+                }
+                userProfileSummaryList.addAll(profileSummariesDeferred.awaitAll())
+                DataLayerResponse.Success(userProfileSummaryList)
+            } catch (e: Exception) {
+                DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+            }
         }
-        return DataLayerResponse.Success(userProfileSummaryList)
     }
+
+
+
 
     override suspend fun getUserProfileSummeryByUserId(
         userId: Long
@@ -143,6 +159,15 @@ class UserRepositoryImpl(
             val user = userEntity.toUserProfileSummery()
             DataLayerResponse.Success(Pair(user, userEntity.password))
         } else DataLayerResponse.Error(DataLayerErrorCode.NOT_FOUND)
+    }
+
+    override suspend fun loggedUserByUserId(userId: Long): DataLayerResponse<UserProfileData> {
+        val data = userDao.getUserById(userId)?.toUserProfileData()
+        return if(data != null){
+            DataLayerResponse.Success(data)
+        }else{
+            DataLayerResponse.Error(DataLayerErrorCode.NOT_FOUND)
+        }
     }
 
     override suspend fun saveUserProfileImage(

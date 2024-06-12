@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/close_24px"
+            android:focusable="true"
+            android:clickable="true"
+            android:padding="3dp"
+            android:layout_gravity="start"
+            android:clipToOutline="true"
+            android:scaleType="centerCrop"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:shapeAppearanceOverlay="@style/roundedShape"/>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profile"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="@dimen/spacing_large"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_group_profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:shapeAppearanceOverlay="@style/roundedShape" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="30dp"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        app:cardBackgroundColor="@color/md_theme_secondaryFixedDim"
+        app:cardCornerRadius="50dp"
+        app:layout_constraintBottom_toBottomOf="@id/profile"
+        app:layout_constraintEnd_toEndOf="@id/profile">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/edit_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:src="@drawable/edit_24px_black"
+            app:shapeAppearanceOverlay="@style/roundedShape" />
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_small"
+        android:maxLength="80"
+        android:text="Group Name"
+        android:textColor="@color/black"
+        android:textFontWeight="500"
+        android:textSize="@dimen/text_size_extra_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/add_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:drawableStart="@drawable/person_add_theme_color_24px"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:paddingHorizontal="@dimen/spacing_medium"
+        android:paddingVertical="@dimen/spacing_medium"
+        android:text="  Add people"
+        android:textStyle="bold"
+        android:textFontWeight="450"
+        android:textSize="@dimen/text_size_medium_large"
+        android:layout_marginTop="@dimen/spacing_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/group_member_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Group members (0)"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginStart="@dimen/spacing_medium"
+        android:textFontWeight="600"
+        android:textSize="@dimen/text_size_medium"
+        app:layout_constraintTop_toBottomOf="@id/add_group" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        android:layout_margin="@dimen/spacing_medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/group_member_title" />
+
+    <include android:id="@+id/loadingScreen"
+        layout="@layout/loading_screen"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

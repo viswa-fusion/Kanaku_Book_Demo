@@ -12,7 +12,6 @@ data class UserProfileData(
     val userId:Long,
     val name: String,
     val phone: Long,
-    val profilePicturePath: String,
     val amountToGet: Double,
     val amountToGive: Double
 )
@@ -24,4 +23,6 @@ data class UserProfileSummary(
 ){
     var profile: Bitmap? = null
     var connectionId: Long? = null
+    var pay: Double = 0.0
+    var get: Double = 0.0
 }

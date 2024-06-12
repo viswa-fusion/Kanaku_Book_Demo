@@ -39,6 +39,15 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
         return data
     }
 
+    override suspend fun payForExpense(expenseId: Long, userId: Long): DataLayerResponse<Boolean> {
+        return try{
+            splitDao.makePaidForTheSplitOfExpenseId(expenseId, userId)
+            DataLayerResponse.Success(true)
+        }catch (e: Exception){
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+        }
+    }
+
     override suspend fun insertFriendExpenseWithSplits(
         connectionId: Long,
         expense: ExpenseEntry,
@@ -48,8 +57,7 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
     }
 
     override suspend fun getFriendExpenseWithSplitsByConnectionId(connectionId: Long): DataLayerResponse<List<ExpenseData>> {
-        val c = connectionId+1
-        val s =c
+
         val data = commonGetOfExpenseAndSplit(connectionId, ExpenseType.FriendsExpense)
 
         return data

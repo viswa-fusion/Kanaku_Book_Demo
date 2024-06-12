@@ -9,6 +9,8 @@ interface SplitExpenseRepository {
     interface GroupExpense{
         suspend fun insertGroupExpenseWithSplits(groupId: Long, expense:ExpenseEntry, splits: List<SplitEntry>): DataLayerResponse<Boolean>
         suspend fun getGroupExpenseWithSplitsByGroupId(groupId: Long): DataLayerResponse<List<ExpenseData>>
+
+        suspend fun payForExpense(expenseId: Long, userId: Long): DataLayerResponse<Boolean>
     }
 
     interface FriendExpense{

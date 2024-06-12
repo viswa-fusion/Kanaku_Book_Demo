@@ -72,13 +72,25 @@ class FriendDetailPageActivity : AppCompatActivity() {
         }
         binding.number.text = number
 
-        adapter = ExpenseDetailScreenAdapter(this){
-            viewModel.getProfile(it)
-        }
+        adapter = ExpenseDetailScreenAdapter(this,object : ExpenseDetailScreenAdapter.Callback{
+            override suspend fun getProfile(userId: Long): Bitmap? {
+                return viewModel.getProfile(userId)
+            }
+
+            override fun pay(expenseId: Long) {
+
+            }
+
+        })
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
         binding.recyclerview.layoutManager = layoutManager
         binding.recyclerview.adapter = adapter
 
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         viewModel.getAllExpenseByConnectionId(connectionId!!)
     }
 

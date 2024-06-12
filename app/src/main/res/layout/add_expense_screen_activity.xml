@@ -84,6 +84,8 @@
                 android:background="@drawable/description_edittext_background"
                 android:hint="What's this for?"
                 android:maxLength="35"
+                android:singleLine="true"
+                android:gravity="center"
                 android:paddingHorizontal="@dimen/spacing_medium"
                 android:paddingVertical="@dimen/spacing_small"
                 android:textColorHint="@color/hint_enhance_black"

@@ -1,6 +1,7 @@
 package com.example.domain.usecase
 
 import android.graphics.Bitmap
+import android.provider.ContactsContract.Contacts.Data
 import com.example.domain.helper.CryptoHelper
 import com.example.domain.helper.DateTimeHelper
 import com.example.domain.model.GroupData
@@ -29,6 +30,24 @@ class GroupUseCaseImpl(private val repo: GroupRepositoryFunctionProviderDelegate
                 PresentationLayerResponse.Success(sortedData)
             }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error("Authentication Failed")
+        }
+    }
+
+    override suspend fun addMembers(
+        groupId: Long,
+        memberList: List<Long>
+    ): PresentationLayerResponse<Boolean> {
+        val decryptGroupId = CryptoHelper.decrypt(groupId)
+        val decryptMembersId = memberList.map {
+            CryptoHelper.decrypt(it)
+        }
+        return when(val result = repo.addMembers(decryptGroupId,decryptMembersId)){
+            is DataLayerResponse.Success -> {
+                PresentationLayerResponse.Success(result.data)
+            }
+            is DataLayerResponse.Error -> {
+                PresentationLayerResponse.Error(result.errorCode.toString())
+            }
         }
     }
 

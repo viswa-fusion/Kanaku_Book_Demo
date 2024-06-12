@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.example.data.crossreference.ExpenseCrossRef
 import com.example.data.dao.ExpenseDao
 import com.example.data.crossreference.FriendsConnectionCrossRef
-import com.example.kanakunote.data_layer.crossreference.GroupMemberCrossRef
+import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
 import com.example.data.dao.SplitDao
 import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
@@ -30,7 +30,7 @@ import com.example.kanakunote.data_layer.crossreference.SplitExpenseCrossRef
         SplitEntity::class,
         ExpenseCrossRef::class,
         SplitExpenseCrossRef::class
-    ], version = 1
+    ], version = 2
 )
 @TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {

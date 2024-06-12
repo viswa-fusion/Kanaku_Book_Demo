@@ -28,6 +28,10 @@ interface ProfilePhotoDao {
         fileLocation: File
     ): DataLayerResponse<Boolean> = withContext(Dispatchers.IO) {
         return@withContext try {
+            if (fileLocation.exists()) {
+                fileLocation.delete()
+            }
+
             val stream: OutputStream = BufferedOutputStream(FileOutputStream(fileLocation))
             val resizedBitmap = bitmap?.let { resizeBitmapIfNeeded(it) }
             resizedBitmap?.compress(Bitmap.CompressFormat.JPEG, 60, stream)

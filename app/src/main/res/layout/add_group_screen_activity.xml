@@ -27,6 +27,14 @@
             android:scaleType="centerCrop"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             app:shapeAppearanceOverlay="@style/roundedShape"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text ="Create Group"
+            android:textFontWeight="500"
+            android:layout_gravity="center"
+            android:textSize="@dimen/text_size_medium_large"/>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -35,6 +43,7 @@
         android:layout_height="80dp"
         android:layout_marginStart="@dimen/spacing_medium"
         android:layout_marginTop="50dp"
+        android:scaleType="centerCrop"
         android:clipToOutline="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:src="@drawable/default_group_profile"
@@ -44,7 +53,7 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layout_phone_number"
+        android:id="@+id/layout_group_name"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -70,7 +79,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/text_size_medium"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_phone_number">
+        app:layout_constraintTop_toBottomOf="@+id/layout_group_name">
     </androidx.fragment.app.FragmentContainerView>
     <include
         android:id="@+id/loadingScreen"

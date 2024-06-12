@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.model.GroupData
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.GroupViewHolderCardBinding
+import com.example.kanakubook.databinding.GroupViewHolderCardTestBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,8 +51,8 @@ class GroupsListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupListViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.group_view_holder_card, parent, false)
-        val binding = GroupViewHolderCardBinding.bind(view)
+            .inflate(R.layout.group_view_holder_card_test, parent, false)
+        val binding = GroupViewHolderCardTestBinding.bind(view)
         return GroupListViewHolder(binding)
     }
 
@@ -63,7 +64,7 @@ class GroupsListAdapter(
         holder.bind(group)
     }
 
-    inner class GroupListViewHolder(binding: GroupViewHolderCardBinding) : RecyclerView.ViewHolder(binding.root){
+    inner class GroupListViewHolder(binding: GroupViewHolderCardTestBinding) : RecyclerView.ViewHolder(binding.root){
         private var bindImageReferenceCheck : Long = -1
         private val profile = binding.shapeableImageView2
         private val groupName = binding.textViewName

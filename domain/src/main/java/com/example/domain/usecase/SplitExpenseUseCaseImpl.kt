@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import android.provider.ContactsContract.Contacts.Data
 import com.example.domain.Converters.PaidStatus
 import com.example.domain.helper.CryptoHelper
 import com.example.domain.helper.DateTimeHelper
@@ -34,7 +35,7 @@ class SplitExpenseUseCaseImpl(
             SplitEntry(
                 CryptoHelper.decrypt(it.first),
                 it.second,
-                PaidStatus.UnPaid
+                if(it.first == ownerId) PaidStatus.Paid else PaidStatus.UnPaid
             )
         }
 
@@ -66,6 +67,21 @@ class SplitExpenseUseCaseImpl(
         }
     }
 
+    override suspend fun payForExpense(
+        expenseId: Long,
+        userId: Long
+    ): PresentationLayerResponse<Boolean> {
+        return when(val result = splitGroupExpenseRepository.payForExpense(CryptoHelper.decrypt(expenseId),CryptoHelper.decrypt(userId))){
+            is DataLayerResponse.Success -> {
+                PresentationLayerResponse.Success(result.data)
+            }
+
+            is DataLayerResponse.Error -> {
+                PresentationLayerResponse.Error(result.errorCode.toString())
+            }
+        }
+    }
+
     override suspend fun addNewFriendsExpense(
         connectionId: Long,
         ownerId: Long,
@@ -83,7 +99,7 @@ class SplitExpenseUseCaseImpl(
             SplitEntry(
                 CryptoHelper.decrypt(it.first),
                 it.second,
-                PaidStatus.UnPaid
+                if(it.first == ownerId) PaidStatus.Paid else PaidStatus.UnPaid
             )
         }
 

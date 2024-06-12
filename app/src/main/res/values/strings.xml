@@ -3,10 +3,13 @@
     <string name="name">Name</string>
     <string name="phone_number">Phone Number</string>
     <string name="password">Password</string>
+    <string name="old_password">old Password</string>
+    <string name="new_password">new password</string>
     <string name="repeat_password">Repeat Password</string>
     <string name="sign_up">Sign Up</string>
     <string name="login">Login</string>
     <string name="friends">Friends</string>
     <string name="groups">Groups</string>
     <string name="activity">Activity</string>
+    <string name="date_of_birth">DD/MM/YYYY</string>
 </resources>

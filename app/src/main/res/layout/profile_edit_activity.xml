@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="Edit Profile"
+            app:titleCentered="true"/>
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:scaleType="centerCrop"
+            android:src="@drawable/my_profile"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:shapeAppearanceOverlay="@style/roundedShape" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            app:cardBackgroundColor="@color/md_theme_secondaryFixedDim"
+            app:cardCornerRadius="50dp"
+            app:layout_constraintBottom_toBottomOf="@id/profile"
+            app:layout_constraintEnd_toEndOf="@id/profile">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/edit_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:src="@drawable/edit_24px_black"
+                app:shapeAppearanceOverlay="@style/roundedShape" />
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:layout_marginTop="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:hint="@string/name"
+            app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile"
+            app:startIconDrawable="@drawable/person_24px"
+            tools:layout_editor_absoluteX="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/name_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:paddingVertical="20dp"
+                android:paddingStart="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phone"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:hint="@string/phone_number"
+            app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            app:startIconDrawable="@drawable/call_24px"
+            tools:layout_editor_absoluteX="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phone_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:clipToOutline="true"
+                android:focusable="false"
+                android:foreground="@color/fade_black"
+                android:inputType="none"
+                android:paddingVertical="20dp"
+                android:paddingStart="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_date_of_birth"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:hint="@string/date_of_birth"
+            app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phone"
+            app:startIconDrawable="@drawable/calendar_month_24px"
+            tools:layout_editor_absoluteX="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/date_of_birth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
+                android:inputType="none"
+                android:paddingVertical="20dp"
+                android:paddingStart="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/old_password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:hint="@string/old_password"
+            app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
+            app:endIconMode="password_toggle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_date_of_birth"
+            app:startIconDrawable="@drawable/key_24px"
+            tools:layout_editor_absoluteX="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textVisiblePassword"
+                android:paddingVertical="20dp"
+                android:paddingStart="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/new_password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:hint="@string/new_password"
+            app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
+            app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
+            app:endIconMode="password_toggle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/old_password_layout"
+            app:startIconDrawable="@drawable/key_24px"
+            tools:layout_editor_absoluteX="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/new_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:paddingVertical="20dp"
+                android:paddingStart="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/edit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_extra_large_plus_spacing_medium"
+            android:backgroundTint="@color/md_theme_surfaceVariant_mediumContrast"
+            android:paddingHorizontal="70dp"
+            android:paddingVertical="@dimen/spacing_medium"
+            android:text="Edit Profile"
+            android:textColor="@color/black"
+            android:textFontWeight="600"
+            android:textSize="@dimen/text_size_medium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/new_password_layout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -4,6 +4,7 @@ package com.example.domain.usecase
 import android.graphics.Bitmap
 import com.example.domain.helper.CryptoHelper
 import com.example.domain.model.UserEntryData
+import com.example.domain.model.UserProfileData
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.repository.GroupRepository
 import com.example.domain.repository.UserRepository
@@ -58,13 +59,28 @@ class UserUseCaseImpl(
         }
     }
 
+    override suspend fun loggedUserByUserId(userId: Long): PresentationLayerResponse<UserProfileData> {
+       return when(val result =  userAuthenticationRepo.loggedUserByUserId(CryptoHelper.decrypt(userId))){
+           is DataLayerResponse.Success -> {
+               val encryptData = result.data.copy(
+                   userId = CryptoHelper.encrypt(result.data.userId)
+               )
+               PresentationLayerResponse.Success(encryptData)
+           }
+
+           is DataLayerResponse.Error -> {
+               PresentationLayerResponse.Error(result.errorCode.toString())
+           }
+       }
+    }
+
     override suspend fun addProfileImage(
         imageDirectoryType: ImageDirectoryType,
         image: Bitmap
     ): PresentationLayerResponse<Boolean> {
         return when (imageDirectoryType) {
             is ImageDirectoryType.User -> {
-                when (val result = userProfile.saveUserProfileImage(imageDirectoryType.userId, image)) {
+                when (val result = userProfile.saveUserProfileImage(CryptoHelper.decrypt(imageDirectoryType.userId), image)) {
                     is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
                     is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
                 }
@@ -121,8 +137,12 @@ class UserUseCaseImpl(
         val id = CryptoHelper.decrypt(userId)
         return when(val listOfUsers = userInfoRepo.getFriendsOfUser(id)){
             is DataLayerResponse.Success -> {
-                val decryptedList =listOfUsers.data.map{
-                    it.copy(userId = CryptoHelper.encrypt(it.userId)).apply { connectionId = CryptoHelper.encrypt(it.connectionId!!) }
+                val decryptedList = listOfUsers.data.map{
+                    it.copy(userId = CryptoHelper.encrypt(it.userId)).apply {
+                        connectionId = CryptoHelper.encrypt(it.connectionId!!)
+                        pay = it.pay
+                        get = it.get
+                    }
                 }
                 PresentationLayerResponse.Success(decryptedList)
             }

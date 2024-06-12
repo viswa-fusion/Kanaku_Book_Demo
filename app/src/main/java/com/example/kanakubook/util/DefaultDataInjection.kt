@@ -68,18 +68,22 @@ class DefaultDataInjection(val context: Context) {
             R.raw.dummy_img_6
         )
         var userid: Long? = null
+        var count = 1
         viewModel.userId.observeForever {
             if (it is PresentationLayerResponse.Success) {
-                if (userid == null) {
-                    userid = CryptoHelper.decrypt(it.data)
-                } else {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        repo.addFriend(userid!!, CryptoHelper.decrypt(it.data))
+                if(count < 50){
+                    if (userid == null) {
+                        userid = CryptoHelper.decrypt(it.data)
+                    } else {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            repo.addFriend(userid!!, CryptoHelper.decrypt(it.data))
+                        }
                     }
+                    count++
                 }
                 val photoId = listOfProfile[Random.nextInt(0, 5)]
                 val photo = BitmapFactory.decodeResource(context.resources, photoId)
-                photoViewModel.addProfile(CryptoHelper.decrypt(it.data), photo)
+                photoViewModel.addProfile(it.data, photo)
                 Log.i("initialData321", "data : ${it.data}")
             }
         }

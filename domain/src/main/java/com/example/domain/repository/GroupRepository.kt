@@ -11,6 +11,8 @@ interface GroupRepository {
         suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Boolean>
         suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<GroupData>>
         suspend fun updateGroupActiveTime(groupId: Long,time: Long)
+
+        suspend fun addMembers(groupId: Long,membersList: List<Long>): DataLayerResponse<Boolean>
     }
 
     interface Profile{
