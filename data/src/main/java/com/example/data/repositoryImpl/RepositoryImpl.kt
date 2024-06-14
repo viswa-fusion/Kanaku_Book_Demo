@@ -6,8 +6,10 @@ import com.example.domain.repository.GroupRepository
 import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
 import com.example.data.util.StorageHelper
+import com.example.data.util.toCommonGroupWithAmountData
 import com.example.data.util.toGroupData
 import com.example.data.util.toGroupEntity
+import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.domain.model.GroupData
 import com.example.domain.model.GroupEntry
 import com.example.domain.repository.response.DataLayerErrorCode
@@ -57,10 +59,21 @@ class RepositoryImpl(
     override suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<GroupData>> {
         val listOfGroupEntity = groupDao.getGroupsWithMembersByUserId(userId)
         val listOfGroup = listOfGroupEntity.map { it.toGroupData() }
+
+
+
+        val checkList = groupDao.getGroupsWithMembers(userId)
+        val d = checkList
+        checkList.forEach {
+            Log.i("QueryData","Data: $it")
+        }
+        val b = checkList
         return DataLayerResponse.Success(listOfGroup)
     }
 
-    override suspend fun updateGroupActiveTime(groupId: Long, time: Long) = groupDao.updateGroupActiveTime(groupId,time)
+    override suspend fun updateGroupActiveTime(groupId: Long, time: Long) {
+        groupDao.updateGroupActiveTime(groupId, time)
+    }
     override suspend fun addMembers(
         groupId: Long,
         membersList: List<Long>
@@ -73,6 +86,20 @@ class RepositoryImpl(
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
 
+    }
+
+    override suspend fun getCommonGroupsWithCalculatedBalance(
+        userId: Long,
+        friendId: Long
+    ): DataLayerResponse<List<CommonGroupWIthAmountData>> {
+        return try{
+            val result = groupDao.getCommonGroupsWithCalculatedBalance(userId, friendId).map {
+                it.toCommonGroupWithAmountData()
+            }
+            DataLayerResponse.Success(result)
+        }catch (e: Exception){
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+        }
     }
 
     override suspend fun saveProfileImage(

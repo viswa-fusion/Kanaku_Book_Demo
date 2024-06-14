@@ -35,6 +35,9 @@
             android:name=".pre.activity.EditProfileActivity"
             android:windowSoftInputMode="adjustResize|stateUnchanged"/>
         <activity android:name=".pre.activity.GroupProfilePageActivity"/>
+        <activity android:name=".pre.activity.ExpenseDetailActivity"/>
+        <activity android:name=".pre.activity.FriendProfilePageActivity"/>
+        <activity android:name=".pre.activity.SelectSplitWithActivity"/>
     </application>
 
 </manifest>

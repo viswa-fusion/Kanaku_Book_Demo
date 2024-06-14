@@ -14,12 +14,12 @@
                 android:layout_alignParentStart="true"
                 android:scaleType="centerCrop"
                 android:layout_marginVertical="@dimen/spacing_small"
-                android:src="@drawable/default_group_profile"
+                android:src="@drawable/default_group_profile12"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.5"
-                app:shapeAppearanceOverlay="@style/squareEdgeShaped" />
+                app:shapeAppearanceOverlay="@style/roundedShape" />
 
             <TextView
                 android:id="@+id/textViewName"

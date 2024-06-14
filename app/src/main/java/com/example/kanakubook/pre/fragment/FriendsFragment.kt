@@ -24,12 +24,14 @@ import com.example.kanakubook.pre.activity.AddFriendActivity
 import com.example.kanakubook.pre.activity.AppEntryPoint
 import com.example.kanakubook.pre.activity.FriendDetailPageActivity
 import com.example.kanakubook.pre.adapter.FriendsProfileListAdapter
+import com.example.kanakubook.pre.viewmodel.CommonViewModel
 import com.example.kanakubook.pre.viewmodel.FabViewModel
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
+import com.example.kanakubook.util.Constants
 import com.example.kanakubook.util.CustomAnimationUtil
 
 
-class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
+class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private lateinit var preferenceHelper: PreferenceHelper
     private var isFabRotated = false
@@ -37,6 +39,7 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private val FAB_STATE = "fab state"
     private val viewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
+    private val commonViewModel: CommonViewModel by activityViewModels ()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -134,6 +137,7 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                         binding.emptyTemplate.emptyTemplate.visibility = View.GONE
                         val adapter = binding.recyclerview.adapter
                         if(adapter is FriendsProfileListAdapter){
+
                             adapter.updateData(it.data)
                         }
                     }
@@ -184,6 +188,7 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
     }
 
     private fun layoutInitialSetup() {
+        checkLayoutNeed()
         binding.boxesContainer.visibility = View.INVISIBLE
         binding.recyclerview.adapter = FriendsProfileListAdapter(requireActivity(),object : FriendsProfileListAdapter.Callbacks{
             override suspend fun getImage(userId: Long): Bitmap? {
@@ -191,14 +196,26 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
             }
 
             override fun onClickItemListener(userProfileSummary: UserProfileSummary) {
-                val intent = Intent(requireActivity(),FriendDetailPageActivity::class.java)
-                intent.putExtra("name",userProfileSummary.name)
-                intent.putExtra("phone",userProfileSummary.phone)
-                intent.putExtra("userId",userProfileSummary.userId)
-                val c = userProfileSummary.connectionId
-                intent.putExtra("connectionId",userProfileSummary.connectionId)
+               when(layoutTag){
+                   Constants.NORMAL_LAYOUT ->{
+                       val intent = Intent(requireActivity(),FriendDetailPageActivity::class.java)
+                       intent.putExtra("name",userProfileSummary.name)
+                       intent.putExtra("phone",userProfileSummary.phone)
+                       intent.putExtra("userId",userProfileSummary.userId)
+                       val c = userProfileSummary.connectionId
+                       intent.putExtra("connectionId",userProfileSummary.connectionId)
 
-                startActivity(intent)
+                       startActivity(intent)
+                   }
+                   Constants.FOR_TAB_LAYOUT ->{
+                       showLoading()
+                       commonViewModel.selectSplitWithListener.value = CommonViewModel.SelectionData(
+                           listOf(getLoggedUserId(),userProfileSummary.userId),
+                           userProfileSummary.connectionId!!,
+                           true
+                       )
+                   }
+               }
             }
         })
         binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity())
@@ -212,5 +229,24 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         binding.loadingScreen.loadingScreen.visibility = View.GONE
     }
 
+    private fun checkLayoutNeed() {
+        if(layoutTag == Constants.FOR_TAB_LAYOUT){
+            binding.createFab.visibility = View.GONE
+            binding.appbar.visibility = View.GONE
+        }
+    }
+
+    private fun getLoggedUserId(): Long {
+        if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
+            val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
+            return userId
+        } else {
+            val intent = Intent(requireActivity(), AppEntryPoint::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+            requireActivity().finish()
+            return -1
+        }
+    }
 }
 

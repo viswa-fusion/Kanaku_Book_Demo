@@ -26,12 +26,3 @@ data class SplitEntity(
 
     @PrimaryKey(autoGenerate = true)var splitId: Long = 0,
 )
-//{
-//    fun setSplitUserId(userId: Long) {
-//        this.splitUserId = userId
-//    }
-//
-//    fun setSplitAmount(amount: Double){
-//        this.splitAmount = amount
-//    }
-//}

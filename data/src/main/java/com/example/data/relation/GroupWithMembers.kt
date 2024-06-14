@@ -15,3 +15,13 @@ data class GroupWithMembers(
         associateBy = Junction(GroupMemberCrossRef::class)
     )val members : List<UserEntity>
 )
+data class GroupWithMembers1(
+    @Embedded val group : GroupEntity,
+    @Relation(
+        parentColumn = "groupId",
+        entityColumn = "userId",
+        associateBy = Junction(GroupMemberCrossRef::class)
+    )val members : List<UserEntity>,
+    val pay: Long,
+    val get: Long
+)

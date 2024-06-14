@@ -13,7 +13,7 @@
         android:id="@+id/shapeableImageView"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:src="@drawable/search_not_found"
+        android:src="@drawable/no_search_found"
         android:layout_marginTop="@dimen/spacing_extra_large"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

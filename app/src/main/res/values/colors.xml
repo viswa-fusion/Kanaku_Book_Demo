@@ -160,4 +160,6 @@
     <color name="fade_black">#2E4A4949</color>
     <color name="amount_Green">#53A534</color>
     <color name="amount_Red">#BE3C3C</color>
+    <color name="amount_Green_text">#41792C</color>
+    <color name="amount_Red_text">#903333</color>
 </resources>

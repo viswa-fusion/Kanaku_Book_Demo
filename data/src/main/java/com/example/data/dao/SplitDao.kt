@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.data.entity.SplitEntity
 import com.example.domain.Converters.PaidStatus
-import com.example.kanakunote.data_layer.crossreference.SplitExpenseCrossRef
+import com.example.data.crossreference.SplitExpenseCrossRef
 
 @Dao
 interface SplitDao {

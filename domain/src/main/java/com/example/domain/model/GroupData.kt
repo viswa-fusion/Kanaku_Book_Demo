@@ -10,6 +10,8 @@ data class GroupData(
     val members: List<UserProfileSummary>
 ){
     var profile: Bitmap? = null
+    var pay: Double = 0.0
+    var get: Double = 0.0
 }
 
 data class GroupEntry(
@@ -21,7 +23,8 @@ data class GroupEntry(
 )
 
 data class GroupSummery(
+    val id: Long,
     val name: String,
-    val profilePicture: String,
-    val createdBy: Long
+    val createdBy: Long,
+    val lastActiveTime: Long
 )

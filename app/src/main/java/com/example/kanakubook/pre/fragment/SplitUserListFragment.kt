@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.RecyclerviewLayoutBinding
 import com.example.kanakubook.pre.adapter.SplitListAdapter
+import com.example.kanakubook.pre.viewmodel.CommonViewModel
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 
 
@@ -27,15 +27,14 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
     private lateinit var binding: RecyclerviewLayoutBinding
     private lateinit var adapter: SplitListAdapter
     private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private var totalAmount = 0.0
+    private val commonViewModel: CommonViewModel by viewModels ()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = RecyclerviewLayoutBinding.bind(view)
 
         binding.recyclerview.itemAnimator = null
-        binding.recyclerview.layoutManager =
-            LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
+        binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
         adapter = SplitListAdapter(requireActivity(),object : SplitListAdapter.Callback {
             override suspend fun getProfile(userId: Long): Bitmap? {
                 return friendsViewModel.getProfile(userId)
@@ -51,7 +50,7 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
                     if (!it.isSelected) deselectCount++
                 }
                 val divider:Double = (list.size - deselectCount).toDouble()
-                val currentSplitAmountPerHead = totalAmount.div(divider)
+                val currentSplitAmountPerHead = commonViewModel.totalAmountSplitUserListFragment.div(divider)
 
                 list.forEach {
                     if (it.isSelected) {
@@ -60,6 +59,7 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
                         it.amount = "0.00"
                     }
                 }
+                commonViewModel.listUserSplitUserListFragment = list
                 adapter.updateList(list)
                 if (divider != 0.0 && currentSplitAmountPerHead >= 1) {
                     submitButtonState.postValue(true)
@@ -68,15 +68,22 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
                 }
 
             }
-
         })
         binding.recyclerview.adapter = adapter
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (commonViewModel.listUserSplitUserListFragment != null){
+            setList(commonViewModel.totalAmountSplitUserListFragment, commonViewModel.listUserSplitUserListFragment!!)
+        }
+    }
+
 
     override fun setList(totalAmount: Double, members: List<SplitListAdapter.SplitList>) {
-        this.totalAmount = totalAmount
+        this.commonViewModel.totalAmountSplitUserListFragment = totalAmount
+        commonViewModel.listUserSplitUserListFragment = members
         adapter.updateList(members)
     }
 

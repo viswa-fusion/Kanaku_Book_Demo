@@ -46,10 +46,10 @@
         android:scaleType="centerCrop"
         android:clipToOutline="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:src="@drawable/default_group_profile"
+        android:src="@drawable/default_group_profile12"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:shapeAppearanceOverlay="@style/squareEdgeShaped"/>
+        app:shapeAppearanceOverlay="@style/roundedShape"/>
 
 
     <com.google.android.material.textfield.TextInputLayout

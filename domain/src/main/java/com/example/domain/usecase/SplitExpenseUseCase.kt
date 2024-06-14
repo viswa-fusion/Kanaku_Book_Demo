@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.domain.model.ExpenseData
 import com.example.domain.usecase.response.PresentationLayerResponse
 
@@ -29,6 +30,8 @@ interface SplitExpenseUseCase {
             splitList: List<Pair<Long,Double>>
         ): PresentationLayerResponse<Boolean>
         suspend fun getFriendsExpenseById(connectionId: Long): PresentationLayerResponse<List<ExpenseData>>
+        suspend fun payForExpense(expenseId: Long, userId: Long): PresentationLayerResponse<Boolean>
 
+        suspend fun getCommonGroupWithFriendIdWithCalculatedAmount(userId: Long, friendId: Long): PresentationLayerResponse<List<CommonGroupWIthAmountData>>
     }
 }

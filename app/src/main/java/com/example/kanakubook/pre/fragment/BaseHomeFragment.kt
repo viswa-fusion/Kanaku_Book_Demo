@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -18,6 +19,7 @@ import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.MainScreenFragmentBinding
 import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.pre.activity.AddExpenseActivity
 import com.example.kanakubook.pre.activity.AppEntryPoint
 import com.example.kanakubook.pre.activity.MainActivity
 import com.example.kanakubook.pre.activity.ProfileActivity
@@ -33,14 +35,16 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
 
     protected lateinit var binding: MainScreenFragmentBinding
     private val viewModel : LoginViewModel by viewModels{ LoginViewModel.FACTORY }
-    private val userViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
+    private val userViewModel : FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private lateinit var userData : UserProfileData
     private var profileImage: Bitmap? = null
     private lateinit var preferenceHelper : PreferenceHelper
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         preferenceHelper = PreferenceHelper(context)
+    }
+    private val activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        binding.createFab.callOnClick()
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,8 +64,8 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         }
 
         binding.createExpense.setOnClickListener {
-//            val intent = Intent(requireActivity(),AddExpenseActivity::class.java)
-//            startActivity(intent)
+            val intent = Intent(requireActivity(), AddExpenseActivity::class.java)
+            activityResult.launch(intent)
         }
 
     }

@@ -7,8 +7,6 @@ import androidx.room.Query
 import com.example.data.crossreference.ExpenseCrossRef
 import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.ExpenseType
-import com.example.data.entity.SplitEntity
-import com.example.kanakunote.data_layer.crossreference.SplitExpenseCrossRef
 
 @Dao
 interface ExpenseDao {

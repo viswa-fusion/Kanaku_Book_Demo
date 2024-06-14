@@ -6,18 +6,22 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.usecase.response.PresentationLayerResponse
+import com.example.kanakubook.R
 import com.example.kanakubook.databinding.AddFriendScreenActivityBinding
 import com.example.kanakubook.databinding.MultiUserPickListFragmentBinding
+import com.example.kanakubook.databinding.SearchUserListLayout1Binding
 import com.example.kanakubook.pre.KanakuBookApplication
 import com.example.kanakubook.pre.adapter.UserListingAdapter
 import com.example.kanakubook.pre.fragment.MultiUserPickListFragment
@@ -56,8 +60,21 @@ class AddFriendActivity : AppCompatActivity() {
 
 
             override fun clickListener(user: UserProfileSummary) {
-                showLoading()
-                viewModel.addFriend(getLoggedUserId(), user.phone)
+                val view = LayoutInflater.from(this@AddFriendActivity).inflate(R.layout.search_user_list_layout_1, null)
+                val binding = SearchUserListLayout1Binding.bind(view)
+                binding.textview.text = user.name
+                user.profile?.let { binding.imageProfile.setImageBitmap(user.profile)}
+                AlertDialog.Builder(this@AddFriendActivity).apply {
+                    setView(view)
+                    setMessage("Confirm to add this friend")
+                    setPositiveButton("Ok") { _, _ ->
+                        showLoading()
+                        viewModel.addFriend(getLoggedUserId(), user.phone)
+                    }
+                    setNegativeButton("Cancel"){_,_->}
+                    show()
+                }
+
             }
 
         })
@@ -143,14 +160,14 @@ class AddFriendActivity : AppCompatActivity() {
                 is PresentationLayerResponse.Success -> {
                     if (it.data) {
                         hideLoading()
-                        Toast.makeText(this, "add successful", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "add new friend", Toast.LENGTH_SHORT).show()
                         setResult(Activity.RESULT_OK)
                         finish()
                     }
                 }
 
                 is PresentationLayerResponse.Error -> {
-
+                    Toast.makeText(this, "can't add now", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -193,3 +210,4 @@ class AddFriendActivity : AppCompatActivity() {
         }
     }
 }
+

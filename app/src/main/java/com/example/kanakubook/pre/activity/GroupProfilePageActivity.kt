@@ -1,10 +1,13 @@
 package com.example.kanakubook.pre.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +41,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
     private var members: List<UserProfileSummary>? = null
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         overridePendingTransition(R.anim.fade_in_center, R.anim.dont_slide)
@@ -48,7 +52,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
     }
 
     private fun setListener() {
-        binding.close?.setOnClickListener {
+        binding.close.setOnClickListener {
             finish()
             overridePendingTransition(R.anim.dont_slide, R.anim.fade_out_center)
         }
@@ -61,6 +65,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
             bottomSheet.isForBottomSheet = true
             bottomSheet.arguments = Bundle().apply {
                 putLong("userId", getLoggedUserId())
+                putLongArray("membersId", membersId.toLongArray())
             }
             bottomSheet.show(supportFragmentManager, "multiUserPickList")
 
@@ -70,6 +75,9 @@ class GroupProfilePageActivity : AppCompatActivity() {
     private fun setObserver() {
         userViewModel.userData.observe(this) {
             members = it
+            membersId = it.map {id -> id.userId }
+
+            binding.groupMemberTitle.text = "Group members (${membersId.size})"
             if (members.isNullOrEmpty()) {
                 Toast.makeText(this, "membersNotFound", Toast.LENGTH_SHORT).show()
             } else {
@@ -145,7 +153,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
                     if (bitmap != null) {
                         binding.profile.setImageBitmap(bitmap)
                     } else {
-                        binding.profile.setImageResource(R.drawable.default_group_profile)
+                        binding.profile.setImageResource(R.drawable.default_group_profile12)
                     }
                 }
             }
@@ -182,10 +190,15 @@ class GroupProfilePageActivity : AppCompatActivity() {
 
 
     private fun showLoading() {
-        binding.loadingScreen?.loadingScreen?.visibility = View.VISIBLE
+        binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
     }
 
     private fun hideLoading() {
-        binding.loadingScreen?.loadingScreen?.visibility = View.GONE
+        binding.loadingScreen.loadingScreen.visibility = View.GONE
+    }
+
+    override fun finish() {
+        setResult(RESULT_OK,intent.putExtra("membersId",membersId.toLongArray()))
+        super.finish()
     }
 }

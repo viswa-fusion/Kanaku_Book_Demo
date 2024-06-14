@@ -1,10 +1,13 @@
 package com.example.kanakubook.pre.adapter
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +19,8 @@ import com.example.kanakubook.R
 import com.example.kanakubook.databinding.ExpenseLeftCardBinding
 import com.example.kanakubook.databinding.ExpenseRightCardBinding
 import com.example.kanakubook.pre.KanakuBookApplication
+import com.example.kanakubook.pre.activity.ExpenseDetailActivity
+import com.example.kanakubook.util.DateConvertor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -105,7 +110,15 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
             binding.payButton.setOnClickListener {
                 callback.pay(asyncListDiffer.currentList[absoluteAdapterPosition].expenseId)
             }
+
+            binding.cardView.setOnClickListener {
+                callback.onclickCard(
+                    asyncListDiffer.currentList[absoluteAdapterPosition],
+                    binding.cardView
+                )
+            }
         }
+
         private fun resetViewHolder() {
             bindImageReferenceCheck = -1
             binding.note.text = ""
@@ -117,6 +130,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
             binding.payButton.visibility = View.VISIBLE
             binding.paidStatusText.text = ""
             binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
+            binding.progressText.text = ""
         }
 
         fun bind(item: ExpenseData) {
@@ -124,6 +138,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
             bindImageReferenceCheck = item.expenseId
             val mySplit: SplitEntry? =
                 item.listOfSplits.singleOrNull { it.splitUserId == loggedUserId }
+            val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
             val amount = rupeeSymbol + mySplit?.splitAmount.toString()
             val totalPaid: Int = item.listOfSplits.count { it.paidStatus == PaidStatus.Paid }
             if (mySplit != null) {
@@ -132,16 +147,20 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
                     binding.progressBar.visibility = View.GONE
                     binding.paidStatusText.text = "No payment required"
                     binding.payButton.visibility = View.GONE
+                    binding.paidStatusIcon.setImageResource(R.drawable.info_24px)
                 } else {
                     binding.amount.text = amount
-                    val progressLevel: Int = (totalPaid*100)/item.listOfSplits.size
+                    val progressLevel: Int = (totalPaid * 100) / totalIncludeCount
                     binding.progressBar.progress = progressLevel
-                    if (mySplit.paidStatus == PaidStatus.Paid){
-                        binding.paidStatusText.text = "Paid•7:23 pm"
+
+                    binding.progressText.text = "$totalPaid/${totalIncludeCount} paid"
+                    val time = DateConvertor.millisToDateTime(item.date)
+                    if (mySplit.paidStatus == PaidStatus.Paid) {
+                        binding.paidStatusText.text = "Paid • $time"
                         binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
                         binding.payButton.visibility = View.GONE
-                    }else{
-                        binding.paidStatusText.text = "Unpaid•10 Jun"
+                    } else {
+                        binding.paidStatusText.text = "Unpaid • $time"
                         binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
                         binding.payButton.visibility = View.VISIBLE
                     }
@@ -150,7 +169,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
 
             if (!item.note.isNullOrEmpty()) {
                 binding.note.text = "Request for'${item.note}'"
-            }else{
+            } else {
                 binding.note.text = "Split request"
             }
             binding.ownerName.text = item.spender.name
@@ -174,29 +193,56 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
     inner class RightViewHolder(val binding: ExpenseRightCardBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-         private fun resetViewHolder(){
-             binding.note.text = ""
-             binding.amount.text = ""
-             binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
-             binding.paidStatusText.text = ""
-             binding.progressBar.progress = 0
-         }
+        init {
+            binding.cardView.setOnClickListener {
+                callback.onclickCard(
+                    asyncListDiffer.currentList[absoluteAdapterPosition],
+                    binding.cardView
+                )
+            }
+        }
+
+        private fun resetViewHolder() {
+            binding.note.text = ""
+            binding.amount.text = ""
+            binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
+            binding.paidStatusText.text = ""
+            binding.progressBar.progress = 0
+            binding.progressBar.visibility = View.VISIBLE
+            binding.progressText.visibility = View.VISIBLE
+        }
+
         fun bind(item: ExpenseData) {
+
+            val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
             resetViewHolder()
             if (!item.note.isNullOrEmpty()) {
-                binding.note.text = item.note
+                binding.note.text = "Request for'${item.note}'"
+            } else {
+                binding.note.text = "Split request"
             }
             val amount = rupeeSymbol + item.totalAmount
             binding.amount.text = amount
-            val totalPaid: Int = item.listOfSplits.count { it.paidStatus == PaidStatus.Paid }
-            val progressLevel: Int = (totalPaid*100)/item.listOfSplits.size
+            val totalPaid: Int =
+                item.listOfSplits.count { it.paidStatus == PaidStatus.Paid && it.splitAmount != 0.0 }
+            val progressLevel: Int = (totalPaid * 100) / totalIncludeCount
             binding.progressBar.progress = progressLevel
-            if (totalPaid == item.listOfSplits.size){
+            var leftAmount = 0.0
+            item.listOfSplits.forEach {
+                if (it.paidStatus == PaidStatus.UnPaid && it.splitAmount != 0.0) {
+                    leftAmount += it.splitAmount
+                }
+            }
+            binding.progressText.text = "$rupeeSymbol${String.format("%.2f", leftAmount)} left"
+            val time = DateConvertor.millisToDateTime(item.date)
+            if (totalPaid == item.listOfSplits.size) {
                 binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
-                binding.paidStatusText.text = "Allpaid•4:15 am"
-            }else{
+                binding.paidStatusText.text = "Allpaid • $time"
+                binding.progressBar.visibility = View.GONE
+                binding.progressText.visibility = View.GONE
+            } else {
                 binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
-                val str = "$totalPaid of ${item.listOfSplits.size} paid•2.13 pm"
+                val str = "$totalPaid of $totalIncludeCount paid • $time"
                 binding.paidStatusText.text = str
             }
         }
@@ -205,6 +251,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
     interface Callback {
         suspend fun getProfile(userId: Long): Bitmap?
 
+        fun onclickCard(item: ExpenseData, view: View)
         fun pay(expenseId: Long)
     }
 }

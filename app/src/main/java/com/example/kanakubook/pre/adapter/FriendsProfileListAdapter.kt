@@ -99,6 +99,7 @@ class FriendsProfileListAdapter(
             resetViewHolder()
             bindImageReferenceCheck = profile.userId
             textViewName.text = profile.name
+            textViewAmount.setTextColor(context.getColor(R.color.black))
             val decimalFormat = DecimalFormat("#,###.##")
             val displayAmount = profile.get - profile.pay
             val formattedAmount = "₹${decimalFormat.format(abs(displayAmount))}"
@@ -116,6 +117,7 @@ class FriendsProfileListAdapter(
 
                 else -> {
                     textViewAmount.text = "no pending"
+                    textViewAmount.setTextColor(Color.GRAY)
                     binding.statusBar.setCardBackgroundColor(Color.GRAY)
                 }
             }

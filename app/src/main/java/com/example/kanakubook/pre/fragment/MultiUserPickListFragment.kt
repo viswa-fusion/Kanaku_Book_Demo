@@ -35,13 +35,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_pick_list_fragment) {
+class MultiUserPickListFragment :
+    BottomSheetDialogFragment(R.layout.multi_user_pick_list_fragment) {
 
     private lateinit var searchView: EditText
     private lateinit var horizontalRecyclerView: RecyclerView
     private lateinit var verticalRecyclerView: RecyclerView
     private val viewModel: FriendsViewModel by activityViewModels { FriendsViewModel.FACTORY }
     var isForBottomSheet = false
+    private lateinit var membersId: List<Long>
 
 
     private lateinit var binding: MultiUserPickListFragmentBinding
@@ -50,14 +52,13 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i("lifecycleTest","onViewCreated")
+        Log.i("lifecycleTest", "onViewCreated")
 
         binding = MultiUserPickListFragmentBinding.bind(view)
         searchView = binding.searchView
         horizontalRecyclerView = binding.horizontalRecyclerView
         verticalRecyclerView = binding.verticalRecyclerView
 
-        if(isForBottomSheet) setForBottomSheet()
         setObserver()
 
         horizontalAdapter = HorizontalAdapter()
@@ -71,11 +72,11 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
 
 
         binding.shapeableImageView3.setOnClickListener {
-            if (viewModel.selectedList.isNotEmpty()){
-                parentFragmentManager.setFragmentResult("addFriend",Bundle())
+            if (viewModel.selectedList.isNotEmpty()) {
+                parentFragmentManager.setFragmentResult("addFriend", Bundle())
                 dismiss()
-            }else{
-                Toast.makeText(requireActivity(),"Select min 1 person",Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireActivity(), "Select min 1 person", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -90,9 +91,9 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
                 val filteredList = viewModel.listOfMySelectableUserData.filter {
                     it.name.lowercase(Locale.ROOT).contains(searchText)
                 }
-                if (filteredList.isEmpty()){
+                if (filteredList.isEmpty()) {
                     binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
-                }else{
+                } else {
                     binding.searchNotFound.emptyTemplate.visibility = View.INVISIBLE
                 }
                 verticalAdapter.updateData(filteredList)
@@ -100,14 +101,22 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
         })
 
         val userId = arguments?.getLong("userId")
+        arguments?.getLongArray("membersId")?.toList()?.let { data ->
+                membersId = data
+            }
 
-        if(viewModel.listOfMySelectableUserData.isEmpty()){
+        if (viewModel.listOfMySelectableUserData.isEmpty()) {
             viewModel.getMyFriends(userId!!)
-        }else{
-            horizontalAdapter.updateData( viewModel.selectedList)
+        } else {
+            horizontalAdapter.updateData(viewModel.selectedList)
             verticalAdapter.updateData(viewModel.listOfMySelectableUserData)
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isForBottomSheet) setForBottomSheet()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -119,14 +128,20 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
 
     private fun setObserver() {
         viewModel.friendsList.observe(viewLifecycleOwner) {
-            if (viewModel.listOfMySelectableUserData.isEmpty()){
+            if (viewModel.listOfMySelectableUserData.isEmpty()) {
                 when (it) {
                     is PresentationLayerResponse.Success -> {
-                        val list = it.data.map { userData ->
+                        var list = it.data.map { userData ->
                             MySelectableUserData(
                                 userData.userId,
                                 userData.name
                             )
+                        }
+                        if (::membersId.isInitialized){
+                            val filterList = list.filter {myData ->
+                                !membersId.contains(myData.userId)
+                            }
+                            list = filterList
                         }
                         viewModel.listOfMySelectableUserData = list
                         if (list.isEmpty()) {
@@ -249,11 +264,14 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
             return ViewHolder(SearchUserListLayout1Binding.bind(view))
         }
 
+
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = asyncListDiffer.currentList[position]
             holder.bind(item)
 
             holder.itemView.setOnClickListener {
+                val limit = viewModel.selectedList.size
+
                 if (item.isSelected) {
                     item.isSelected = false
                     viewModel.selectedList = viewModel.selectedList.filter {
@@ -263,14 +281,22 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
                         ContextCompat.getColorStateList(requireActivity(), R.color.transparent)
                     holder.binding.checkIcon.visibility = View.INVISIBLE
                 } else {
-                    item.isSelected = true
-                    item.verticalListPosition = position
-                    viewModel.selectedList.add(item)
-                    holder.binding.main.backgroundTintList = ContextCompat.getColorStateList(
-                        requireActivity(),
-                        R.color.pick_list_selection
-                    )
-                    holder.binding.checkIcon.visibility = View.VISIBLE
+                    if (limit > 20) {
+                        Toast.makeText(
+                            requireActivity(),
+                            "max 20 member per group exceed",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        item.isSelected = true
+                        item.verticalListPosition = position
+                        viewModel.selectedList.add(item)
+                        holder.binding.main.backgroundTintList = ContextCompat.getColorStateList(
+                            requireActivity(),
+                            R.color.pick_list_selection
+                        )
+                        holder.binding.checkIcon.visibility = View.VISIBLE
+                    }
                 }
                 (horizontalRecyclerView.adapter as? HorizontalAdapter)?.apply {
                     this.updateData(viewModel.selectedList)
@@ -282,6 +308,7 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
                         )
                     }
                 }
+
             }
         }
 
@@ -296,6 +323,7 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
                 }
             }
         }
+
 
         override fun getItemCount(): Int = asyncListDiffer.currentList.size
 
@@ -369,8 +397,19 @@ class MultiUserPickListFragment : BottomSheetDialogFragment(R.layout.multi_user_
         }
     }
 
-    private fun setForBottomSheet(){
+    private fun setForBottomSheet() {
         binding.topCard.visibility = View.VISIBLE
         binding.shapeableImageView3.visibility = View.VISIBLE
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isForBottomSheet", isForBottomSheet)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.getBoolean("isForBottomSheet")?.let { isForBottomSheet = it }
+    }
 }
+

@@ -4,6 +4,7 @@ import android.provider.ContactsContract.Contacts.Data
 import com.example.domain.Converters.PaidStatus
 import com.example.domain.helper.CryptoHelper
 import com.example.domain.helper.DateTimeHelper
+import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.domain.model.ExpenseData
 import com.example.domain.model.ExpenseEntry
 import com.example.domain.model.SplitEntry
@@ -74,6 +75,28 @@ class SplitExpenseUseCaseImpl(
         return when(val result = splitGroupExpenseRepository.payForExpense(CryptoHelper.decrypt(expenseId),CryptoHelper.decrypt(userId))){
             is DataLayerResponse.Success -> {
                 PresentationLayerResponse.Success(result.data)
+            }
+
+            is DataLayerResponse.Error -> {
+                PresentationLayerResponse.Error(result.errorCode.toString())
+            }
+        }
+    }
+
+    override suspend fun getCommonGroupWithFriendIdWithCalculatedAmount(
+        userId: Long,
+        friendId: Long
+    ): PresentationLayerResponse<List<CommonGroupWIthAmountData>> {
+        val decryptedUserId = CryptoHelper.decrypt(userId)
+        val decryptedFriendId = CryptoHelper.decrypt(friendId)
+        return when(val result = updateGroup.getCommonGroupsWithCalculatedBalance(decryptedUserId, decryptedFriendId)){
+            is DataLayerResponse.Success -> {
+                val encryptResult = result.data.map {
+                    it.copy(
+                        group = it.group.copy(id = CryptoHelper.encrypt(it.group.id))
+                    )
+                }
+                PresentationLayerResponse.Success(encryptResult)
             }
 
             is DataLayerResponse.Error -> {

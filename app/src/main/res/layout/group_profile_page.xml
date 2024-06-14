@@ -35,7 +35,7 @@
         android:layout_height="120dp"
         android:layout_marginTop="@dimen/spacing_large"
         android:scaleType="centerCrop"
-        android:src="@drawable/default_group_profile"
+        android:src="@drawable/default_group_profile12"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
@@ -44,7 +44,7 @@
     <androidx.cardview.widget.CardView
         android:layout_width="30dp"
         android:layout_height="0dp"
-        android:layout_margin="8dp"
+        android:layout_margin="3dp"
         app:cardBackgroundColor="@color/md_theme_secondaryFixedDim"
         app:cardCornerRadius="50dp"
         app:layout_constraintBottom_toBottomOf="@id/profile"
@@ -54,7 +54,7 @@
             android:id="@+id/edit_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
+            android:layout_margin="2dp"
             android:src="@drawable/edit_24px_black"
             app:shapeAppearanceOverlay="@style/roundedShape" />
     </androidx.cardview.widget.CardView>
@@ -72,6 +72,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profile" />
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/add_group"
@@ -90,7 +99,7 @@
         android:layout_marginTop="@dimen/spacing_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/name" />
+        app:layout_constraintTop_toBottomOf="@id/divider" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/group_member_title"
@@ -109,7 +118,18 @@
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        android:layout_margin="@dimen/spacing_medium"
+        android:layout_marginTop="@dimen/spacing_medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/group_member_title" />
+
+    <include android:id="@+id/not_in_same_group"
+        layout="@layout/dont_have_common_groups"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/group_member_title" />

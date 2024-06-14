@@ -17,7 +17,7 @@ import com.example.domain.model.SplitEntry
 import com.example.domain.repository.SplitExpenseRepository
 import com.example.domain.repository.response.DataLayerErrorCode
 import com.example.domain.repository.response.DataLayerResponse
-import com.example.kanakunote.data_layer.crossreference.SplitExpenseCrossRef
+import com.example.data.crossreference.SplitExpenseCrossRef
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

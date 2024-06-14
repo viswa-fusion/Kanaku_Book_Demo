@@ -4,6 +4,8 @@
     android:id="@id/main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/left_edge_curve"
+    android:clipToOutline="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:layout_marginTop="1dp"
     android:paddingVertical="@dimen/spacing_small"
     android:layout_marginStart="@dimen/spacing_small">

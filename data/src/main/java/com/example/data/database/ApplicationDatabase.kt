@@ -18,7 +18,7 @@ import com.example.data.entity.GroupEntity
 import com.example.data.entity.SplitEntity
 import com.example.data.entity.UserEntity
 import com.example.domain.Converters.Converters
-import com.example.kanakunote.data_layer.crossreference.SplitExpenseCrossRef
+import com.example.data.crossreference.SplitExpenseCrossRef
 
 @Database(
     entities = [

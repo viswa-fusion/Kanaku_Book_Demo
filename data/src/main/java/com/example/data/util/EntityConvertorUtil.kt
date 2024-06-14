@@ -9,6 +9,8 @@ import com.example.data.entity.GroupEntity
 import com.example.data.entity.SplitEntity
 import com.example.data.relation.GroupWithMembers
 import com.example.data.entity.UserEntity
+import com.example.data.relation.CommonGroupWithAmount
+import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.domain.model.ExpenseData
 import com.example.domain.model.ExpenseEntry
 import com.example.domain.model.GroupData
@@ -52,9 +54,24 @@ internal fun UserEntity.toUserProfileData(
 
 internal fun GroupWithMembers.toGroupSummery(profilePhotoFilePath: String): GroupSummery {
     return GroupSummery(
+        this.group.groupId,
         this.group.groupName,
-        profilePhotoFilePath,
-        this.group.createdBy
+        this.group.createdBy,
+        this.group.lastActive
+    )
+}
+
+internal fun CommonGroupWithAmount.toCommonGroupWithAmountData(): CommonGroupWIthAmountData{
+    return CommonGroupWIthAmountData(
+        GroupSummery(
+            this.groupData.groupId,
+            this.groupData.groupName,
+            this.groupData.createdBy,
+            this.groupData.lastActive
+        ),
+        this.give,
+        this.get
+
     )
 }
 

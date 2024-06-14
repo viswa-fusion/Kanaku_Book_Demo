@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.model.GroupData
 import com.example.kanakubook.R
-import com.example.kanakubook.databinding.GroupViewHolderCardBinding
 import com.example.kanakubook.databinding.GroupViewHolderCardTestBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,7 +79,7 @@ class GroupsListAdapter(
             bindImageReferenceCheck = -1
             groupName.text = ""
             amount.text = ""
-            profile.setImageResource(R.drawable.default_group_profile)
+            profile.setImageResource(R.drawable.default_group_profile12)
         }
 
         fun bind(groupData: GroupData){

@@ -54,17 +54,25 @@
     android:visibility="gone"
     app:cardCornerRadius="50dp"
     android:elevation="0dp"
-    android:outlineAmbientShadowColor="@color/transparent"
-    android:outlineSpotShadowColor="@color/transparent"
-    app:cardBackgroundColor="@color/transparent"
-    android:layout_marginTop="-5dp"
+    android:layout_marginEnd="@dimen/spacing_small"
     android:layout_alignParentEnd="true"
     android:foreground="?android:attr/selectableItemBackground">
-        <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="8dp"
-            android:src="@drawable/submit_icon"
+<!--        <com.google.android.material.imageview.ShapeableImageView-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            android:layout_margin="3dp"-->
+<!--            android:src="@drawable/check_24px"-->
+<!--            />-->
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:paddingHorizontal="2dp"
+            android:backgroundTint="@color/transparent"
+            android:textSize="@dimen/text_size_medium"
+            android:text="Done"
+            android:src="@drawable/check_24px"
             />
 </androidx.cardview.widget.CardView>
         <androidx.recyclerview.widget.RecyclerView

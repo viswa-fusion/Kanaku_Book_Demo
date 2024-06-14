@@ -47,9 +47,7 @@ class UserViewModel(
         }
     }
 
-    fun updateUser(userId: Long, name:String, oldPassword:String?, newPassword: String?){
 
-    }
 
 
     fun getAllKanakuBookUsers(userId: Long){

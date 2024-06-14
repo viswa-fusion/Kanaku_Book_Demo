@@ -1,6 +1,7 @@
 package com.example.domain.Converters
+import android.os.Parcelable
 import androidx.room.TypeConverter
-enum class PaidStatus {
+enum class PaidStatus  {
     Paid,UnPaid
 }
 

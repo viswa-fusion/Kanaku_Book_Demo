@@ -15,9 +15,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.data.util.PreferenceHelper
+import com.example.domain.model.ExpenseData
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.DetailPageActivityBinding
@@ -29,6 +31,7 @@ import com.example.kanakubook.pre.viewmodel.GroupViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.ArrayList
 
 class GroupDetailPageActivity : AppCompatActivity() {
 
@@ -51,6 +54,13 @@ class GroupDetailPageActivity : AppCompatActivity() {
             }
         }
 
+    private val profileResultActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        if(it.resultCode == Activity.RESULT_OK){
+            members = it.data?.getLongArrayExtra("membersId")?.toList() ?: emptyList()
+            binding.number.text = "${members.size} members"
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +75,8 @@ class GroupDetailPageActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
-        groupViewModel.payResponse.observe(this){
-            if(::alertDialog.isInitialized) {
+        groupViewModel.payResponse.observe(this) {
+            if (alertDialog.isShowing) {
                 when (it) {
                     is PresentationLayerResponse.Success -> {
                         groupViewModel.getAllExpenseByGroupId(groupId)
@@ -122,8 +132,8 @@ class GroupDetailPageActivity : AppCompatActivity() {
             bundle.putLongArray("members", members.toLongArray())
             intent.putExtra("bundleFromDetailPage", bundle)
             intent.putExtra("groupId", groupId)
-            intent.putExtra("name",groupName)
-            startActivity(intent)
+            intent.putExtra("name", groupName)
+            profileResultActivity.launch(intent)
         }
     }
 
@@ -142,9 +152,32 @@ class GroupDetailPageActivity : AppCompatActivity() {
     }
 
     private fun setAdapter() {
-        adapter = ExpenseDetailScreenAdapter(this,object : ExpenseDetailScreenAdapter.Callback{
+        adapter = ExpenseDetailScreenAdapter(this, object : ExpenseDetailScreenAdapter.Callback {
             override suspend fun getProfile(userId: Long): Bitmap? {
                 return friendsViewModel.getProfile(userId)
+            }
+
+            override fun onclickCard(item: ExpenseData, view: View) {
+                val check = item.listOfSplits.singleOrNull {
+                    it.splitUserId == getLoggedUserId()
+                }
+                if (check != null && check.splitAmount != 0.0 || check?.splitUserId == item.spender.userId) {
+                    val intent =
+                        Intent(this@GroupDetailPageActivity, ExpenseDetailActivity::class.java)
+
+                    intent.putExtra("userId", getLoggedUserId())
+                    intent.putExtra("ownerId", item.spender.userId)
+                    intent.putExtra("totalAmount", item.totalAmount)
+                    intent.putExtra("ownerName", item.spender.name)
+                    intent.putParcelableArrayListExtra("splitList", ArrayList(item.listOfSplits))
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(
+                        this@GroupDetailPageActivity,
+                        "not include in split",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
 
             override fun pay(expenseId: Long) {
@@ -157,21 +190,27 @@ class GroupDetailPageActivity : AppCompatActivity() {
     }
 
     private fun showPaymentConfirmationDialog(expenseId: Long) {
-        val dialogView = layoutInflater.inflate(R.layout.pay_expense_dialog, null)
-        val binding = PayExpenseDialogBinding.bind(dialogView)
-        val builder = AlertDialog.Builder(this)
-            .setView(dialogView)
-        alertDialog = builder.create()
-        alertDialog.setCanceledOnTouchOutside(false)
-        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        binding.btnCancel.setOnClickListener {
-            alertDialog.dismiss()
+      if (::alertDialog.isInitialized){
+          alertDialog.dismiss()
+      }
+            val dialogView = layoutInflater.inflate(R.layout.pay_expense_dialog, null)
+            val binding = PayExpenseDialogBinding.bind(dialogView)
+            val builder = AlertDialog.Builder(this)
+                .setView(dialogView)
+            alertDialog = builder.create()
+            alertDialog.setCanceledOnTouchOutside(false)
+            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            binding.btnCancel.setOnClickListener {
+                alertDialog.dismiss()
+            }
+            binding.btnProceed.setOnClickListener {
+                binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
+                groupViewModel.pay(expenseId, getLoggedUserId())
+            }
+
+        if(!alertDialog.isShowing) {
+            alertDialog.show()
         }
-        binding.btnProceed.setOnClickListener {
-            binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
-            groupViewModel.pay(expenseId, getLoggedUserId())
-        }
-        alertDialog.show()
     }
 
     private fun getGroupProfile() {
@@ -182,7 +221,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
                     if (bitmap != null) {
                         binding.profile.setImageBitmap(bitmap)
                     } else {
-                        binding.profile.setImageResource(R.drawable.default_group_profile)
+                        binding.profile.setImageResource(R.drawable.default_group_profile12)
                     }
                 }
             }

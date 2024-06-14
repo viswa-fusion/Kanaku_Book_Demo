@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,18 +23,22 @@ import com.example.kanakubook.pre.activity.AddGroupActivity
 import com.example.kanakubook.pre.activity.AppEntryPoint
 import com.example.kanakubook.pre.activity.GroupDetailPageActivity
 import com.example.kanakubook.pre.adapter.GroupsListAdapter
+import com.example.kanakubook.pre.viewmodel.CommonViewModel
 import com.example.kanakubook.pre.viewmodel.FabViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
+import com.example.kanakubook.util.Constants
 import com.example.kanakubook.util.CustomAnimationUtil
 import com.example.kanakubook.util.CustomDividerItemDecoration
 
-class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
+class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private val fabViewModel: FabViewModel by viewModels()
     private var isFabRotated = false
     private val FAB_STATE = "fab state"
     private lateinit var preferenceHelper: PreferenceHelper
     private val viewModel : GroupViewModel by viewModels { GroupViewModel.FACTORY }
+    private val commonViewModel: CommonViewModel by activityViewModels ()
+
 
     private val addGroupResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -50,10 +55,6 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
     override fun onResume() {
         super.onResume()
         getGroupList()
-
-    }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
     }
 
@@ -162,20 +163,35 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
 
     private fun initialSetUp(){
+        checkLayoutNeed()
         val adapter = GroupsListAdapter(object : GroupsListAdapter.CallBack{
             override suspend fun getImage(groupId: Long): Bitmap? {
                 return viewModel.getProfile(groupId)
             }
 
             override fun onClickItemListener(groupData: GroupData) {
-                val intent = Intent(requireActivity(), GroupDetailPageActivity::class.java)
-                intent.putExtra("groupName",groupData.name)
-                intent.putExtra("groupId",groupData.id)
-                intent.putExtra("createdBy",groupData.createdBy)
-                val bundle = Bundle()
-                bundle.putLongArray("members",groupData.members.map { it.userId }.toLongArray())
-                intent.putExtra("bundle",bundle)
-                startActivity(intent)
+                when(layoutTag){
+                     Constants.NORMAL_LAYOUT -> {
+                        val intent = Intent(requireActivity(), GroupDetailPageActivity::class.java)
+                        intent.putExtra("groupName", groupData.name)
+                        intent.putExtra("groupId", groupData.id)
+                        intent.putExtra("createdBy", groupData.createdBy)
+                        val bundle = Bundle()
+                        bundle.putLongArray(
+                            "members",
+                            groupData.members.map { it.userId }.toLongArray()
+                        )
+                        intent.putExtra("bundle", bundle)
+                        startActivity(intent)
+                    }
+                    Constants.FOR_TAB_LAYOUT -> {
+                        commonViewModel.selectSplitWithListener.value = CommonViewModel.SelectionData(
+                            groupData.members.map { it.userId },
+                            groupData.id,
+                            false
+                        )
+                    }
+                }
             }
         })
         binding.recyclerview.adapter = adapter
@@ -184,5 +200,12 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         binding.recyclerview.addItemDecoration(
             CustomDividerItemDecoration(requireActivity(), dividerDrawable, 200,16)
         )
+    }
+
+    private fun checkLayoutNeed() {
+        if(layoutTag == Constants.FOR_TAB_LAYOUT){
+            binding.createFab.visibility = View.GONE
+            binding.appbar.visibility = View.GONE
+        }
     }
 }

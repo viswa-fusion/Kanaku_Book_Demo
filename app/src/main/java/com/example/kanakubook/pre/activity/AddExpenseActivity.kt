@@ -9,19 +9,19 @@ import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import com.example.data.entity.ExpenseType
 import com.example.data.util.PreferenceHelper
-import com.example.domain.model.UserProfileSummary
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.AddExpenseScreenActivityBinding
 import com.example.kanakubook.pre.KanakuBookApplication
 import com.example.kanakubook.pre.adapter.SplitListAdapter
-import com.example.kanakubook.pre.fragment.SplitUserListFragment
+import com.example.kanakubook.pre.viewmodel.CommonViewModel
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.GroupViewModel
 import com.example.kanakubook.pre.viewmodel.UserViewModel
@@ -29,28 +29,53 @@ import com.example.kanakubook.util.NumberTextWatcher
 
 class AddExpenseActivity : AppCompatActivity() {
 
+
     private lateinit var binding: AddExpenseScreenActivityBinding
     private lateinit var inputMethodManager: InputMethodManager
-    private val fragment: SplitUserListFragment by lazy { SplitUserListFragment() }
-    private lateinit var membersId: List<Long>
     private val userViewModel: UserViewModel by viewModels { UserViewModel.FACTORY }
     private val groupViewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
     private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private var members: List<UserProfileSummary>? = null
-    private var isFragmentAdded = false
-    private var id: Long = 0
+    private val commonViewModel: CommonViewModel by viewModels ()
+
     private lateinit var preferenceHelper: PreferenceHelper
     private lateinit var expenseType: ExpenseType
-    private var isNextButtonClicked = false
-    private var NEXT_BUTTON_CLICKED_TAG = "is_next_clicked"
+
+    private val resultActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+
+        if(it.resultCode == Activity.RESULT_OK){
+            commonViewModel.needToGetSplitWith = false
+            commonViewModel.isNextButtonClicked = true
+            commonViewModel.haveSplitWithData = true
+            getIntentExtras(it.data)
+            setObserve()
+            getMembersDetail()
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkLayout()
         initialSetUp()
         setListener()
-        setObserve()
-        getMembersDetail()
+        if (!commonViewModel.needToGetSplitWith) {
+            getIntentExtras()
+            setObserve()
+            getMembersDetail()
+        }
+    }
+
+    private fun getWhoSplitWith() {
+        val intent = Intent(this, SelectSplitWithActivity::class.java)
+        resultActivity.launch(intent)
+    }
+
+    private fun checkLayout(){
+        val gId = intent.getLongExtra("groupId", -1L)
+        val uId = intent.getLongExtra("connectionId",-1)
+        if (uId == -1L && gId == -1L && !commonViewModel.haveSplitWithData){
+            commonViewModel.needToGetSplitWith = true
+        }
     }
 
     private fun initialSetUp(){
@@ -63,22 +88,21 @@ class AddExpenseActivity : AppCompatActivity() {
         }
         preferenceHelper = PreferenceHelper(this)
         binding.mainButton.isEnabled = false
-
-        getIntentExtras()
     }
-    private fun getIntentExtras(){
-        val bundle = intent.getBundleExtra("bundleFromDetailPage")
+    private fun getIntentExtras(getIntent: Intent? = null){
+        val currentIntent = getIntent?:intent
+        val bundle = currentIntent.getBundleExtra("bundleFromDetailPage")
         bundle?.let {
             it.getLongArray("members")?.toList()?.let { data ->
-                membersId = data
+                commonViewModel.membersId = data
             }
         }
-        id = intent.getLongExtra("groupId", -1L).let {
+       commonViewModel.id = currentIntent.getLongExtra("groupId", -1L).let {
             if (it == -1L) {
-                intent.getLongExtra("connectionId",-1)
+                currentIntent.getLongExtra("connectionId",-1)
             }else it
         }
-        expenseType = if (intent.getBooleanExtra(
+        expenseType = if (currentIntent.getBooleanExtra(
                 "ExpenseType",
                 false
             )
@@ -92,13 +116,13 @@ class AddExpenseActivity : AppCompatActivity() {
 
         binding.amount.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                isNextButtonClicked = false
-                if (isFragmentAdded && supportFragmentManager.fragments.contains(fragment)) {
+                commonViewModel.isNextButtonClicked = false
+                if (commonViewModel.isFragmentAdded && supportFragmentManager.fragments.contains(commonViewModel.fragment)) {
                     supportFragmentManager.commit {
-                        remove(fragment)
+                        remove(commonViewModel.fragment)
                     }
                     binding.note.visibility = View.INVISIBLE
-                    isFragmentAdded = false
+                    commonViewModel.isFragmentAdded = false
                     switchButton(false)
                 }
                 showKeyboard(binding.amount)
@@ -108,28 +132,32 @@ class AddExpenseActivity : AppCompatActivity() {
         }
 
         binding.mainButton.setOnClickListener {
-            isNextButtonClicked = true
-            supportFragmentManager.commitNow {
-                replace(R.id.fragment_container_view, fragment)
-            }
-            val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
-            val calculateAmount = totalAmount / membersId.size
+            if(commonViewModel.needToGetSplitWith){
+                getWhoSplitWith()
+            } else {
+                commonViewModel.isNextButtonClicked = true
+                supportFragmentManager.commitNow {
+                    replace(R.id.fragment_container_view, commonViewModel.fragment)
+                }
+                val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
+                val calculateAmount = totalAmount / commonViewModel.membersId.size
 
-            binding.submitButton.isEnabled = calculateAmount >= 1
+                binding.submitButton.isEnabled = calculateAmount >= 1
 
-            val value = String.format("%.2f", calculateAmount)
-            if (members != null) {
-                fragment.setList(totalAmount, members!!.map { userData ->
-                    SplitListAdapter.SplitList(
-                        userData.userId,
-                        userData.name,
-                        value
-                    )
-                })
-                binding.note.visibility = View.VISIBLE
-                switchButton(true)
-                binding.amount.clearFocus()
-                isFragmentAdded = true
+                val value = String.format("%.2f", calculateAmount)
+                if (commonViewModel.members != null) {
+                    commonViewModel.fragment.setList(totalAmount, commonViewModel.members!!.map { userData ->
+                        SplitListAdapter.SplitList(
+                            userData.userId,
+                            userData.name,
+                            value
+                        )
+                    })
+                    binding.note.visibility = View.VISIBLE
+                    switchButton(true)
+                    binding.amount.clearFocus()
+                    commonViewModel.isFragmentAdded = true
+                }
             }
         }
 
@@ -141,12 +169,12 @@ class AddExpenseActivity : AppCompatActivity() {
 
 
     private fun submitData(){
-        val finalList = fragment.getList()
+        val finalList = commonViewModel.fragment.getList()
         val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
         when(expenseType){
             ExpenseType.GroupExpense -> {
                 groupViewModel.createExpense(
-                    id,
+                    commonViewModel.id,
                     getLoggedUserId(),
                     totalAmount,
                     binding.note.text.toString(),
@@ -158,7 +186,7 @@ class AddExpenseActivity : AppCompatActivity() {
 
             ExpenseType.FriendsExpense -> {
                 friendsViewModel.createExpense(
-                    id,
+                    commonViewModel.id,
                     getLoggedUserId(),
                     totalAmount,
                     binding.note.text.toString(),
@@ -169,34 +197,25 @@ class AddExpenseActivity : AppCompatActivity() {
             }
         }
     }
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(NEXT_BUTTON_CLICKED_TAG,isNextButtonClicked)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-            isNextButtonClicked = savedInstanceState.getBoolean(NEXT_BUTTON_CLICKED_TAG)
-    }
     private fun getMembersDetail() {
-        userViewModel.getUser(membersId)
+        userViewModel.getUser(commonViewModel.membersId)
     }
 
     private fun setObserve() {
         userViewModel.userData.observe(this) {
-            members = it
+            commonViewModel.members = it
         }
 
-        fragment.submitButtonState.observe(this) {
+        commonViewModel.fragment.submitButtonState.observe(this) {
             binding.submitButton.isEnabled = it
         }
 
-        when(expenseType ){
+        when(expenseType){
             ExpenseType.GroupExpense -> {
                 groupViewModel.groupExpenseCreateResponse.observe(this) {
                     when (it) {
                         is PresentationLayerResponse.Success -> {
-                            Toast.makeText(this, "split added", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "new expense created", Toast.LENGTH_SHORT).show()
                             hideLoading()
                             setResult(Activity.RESULT_OK)
                         }
@@ -214,7 +233,7 @@ class AddExpenseActivity : AppCompatActivity() {
                 friendsViewModel.friendsExpenseCreateResponse.observe(this){
                     when (it) {
                         is PresentationLayerResponse.Success -> {
-                            Toast.makeText(this, "split added", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "new expense created", Toast.LENGTH_SHORT).show()
                             hideLoading()
                             setResult(Activity.RESULT_OK)
                         }
@@ -232,10 +251,11 @@ class AddExpenseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if(isNextButtonClicked){
+        if(commonViewModel.isNextButtonClicked){
             binding.mainButton.callOnClick()
+        }else{
+            binding.amount.requestFocus()
         }
-        binding.amount.requestFocus()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

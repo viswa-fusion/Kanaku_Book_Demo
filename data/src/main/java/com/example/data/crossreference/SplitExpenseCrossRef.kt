@@ -1,4 +1,4 @@
-package com.example.kanakunote.data_layer.crossreference
+package com.example.data.crossreference
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -26,3 +26,5 @@ data class SplitExpenseCrossRef(
     val expenseId: Long,
     val splitId: Long,
 )
+
+

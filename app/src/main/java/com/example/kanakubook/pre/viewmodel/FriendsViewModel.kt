@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.domain.model.ExpenseData
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.usecase.ProfilePictureUseCase
@@ -18,6 +19,7 @@ import com.example.kanakubook.pre.KanakuBookApplication
 import com.example.kanakubook.pre.fragment.MultiUserPickListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FriendsViewModel(
     private val useCase: UserUseCase.FriendsUseCase,
@@ -43,6 +45,15 @@ class FriendsViewModel(
     private val _getAllFriendsExpenseResponse = MutableLiveData< PresentationLayerResponse<List<ExpenseData>>>()
     val getAllFriendsExpenseResponse: LiveData< PresentationLayerResponse<List<ExpenseData>>> =
         _getAllFriendsExpenseResponse
+
+    private val _commonGroupResponse = MutableLiveData<PresentationLayerResponse<List<CommonGroupWIthAmountData>>>()
+    val commonGroupResponse :LiveData<PresentationLayerResponse<List<CommonGroupWIthAmountData>>> = _commonGroupResponse
+
+    private val _payResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
+    val payResponse : LiveData<PresentationLayerResponse<Boolean>> = _payResponse
+
+
+
     fun createExpense(
         groupId: Long,
         ownerId: Long,
@@ -60,6 +71,20 @@ class FriendsViewModel(
                     splitList
                 )
             )
+        }
+    }
+
+    fun pay(expenseId:Long,userId: Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            _payResponse.postValue(expenseUseCase.payForExpense(expenseId,userId))
+        }
+    }
+
+    fun getCommonGroupWithFriendIdWithCalculatedAmount(userId: Long, friendId:Long){
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = expenseUseCase.getCommonGroupWithFriendIdWithCalculatedAmount(userId,friendId)
+
+                _commonGroupResponse.postValue(result)
         }
     }
 
