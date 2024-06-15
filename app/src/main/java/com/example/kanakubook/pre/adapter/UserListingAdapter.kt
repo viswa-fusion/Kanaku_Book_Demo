@@ -1,6 +1,10 @@
 package com.example.kanakubook.pre.adapter
 
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +18,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class UserListingAdapter(private val callback: Callback): RecyclerView.Adapter<UserListingAdapter.MyViewHolder>() {
 
+    private var searchText: String = ""
 
     private val diffUtil = object :
         DiffUtil.ItemCallback<UserProfileSummary>() {
@@ -71,7 +77,20 @@ class UserListingAdapter(private val callback: Callback): RecyclerView.Adapter<U
         fun bind(item: UserProfileSummary){
             resetViewHolder()
             bindImageReferenceCheck = item.userId
-            binding.textview.text = item.name
+
+
+            val name = item.name.lowercase(Locale.ROOT)
+            val spannable = SpannableString(name)
+            val startIndex = name.indexOf(searchText)
+            if (startIndex != -1) {
+                spannable.setSpan(
+                    BackgroundColorSpan(Color.YELLOW),
+                    startIndex,
+                    startIndex + searchText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            binding.textview.text = spannable
 
 
             if(item.profile != null){
@@ -88,6 +107,11 @@ class UserListingAdapter(private val callback: Callback): RecyclerView.Adapter<U
                 }
             }
         }
+    }
+
+    fun highlightText(searchText: String) {
+        this.searchText = searchText
+        notifyDataSetChanged()
     }
     interface Callback{
         suspend fun getImage(userId:Long):Bitmap?

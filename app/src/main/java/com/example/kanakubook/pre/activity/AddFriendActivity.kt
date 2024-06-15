@@ -96,6 +96,7 @@ class AddFriendActivity : AppCompatActivity() {
                     binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
                 }else{
                     binding.searchNotFound.emptyTemplate.visibility = View.GONE
+                    adapter.highlightText(searchText)
                     adapter.updateData(filteredList)
                 }
             }
