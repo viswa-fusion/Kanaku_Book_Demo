@@ -11,8 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="10sp"
-        android:hint="Search...">
+        android:hint="@string/search">
 
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/search_view_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </com.google.android.material.search.SearchView>
 

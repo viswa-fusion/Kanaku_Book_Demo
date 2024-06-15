@@ -164,7 +164,7 @@ class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : Ba
 
     private fun initialSetUp(){
         checkLayoutNeed()
-        val adapter = GroupsListAdapter(object : GroupsListAdapter.CallBack{
+        val adapter = GroupsListAdapter(requireActivity(), object : GroupsListAdapter.CallBack{
             override suspend fun getImage(groupId: Long): Bitmap? {
                 return viewModel.getProfile(groupId)
             }

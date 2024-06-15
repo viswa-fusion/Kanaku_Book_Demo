@@ -93,7 +93,10 @@ class SplitExpenseUseCaseImpl(
             is DataLayerResponse.Success -> {
                 val encryptResult = result.data.map {
                     it.copy(
-                        group = it.group.copy(id = CryptoHelper.encrypt(it.group.id))
+                        group = it.group.copy(id = CryptoHelper.encrypt(it.group.id)),
+                        members = it.members.map {
+                            it.copy(userId = CryptoHelper.encrypt(it.userId))
+                        }
                     )
                 }
                 PresentationLayerResponse.Success(encryptResult)

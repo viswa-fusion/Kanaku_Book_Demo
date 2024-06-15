@@ -6,10 +6,10 @@ import com.example.kanakubook.pre.fragment.FriendsFragment
 import com.example.kanakubook.pre.fragment.GroupFragment
 import com.example.kanakubook.util.Constants
 
-class ViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment){
+class ViewPagerAdapter(fragment: Fragment, private val layOutTag: String = Constants.FOR_TAB_LAYOUT) : FragmentStateAdapter(fragment){
 
-    private val f1 = GroupFragment(Constants.FOR_TAB_LAYOUT)
-    private var f2 = FriendsFragment(Constants.FOR_TAB_LAYOUT)
+    private val f1 = GroupFragment(layOutTag)
+    private var f2 = FriendsFragment(layOutTag)
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {

@@ -162,4 +162,16 @@
     <color name="amount_Red">#BE3C3C</color>
     <color name="amount_Green_text">#41792C</color>
     <color name="amount_Red_text">#903333</color>
+
+    <color name="password_weak_color">#FF5733</color>
+    <color name="password_medium_color">#FFD700</color>
+    <color name="password_strong_color">#00FF00</color>
+
+
+    <color name="progress_color_very_weak">#F63715</color>
+    <color name="progress_color_weak">#FF6347</color>
+    <color name="progress_color_reasonable">#FF9900</color>
+    <color name="progress_color_medium">#FFD700</color>
+    <color name="progress_color_strong">#32CD32</color>
+    <color name="progress_track_color">#C0C0C0</color>
 </resources>

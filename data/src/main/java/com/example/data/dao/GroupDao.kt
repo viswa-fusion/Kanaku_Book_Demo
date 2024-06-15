@@ -23,48 +23,60 @@ interface GroupDao {
     @Query("SELECT * FROM groups WHERE groupId IN (SELECT groupId FROM groupmembercrossref WHERE userId = :userId)")
     suspend fun getGroupsOfUser(userId: Long): List<GroupEntity>
 
-    @Transaction
-    @Query("SELECT * FROM groups WHERE groupId IN (SELECT groupId FROM GroupMemberCrossRef WHERE userId = :userId)")
-    suspend fun getGroupsWithMembersByUserId(userId: Long): List<GroupWithMembers>
-
-    //@Transaction
-//@Query("""SELECT groups.*,
-//        COALESCE(SUM(CASE WHEN expenses.spenderId != :userId THEN SplitEntity.splitAmount ELSE 0.0 END), 0.0) AS pay,
-//        COALESCE(SUM(CASE WHEN expenses.spenderId = :userId THEN SplitEntity.splitAmount ELSE 0.0 END), 0.0) AS get
-//        FROM groups
-//        LEFT JOIN GroupMemberCrossRef ON groups.groupId = GroupMemberCrossRef.groupId
-//        LEFT JOIN ExpenseCrossRef ON groups.groupId = ExpenseCrossRef.associatedId
-//        LEFT JOIN expenses ON ExpenseCrossRef.expenseId = expenses.expenseId
-//        LEFT JOIN SplitExpenseCrossRef ON ExpenseCrossRef.expenseId = SplitExpenseCrossRef.expenseId
-//        LEFT JOIN SplitEntity ON SplitExpenseCrossRef.splitId = SplitEntity.splitId
-//        WHERE GroupMemberCrossRef.userId = :userId
-//        GROUP BY groups.groupId""")
-//suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers1>
 //    @Transaction
-//    @Query(
-//        """SELECT b.groupId, b.groupName, b.createdBy, b.lastActive,
-//        COALESCE(SUM(CASE WHEN splits.paidStatus = 'UnPaid' AND splits.userId != :userId THEN splits.splitAmount ELSE 0.0 END), 0.0) AS give,
-//        COALESCE(SUM(CASE WHEN splits.paidStatus = 'UnPaid' AND splits.userId = :userId THEN splits.splitAmount ELSE 0.0 END), 0.0) AS get
-//        FROM groups as b
-//        LEFT JOIN ExpenseCrossRef ON b.groupId = ExpenseCrossRef.associatedId
-//        LEFT JOIN expenses ON ExpenseCrossRef.expenseId = expenses.expenseId AND expenseType == "GroupExpense"
-//        LEFT JOIN SplitExpenseCrossRef ON ExpenseCrossRef.expenseId = SplitExpenseCrossRef.expenseId
-//        LEFT JOIN SplitEntity as splits ON SplitExpenseCrossRef.splitId = splits.splitId
-//        WHERE groupId IN (SELECT groupId FROM GroupMemberCrossRef WHERE userId = :userId) """
-//    )
-//    suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers1>
-    @Query("SELECT groups.groupId, groups.groupName, groups.createdBy, groups.lastActive," +
-            "78.0 AS pay, " +
-            "87.0 AS get " +
-            "FROM groups " +
-            "WHERE groupId IN (SELECT groupId FROM GroupMemberCrossRef WHERE userId = :userId)")
-    suspend fun getGroupsWithMembers(userId: Long): List<GroupWithMembers1>
+//    @Query("SELECT * FROM groups WHERE groupId IN (SELECT groupId FROM GroupMemberCrossRef WHERE userId = :userId)")
+//    suspend fun getGroupsWithMembersByUserId(userId: Long): List<GroupWithMembers>
+
+
+//        @Transaction
+//        @Query("""SELECT groups.groupId, groups.groupName, groups.createdBy, groups.lastActive,
+//                COALESCE(SUM(CASE WHEN s1.userId = :userId THEN s1.splitAmount ELSE 0.0 END), 0.0) AS pay,
+//                COALESCE(SUM(CASE WHEN s2.userId != :userId THEN s2.splitAmount ELSE 0.0 END), 0.0) AS get
+//                FROM groups
+//                LEFT JOIN ExpenseCrossRef as a ON groups.groupId = a.associatedId  AND a.expenseType = 'GroupExpense'
+//                LEFT JOIN expenses as e1 ON a.expenseId = e1.expenseId AND e1.spenderId != :userId
+//                LEFT JOIN expenses as e2 ON a.expenseId = e2.expenseId AND e2.spenderId = :userId
+//                LEFT JOIN SplitExpenseCrossRef as c1 ON e1.expenseId = c1.expenseId
+//                LEFT JOIN SplitExpenseCrossRef as c2 ON e2.expenseId = c2.expenseId
+//                LEFT JOIN SplitEntity as s1 ON c1.splitId = s1.splitId AND s1.paidStatus = 'UnPaid'
+//                LEFT JOIN SplitEntity as s2 ON c2.splitId = s2.splitId AND s1.paidStatus = 'UnPaid'
+//                WHERE groups.groupId IN (SELECT groupId FROM GroupMemberCrossRef WHERE userId = :userId)
+//                GROUP BY groups.groupId
+//            """)
+//        suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers>
+@Transaction
+@Query("""
+    SELECT 
+        groups.groupId,
+        groups.groupName,
+        groups.createdBy,
+        groups.lastActive,
+        COALESCE(SUM(CASE WHEN s1.userId = :userId THEN s1.splitAmount ELSE 0.0 END), 0.0) AS pay,  
+        COALESCE(SUM(CASE WHEN s2.userId != :userId THEN s2.splitAmount ELSE 0.0 END), 0.0) AS get 
+    FROM 
+        groups  
+        LEFT JOIN GroupMemberCrossRef AS gmc ON groups.groupId = gmc.groupId
+        LEFT JOIN ExpenseCrossRef AS a ON groups.groupId = a.associatedId AND a.expenseType = 'GroupExpense' 
+        LEFT JOIN expenses AS e1 ON a.expenseId = e1.expenseId AND e1.spenderId != :userId
+        LEFT JOIN expenses AS e2 ON a.expenseId = e2.expenseId AND e2.spenderId = :userId
+        LEFT JOIN SplitExpenseCrossRef AS c1 ON e1.expenseId = c1.expenseId 
+        LEFT JOIN SplitExpenseCrossRef AS c2 ON e2.expenseId = c2.expenseId  
+        LEFT JOIN SplitEntity AS s1 ON c1.splitId = s1.splitId AND s1.paidStatus = 'UnPaid' AND e1.spenderId != :userId
+        LEFT JOIN SplitEntity AS s2 ON c2.splitId = s2.splitId AND s2.paidStatus = 'UnPaid' AND e2.spenderId = :userId
+    WHERE 
+        gmc.userId = :userId
+    GROUP BY 
+        groups.groupId, groups.groupName, groups.createdBy, groups.lastActive
+""")
+suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers>
+
 
 
 
     @Transaction
     @Query("UPDATE groups SET lastActive = :time WHERE groupId = :groupId")
     suspend fun updateGroupActiveTime(groupId: Long, time: Long)
+
 
 
     @Transaction

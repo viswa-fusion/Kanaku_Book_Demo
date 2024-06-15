@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
     <application
         android:name=".pre.KanakuBookApplication"
         android:allowBackup="true"
@@ -15,29 +14,37 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
+            android:name=".pre.activity.MainActivity2"
+            android:exported="false" />
+        <activity
             android:name=".pre.activity.AppEntryPoint"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".pre.activity.MainActivity" />
         <activity android:name=".pre.activity.ProfileActivity" />
-        <activity android:name=".pre.activity.AddFriendActivity"/>
+        <activity android:name=".pre.activity.AddFriendActivity" />
         <activity
             android:name=".pre.activity.AddGroupActivity"
-            android:windowSoftInputMode="adjustResize|stateUnchanged"/>
-        <activity android:name=".pre.activity.FriendDetailPageActivity"/>
-        <activity android:name=".pre.activity.GroupDetailPageActivity"/>
-        <activity android:name=".pre.activity.AddExpenseActivity"/>
+            android:windowSoftInputMode="adjustResize|stateUnchanged" />
+        <activity
+            android:name=".pre.activity.FriendDetailPageActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".pre.activity.GroupDetailPageActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".pre.activity.AddExpenseActivity" />
         <activity
             android:name=".pre.activity.EditProfileActivity"
-            android:windowSoftInputMode="adjustResize|stateUnchanged"/>
-        <activity android:name=".pre.activity.GroupProfilePageActivity"/>
-        <activity android:name=".pre.activity.ExpenseDetailActivity"/>
-        <activity android:name=".pre.activity.FriendProfilePageActivity"/>
-        <activity android:name=".pre.activity.SelectSplitWithActivity"/>
+            android:windowSoftInputMode="adjustResize|stateUnchanged" />
+        <activity android:name=".pre.activity.GroupProfilePageActivity" />
+        <activity android:name=".pre.activity.ExpenseDetailActivity" />
+        <activity android:name=".pre.activity.FriendProfilePageActivity" />
+        <activity android:name=".pre.activity.SelectSplitWithActivity" />
     </application>
 
 </manifest>

@@ -78,6 +78,7 @@ interface UserDao {
     suspend fun getPaymentStatus(connectionId: Long, userId: Long): PaymentStatus
     @Query("SELECT * FROM users WHERE userId IN (SELECT userId FROM GroupMemberCrossRef WHERE userId = :groupId)")
     suspend fun getUsersByGroupId(groupId: Long): List<UserEntity>
+
 }
 
 

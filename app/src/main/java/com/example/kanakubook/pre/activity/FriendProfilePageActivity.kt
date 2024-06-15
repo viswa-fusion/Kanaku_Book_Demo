@@ -52,14 +52,14 @@ class FriendProfilePageActivity: AppCompatActivity() {
             }
 
             override fun onClickItemListener(groupData: CommonGroupWIthAmountData) {
-//                val intent = Intent(this@FriendProfilePageActivity, GroupDetailPageActivity::class.java)
-//                intent.putExtra("groupName",groupData.group.name)
-//                intent.putExtra("groupId",groupData.group.id)
-//                intent.putExtra("createdBy",groupData.group.createdBy)
-//                val bundle = Bundle()
-//                bundle.putLongArray("members",groupData.group.members.map { it.userId }.toLongArray())
-//                intent.putExtra("bundle",bundle)
-//                startActivity(intent)
+                val intent = Intent(this@FriendProfilePageActivity, GroupDetailPageActivity::class.java)
+                intent.putExtra("groupName",groupData.group.name)
+                intent.putExtra("groupId",groupData.group.id)
+                intent.putExtra("createdBy",groupData.group.createdBy)
+                val bundle = Bundle()
+                bundle.putLongArray("members",groupData.members.map { it.userId }.toLongArray())
+                intent.putExtra("bundle",bundle)
+                startActivity(intent)
             }
 
         })

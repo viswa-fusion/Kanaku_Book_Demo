@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import com.example.data.util.PreferenceHelper
@@ -53,6 +55,8 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         viewModel.getLoggedUser(getLoggedUserId())
         if (profileImage != null){
             binding.imageProfile.setImageBitmap(profileImage)
+        }else{
+            binding.imageProfile.setImageResource(R.drawable.default_profile_image)
         }
         binding.imageProfile.setOnClickListener {
             val intent = Intent(requireActivity(), ProfileActivity::class.java)
@@ -68,6 +72,19 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
             activityResult.launch(intent)
         }
 
+
+        val searchBar = binding.searchBar
+        searchBar.setOnClickListener{
+            val homeScreenSearchView =
+                requireActivity().findViewById<com.google.android.material.search.SearchView>(R.id.homeScreenSearchView)
+            Log.i("layoutTestNew", "data :$homeScreenSearchView")
+            homeScreenSearchView?.setupWithSearchBar(searchBar)
+
+            requireActivity().supportFragmentManager.commit {
+                replace(R.id.search_view_fragment_container, ViewPagerFragment())
+            }
+        }
+
     }
 
     private fun setObserver() {
@@ -79,7 +96,7 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
                         CoroutineScope(Dispatchers.IO).launch {
                             profileImage = userViewModel.getProfile(it.data.userId)
                             withContext(Dispatchers.Main){
-                                binding.imageProfile.setImageBitmap(profileImage)
+                                profileImage?.let{ binding.imageProfile.setImageBitmap(profileImage) }
                             }
                         }
                     }
@@ -92,13 +109,8 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val searchBar = binding.searchBar
-        val homeScreenSearchView = activity?.findViewById<com.google.android.material.search.SearchView>(R.id.homeScreenSearchView)
-        Log.i("layoutTestNew","data :$homeScreenSearchView")
-        homeScreenSearchView?.setupWithSearchBar(searchBar)
-    }
+
+
 
     private fun getLoggedUserId(): Long {
         if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {

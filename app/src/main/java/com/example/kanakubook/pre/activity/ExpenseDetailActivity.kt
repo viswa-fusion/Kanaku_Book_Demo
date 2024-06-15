@@ -1,5 +1,6 @@
 package com.example.kanakubook.pre.activity
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.transition.TransitionInflater
@@ -130,6 +131,24 @@ class ExpenseDetailActivity: AppCompatActivity() {
         adapter = ExpenseDetailProfileAdapter(ownerId == userId,object :ExpenseDetailProfileAdapter.CallBack{
             override suspend fun getImage(userId: Long): Bitmap? {
                 return friendsViewModel.getProfile(userId)
+            }
+
+            override fun onClick(user: UserProfileSummary) {
+                if(user.userId != userId) {
+                    val intent = Intent(this@ExpenseDetailActivity, FriendProfilePageActivity::class.java)
+                    intent.putExtra("userId", userId)
+                    intent.putExtra("friendId", user.userId)
+                    intent.putExtra("friendName", user.name)
+                    intent.putExtra("friendNumber", user.phone)
+                    startActivity(intent)
+                }else{
+                    val intent = Intent(this@ExpenseDetailActivity, ProfileActivity::class.java)
+                    intent.putExtra("userId",userId)
+                    intent.putExtra("name", user.name)
+                    intent.putExtra("phone", user.phone)
+                    startActivity(intent)
+                    this@ExpenseDetailActivity.overridePendingTransition(R.anim.slide_in_right,R.anim.dont_slide)
+                }
             }
         })
         binding.recyclerview.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)

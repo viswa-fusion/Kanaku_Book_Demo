@@ -36,10 +36,20 @@ class UserUseCaseImpl(
             phone,
             password
         )
-        return when (val result = userInfoRepo.insertUser(userEntryData, password)) {
-            is DataLayerResponse.Success -> PresentationLayerResponse.Success(CryptoHelper.encrypt(result.data))
-            is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
+        return when(val checkValid = userInfoRepo.checkPhoneNumberExist(phone)){
+            is DataLayerResponse.Success -> {
+                 if (checkValid.data){
+                    PresentationLayerResponse.Error("user exist")
+                }else{
+                    when (val result = userInfoRepo.insertUser(userEntryData, password)) {
+                        is DataLayerResponse.Success -> PresentationLayerResponse.Success(CryptoHelper.encrypt(result.data))
+                        is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
+                    }
+                }
+            }
+            is DataLayerResponse.Error -> PresentationLayerResponse.Error(checkValid.errorCode.toString())
         }
+
     }
 
     override suspend fun authenticateUser(

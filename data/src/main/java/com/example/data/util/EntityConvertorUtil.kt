@@ -67,11 +67,13 @@ internal fun CommonGroupWithAmount.toCommonGroupWithAmountData(): CommonGroupWIt
             this.groupData.groupId,
             this.groupData.groupName,
             this.groupData.createdBy,
-            this.groupData.lastActive
+            this.groupData.lastActive,
         ),
         this.give,
-        this.get
-
+        this.get,
+        this.members.map {
+            it.toUserProfileSummery()
+        }
     )
 }
 
@@ -100,7 +102,9 @@ internal fun GroupWithMembers.toGroupData(): GroupData {
         this.group.lastActive,
         this.members.map {
             it.toUserProfileSummery()
-        }
+        },
+        this.pay,
+        this.get
     )
 }
 

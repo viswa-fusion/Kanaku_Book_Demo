@@ -167,7 +167,21 @@ class GroupProfilePageActivity : AppCompatActivity() {
             }
 
             override fun clickListener(user: UserProfileSummary) {
-
+                if(user.userId != getLoggedUserId()) {
+                    val intent = Intent(this@GroupProfilePageActivity, FriendProfilePageActivity::class.java)
+                    intent.putExtra("userId", getLoggedUserId())
+                    intent.putExtra("friendId", user.userId)
+                    intent.putExtra("friendName", user.name)
+                    intent.putExtra("friendNumber", user.phone)
+                    startActivity(intent)
+                }else{
+                    val intent = Intent(this@GroupProfilePageActivity, ProfileActivity::class.java)
+                    intent.putExtra("userId",getLoggedUserId())
+                    intent.putExtra("name", user.name)
+                    intent.putExtra("phone", user.phone)
+                    startActivity(intent)
+                    this@GroupProfilePageActivity.overridePendingTransition(R.anim.slide_in_right,R.anim.dont_slide)
+                }
             }
         })
         binding.recyclerView.layoutManager =

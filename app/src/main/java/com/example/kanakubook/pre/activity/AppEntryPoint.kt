@@ -3,6 +3,8 @@ package com.example.kanakubook.pre.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.example.data.util.PreferenceHelper

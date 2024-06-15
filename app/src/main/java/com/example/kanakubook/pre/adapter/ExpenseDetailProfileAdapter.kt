@@ -63,6 +63,12 @@ class ExpenseDetailProfileAdapter(
     inner class MyViewHolder(val binding: SplitUserCardBinding): RecyclerView.ViewHolder(binding.root){
         private var bindImageReferenceCheck : Long = -1
 
+        init {
+            binding.root.setOnClickListener {
+                callback.onClick(asyncListDiffer.currentList[absoluteAdapterPosition].user)
+            }
+        }
+
         private fun reSetViewHolder(){
             bindImageReferenceCheck = -1
             binding.textviewName.text = ""
@@ -94,6 +100,7 @@ class ExpenseDetailProfileAdapter(
 
    interface CallBack{
        suspend fun getImage(userId:Long):Bitmap?
+       fun onClick(user: UserProfileSummary)
    }
 
     data class ExpenseDetailObject(

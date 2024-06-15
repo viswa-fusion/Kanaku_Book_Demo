@@ -57,17 +57,13 @@ class RepositoryImpl(
 
 
     override suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<GroupData>> {
-        val listOfGroupEntity = groupDao.getGroupsWithMembersByUserId(userId)
+        val listOfGroupEntity = groupDao.getGroupsWithMembersAndBalances(userId)
         val listOfGroup = listOfGroupEntity.map { it.toGroupData() }
 
-
-
-        val checkList = groupDao.getGroupsWithMembers(userId)
-        val d = checkList
-        checkList.forEach {
-            Log.i("QueryData","Data: $it")
+        listOfGroupEntity.forEach {
+            Log.i("QueryData","data: $it")
         }
-        val b = checkList
+
         return DataLayerResponse.Success(listOfGroup)
     }
 

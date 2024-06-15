@@ -1,6 +1,8 @@
 package com.example.kanakubook.pre.adapter
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -14,9 +16,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
+import kotlin.math.abs
 
 class GroupsListAdapter(
-    val callback: CallBack
+    private val context: Context,
+    private val callback: CallBack
 ) : RecyclerView.Adapter<GroupsListAdapter.GroupListViewHolder>() {
 
     interface CallBack{
@@ -86,9 +90,25 @@ class GroupsListAdapter(
             resetViewHolder()
             bindImageReferenceCheck = groupData.id
             groupName.text = groupData.name
-            val decimalFormat = DecimalFormat("#,###")
-            val formattedAmount = "₹${decimalFormat.format(groupData.id)}"
-            amount.text = formattedAmount
+            val decimalFormat = DecimalFormat("#,###.##")
+            val calculateAmount = groupData.get - groupData.pay
+            val absAmount = abs(calculateAmount)
+            val formattedAmount = "₹${decimalFormat.format(absAmount)}"
+            when{
+                calculateAmount > 0 -> {
+                    amount.setTextColor(context.getColor(R.color.amount_Green_text))
+                    amount.text = formattedAmount
+                }
+                calculateAmount < 0 -> {
+                    amount.setTextColor(context.getColor(R.color.amount_Red_text))
+                    amount.text = formattedAmount
+                }
+                else -> {
+                    amount.setTextColor(Color.GRAY)
+                    amount.text = "no pending"
+                }
+            }
+
 
             if(groupData.profile != null){
                 profile.setImageBitmap(groupData.profile)

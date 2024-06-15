@@ -7,11 +7,11 @@ data class GroupData(
     val name: String,
     val createdBy: Long,
     val lastActiveTime: Long,
-    val members: List<UserProfileSummary>
+    val members: List<UserProfileSummary>,
+    val pay: Double = 0.0,
+    val get: Double = 0.0
 ){
     var profile: Bitmap? = null
-    var pay: Double = 0.0
-    var get: Double = 0.0
 }
 
 data class GroupEntry(

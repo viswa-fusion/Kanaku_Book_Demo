@@ -117,7 +117,18 @@ class UserRepositoryImpl(
         }
     }
 
-
+    override suspend fun checkPhoneNumberExist(phone: Long): DataLayerResponse<Boolean> {
+        return try{
+            if (userDao.getUserByCredentials(phone) == null) {
+                DataLayerResponse.Success(false)
+            } else {
+                DataLayerResponse.Success(true)
+            }
+        }catch (e:Exception){
+            println(e.stackTrace)
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+        }
+    }
 
 
     override suspend fun getUserProfileSummeryByUserId(

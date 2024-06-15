@@ -30,6 +30,7 @@ import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.LoginViewModel
 import com.example.kanakubook.pre.viewmodel.UserViewModel
 import com.example.kanakubook.util.ImageConversionHelper
+import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -164,6 +165,10 @@ class ProfileActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.setCanceledOnTouchOutside(true)
         val enlargedImage = dialog.findViewById<ImageView>(R.id.enlarged_image)
+        val close = dialog.findViewById<ShapeableImageView>(R.id.close)
+        close.setOnClickListener {
+            dialog.dismiss()
+        }
         imageDrawable?.let {
             enlargedImage.setImageDrawable(it)
         }

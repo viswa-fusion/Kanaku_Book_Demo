@@ -55,6 +55,7 @@
     <style name="squareEdgeShaped">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">20%</item>
+        <item name="android:background">@color/transparent</item>
     </style>
 
     <style name="roundedShape">
@@ -69,5 +70,19 @@
 
     <style name="RobotoButtonStyle" parent="android:Widget.Holo.Button">
         <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="viewParent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="viewParent.headerText">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="viewParent.headerText.NoMode">
+        <item name="android:textColor">@color/black</item>
     </style>
 </resources>

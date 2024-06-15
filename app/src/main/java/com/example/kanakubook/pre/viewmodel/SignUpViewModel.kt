@@ -18,6 +18,8 @@ import kotlinx.coroutines.withContext
 class SignUpViewModel (
     private val signUpUseCase: SignUpUseCase
 ) : ViewModel() {
+
+    var isNotFirstTimeValidation = false
     private var _userId = MutableLiveData<PresentationLayerResponse<Long>>()
     val userId: LiveData<PresentationLayerResponse<Long>> = _userId
 

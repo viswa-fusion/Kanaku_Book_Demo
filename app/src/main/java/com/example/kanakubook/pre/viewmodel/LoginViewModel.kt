@@ -19,6 +19,8 @@ class LoginViewModel (
     private val useCase: LoginUseCase
 ) : ViewModel() {
 
+    var isNotFirstTimeValidation = false
+
     private val _userDataDetail = MutableLiveData<PresentationLayerResponse<UserProfileSummary>>()
     val userDataDetails: LiveData<PresentationLayerResponse<UserProfileSummary>> = _userDataDetail
 
