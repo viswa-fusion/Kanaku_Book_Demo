@@ -71,9 +71,9 @@ class GroupViewModel(
         }
     }
 
-    fun addMembers(groupId: Long, memberList: List<Long>){
+    fun addMembers(userId:Long, groupId: Long, memberList: List<Long>){
         viewModelScope.launch(Dispatchers.IO) {
-           _addMembersResponse.postValue(useCase.addMembers(groupId,memberList))
+           _addMembersResponse.postValue(useCase.addMembers(userId,groupId,memberList))
         }
     }
 
@@ -109,9 +109,9 @@ class GroupViewModel(
         }
     }
 
-    fun pay(expenseId: Long, userId: Long){
+    fun pay(spenderId:Long, expenseId: Long, userId: Long){
         viewModelScope.launch(Dispatchers.IO) {
-            _payResponse.postValue(expenseUseCase.payForExpense(expenseId,userId))
+            _payResponse.postValue(expenseUseCase.payForExpense(spenderId,expenseId,userId))
         }
     }
 

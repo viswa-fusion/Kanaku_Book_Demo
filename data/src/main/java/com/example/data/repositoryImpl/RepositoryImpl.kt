@@ -34,7 +34,7 @@ class RepositoryImpl(
             return fileDir
         }
 
-    override suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Boolean> {
+    override suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Long> {
         return try {
             val groupEntity = group.toGroupEntity()
             val groupId = groupDao.insertGroup(groupEntity)
@@ -49,7 +49,7 @@ class RepositoryImpl(
                 }
                 awaitAll(crossRefResult, imageUploadResult)
             }
-            DataLayerResponse.Success(true)
+            DataLayerResponse.Success(groupId)
         } catch (e: Exception) {
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }

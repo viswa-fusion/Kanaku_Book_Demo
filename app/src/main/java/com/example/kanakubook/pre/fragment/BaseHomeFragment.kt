@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import com.example.data.util.PreferenceHelper
@@ -27,6 +28,7 @@ import com.example.kanakubook.pre.activity.MainActivity
 import com.example.kanakubook.pre.activity.ProfileActivity
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.LoginViewModel
+import com.google.android.material.search.SearchBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,18 +55,20 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         binding = MainScreenFragmentBinding.bind(view)
         setObserver()
         viewModel.getLoggedUser(getLoggedUserId())
-        if (profileImage != null){
+
+        if (profileImage != null) {
             binding.imageProfile.setImageBitmap(profileImage)
-        }else{
+        } else {
             binding.imageProfile.setImageResource(R.drawable.default_profile_image)
         }
+
         binding.imageProfile.setOnClickListener {
             val intent = Intent(requireActivity(), ProfileActivity::class.java)
-            intent.putExtra("userId",getLoggedUserId())
+            intent.putExtra("userId", getLoggedUserId())
             intent.putExtra("name", userData.name)
             intent.putExtra("phone", userData.phone)
             startActivity(intent)
-            requireActivity().overridePendingTransition(R.anim.slide_in_right,R.anim.dont_slide)
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.dont_slide)
         }
 
         binding.createExpense.setOnClickListener {
@@ -73,19 +77,14 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         }
 
 
-        val searchBar = binding.searchBar
-        searchBar.setOnClickListener{
-            val homeScreenSearchView =
-                requireActivity().findViewById<com.google.android.material.search.SearchView>(R.id.homeScreenSearchView)
-            Log.i("layoutTestNew", "data :$homeScreenSearchView")
-            homeScreenSearchView?.setupWithSearchBar(searchBar)
-
-            requireActivity().supportFragmentManager.commit {
-                replace(R.id.search_view_fragment_container, ViewPagerFragment())
-            }
-        }
 
     }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+    }
+
 
     private fun setObserver() {
         viewModel.loggedUserProfile.observe(viewLifecycleOwner){
@@ -112,7 +111,7 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
 
 
 
-    private fun getLoggedUserId(): Long {
+    fun getLoggedUserId(): Long {
         if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
             val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
             return userId

@@ -2,9 +2,11 @@ package com.example.kanakubook.pre.adapter
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,7 +86,7 @@ class UserListingAdapter(private val callback: Callback): RecyclerView.Adapter<U
             val startIndex = name.indexOf(searchText)
             if (startIndex != -1) {
                 spannable.setSpan(
-                    BackgroundColorSpan(Color.YELLOW),
+                    StyleSpan(Typeface.BOLD),
                     startIndex,
                     startIndex + searchText.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE

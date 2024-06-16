@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -17,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.usecase.response.PresentationLayerResponse
-import com.example.domain.usecase.util.UserProfileSummaryParcel
 import com.example.kanakubook.R
 import com.example.kanakubook.pre.KanakuBookApplication
 import com.example.kanakubook.pre.activity.AddFriendActivity
@@ -40,6 +37,7 @@ class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) :
     private val FAB_STATE = "fab state"
     private val viewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private val commonViewModel: CommonViewModel by activityViewModels ()
+    private lateinit var adapter: FriendsProfileListAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -50,6 +48,7 @@ class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) :
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 getFriendsList()
+
             }
         }
 
@@ -137,8 +136,11 @@ class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) :
                         binding.emptyTemplate.emptyTemplate.visibility = View.GONE
                         val adapter = binding.recyclerview.adapter
                         if(adapter is FriendsProfileListAdapter){
-
-                            adapter.updateData(it.data)
+                            val data = if(layoutTag != Constants.NORMAL_LAYOUT)it.data.sortedBy {u -> u.name } else it.data
+                            commonViewModel.listUserData = data
+                            val filteredUsers = data.filter { it.name.contains(commonViewModel.filterString, ignoreCase = true) }
+                            adapter.highlightText(commonViewModel.filterString)
+                            adapter.updateData(filteredUsers)
                         }
                     }
                 }
@@ -190,7 +192,7 @@ class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) :
     private fun layoutInitialSetup() {
         checkLayoutNeed()
         binding.boxesContainer.visibility = View.INVISIBLE
-        binding.recyclerview.adapter = FriendsProfileListAdapter(requireActivity(),object : FriendsProfileListAdapter.Callbacks{
+        adapter = FriendsProfileListAdapter(requireActivity(),object : FriendsProfileListAdapter.Callbacks{
             override suspend fun getImage(userId: Long): Bitmap? {
                 return viewModel.getProfile(userId)
             }
@@ -218,9 +220,18 @@ class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) :
                }
             }
         })
+        binding.recyclerview.adapter = adapter
         binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity())
     }
 
+    fun filterFriends(query: String) {
+        if (!isAdded || activity == null) {
+            return
+        }
+        val filteredGroups = commonViewModel.listUserData.filter { it.name.contains(query, ignoreCase = true) }
+        adapter.highlightText(query)
+        adapter.updateData(filteredGroups)
+    }
     private fun showLoading() {
         binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
     }
@@ -236,17 +247,6 @@ class FriendsFragment(private val layoutTag: String = Constants.NORMAL_LAYOUT) :
         }
     }
 
-    private fun getLoggedUserId(): Long {
-        if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
-            val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
-            return userId
-        } else {
-            val intent = Intent(requireActivity(), AppEntryPoint::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-            requireActivity().finish()
-            return -1
-        }
-    }
+
 }
 

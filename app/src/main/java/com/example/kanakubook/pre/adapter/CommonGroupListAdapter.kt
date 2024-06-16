@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.GroupViewHolderCardTestBinding
+import com.example.kanakubook.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +23,6 @@ class CommonGroupListAdapter(
     private val callback: CallBack
 ) : RecyclerView.Adapter<CommonGroupListAdapter.GroupListViewHolder>() {
 
-    private val rupeeSymbol = "\u20B9"
     interface CallBack{
         suspend fun getImage(groupId: Long): Bitmap?
         fun onClickItemListener(groupData: CommonGroupWIthAmountData)
@@ -95,12 +95,12 @@ class CommonGroupListAdapter(
             val formatted = String.format("% .2f",abs(cAmount))
             when{
                 cAmount > 0 -> {
-                    amount.text = "$rupeeSymbol$formatted"
+                    amount.text = "${Constants.RUPEE_SYMBOL}$formatted"
                     amount.setTextColor(context.getColor(R.color.amount_Green_text))
                 }
                 cAmount < 0 -> {
 
-                    amount.text = "$rupeeSymbol$formatted"
+                    amount.text = "${Constants.RUPEE_SYMBOL}$formatted"
                     amount.setTextColor(context.getColor(R.color.amount_Red_text))
                 }
                 else ->{

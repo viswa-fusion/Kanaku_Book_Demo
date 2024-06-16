@@ -1,6 +1,8 @@
 package com.example.kanakubook.pre
 
+import android.app.Activity
 import android.app.Application
+import com.example.data.dao.ActivityDao
 import com.example.data.dao.ExpenseDao
 import com.example.data.dao.UserDao
 import com.example.data.database.ApplicationDatabase
@@ -18,8 +20,11 @@ import com.example.kanakubook.StorageHelperImpl
 import com.example.kanakubook.delegation.GroupRepositoryFunctionProviderDelegateImpl
 import com.example.data.dao.GroupDao
 import com.example.data.dao.SplitDao
+import com.example.data.repositoryImpl.ActivityRepositoryImpl
 import com.example.data.repositoryImpl.SplitExpenseRepositoryImpl
 import com.example.domain.repository.SplitExpenseRepository
+import com.example.domain.repository.response.ActivityRepository
+import com.example.domain.usecase.ActivityUseCase
 import com.example.domain.usecase.SplitExpenseUseCase
 import com.example.domain.usecase.SplitExpenseUseCaseImpl
 import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
@@ -37,7 +42,8 @@ class KanakuBookApplication : Application() {
             userInfoRepository,
             userAuthenticationRepository,
             groupRepositoryProfilePhoto,
-            userProfileRepository
+            userProfileRepository,
+            activityRepository
         )
     }
     private val userDao : UserDao by lazy {
@@ -62,6 +68,10 @@ class KanakuBookApplication : Application() {
     private val splitDao: SplitDao by lazy {
         val db = ApplicationDatabase.getDatabase(this)
         db.getMySplitDao()
+    }
+    private val activityDao: ActivityDao by lazy {
+        val db = ApplicationDatabase.getDatabase(this)
+        db.getMyActivityDao()
     }
 
     private val storageHelperImpl : StorageHelperImpl by lazy {
@@ -94,12 +104,18 @@ class KanakuBookApplication : Application() {
         groupRepositoryImpl
     }
 
+    private val activityRepository : ActivityRepository  by lazy {
+        ActivityRepositoryImpl(activityDao,splitDao,userDao,groupDao)
+    }
+
+
+
     private val groupRepositoryFunctionProviderDelegateImpl : GroupRepositoryFunctionProviderDelegateImpl by lazy {
         GroupRepositoryFunctionProviderDelegateImpl(groupRepositoryImpl,userRepositoryImpl)
     }
 
     private val groupUseCaseImpl: GroupUseCaseImpl by lazy {
-        GroupUseCaseImpl(groupRepositoryFunctionProviderDelegateImpl)
+        GroupUseCaseImpl(groupRepositoryFunctionProviderDelegateImpl,activityRepository)
     }
     private val splitExpenseRepositoryImpl : SplitExpenseRepositoryImpl by lazy {
         SplitExpenseRepositoryImpl(expenseDao,splitDao,userDao)
@@ -114,7 +130,7 @@ class KanakuBookApplication : Application() {
     }
 
     private val splitExpenseUseCaseImpl: SplitExpenseUseCaseImpl by lazy {
-        SplitExpenseUseCaseImpl(groupRepository,groupExpenseRepository,friendsExpenseRepository)
+        SplitExpenseUseCaseImpl(groupRepository,userRepositoryImpl,groupExpenseRepository,friendsExpenseRepository,activityRepository)
     }
 
     val userUseCaseOfGroupUseCase: UserUseCase.GroupUseCase by lazy { groupUseCaseImpl }
@@ -133,4 +149,6 @@ class KanakuBookApplication : Application() {
     val groupExpenseUseCase : SplitExpenseUseCase.GroupExpense by lazy { splitExpenseUseCaseImpl }
 
     val friendsExpenseUseCase : SplitExpenseUseCase.FriendsExpense by lazy { splitExpenseUseCaseImpl }
+
+    val activityUseCase : ActivityUseCase by lazy { userUseCaseImpl }
 }

@@ -2,10 +2,10 @@ package com.example.kanakubook.pre.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.domain.model.GroupData
 import com.example.domain.model.UserProfileSummary
 import com.example.kanakubook.pre.adapter.SplitListAdapter
 import com.example.kanakubook.pre.fragment.SplitUserListFragment
-import kotlin.math.truncate
 
 class CommonViewModel: ViewModel() {
     val selectSplitWithListener = MutableLiveData<SelectionData>()
@@ -17,6 +17,10 @@ class CommonViewModel: ViewModel() {
     var isFragmentAdded = false
     var haveSplitWithData = false
     var id: Long = 0
+
+    var listUserData: List<UserProfileSummary> = emptyList()
+    var listGroupData: List<GroupData> = emptyList()
+    var filterString:String = ""
 
 
     var totalAmountSplitUserListFragment = 0.0

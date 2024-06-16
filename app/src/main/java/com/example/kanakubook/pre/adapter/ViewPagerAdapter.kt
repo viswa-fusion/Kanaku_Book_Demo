@@ -8,8 +8,8 @@ import com.example.kanakubook.util.Constants
 
 class ViewPagerAdapter(fragment: Fragment, private val layOutTag: String = Constants.FOR_TAB_LAYOUT) : FragmentStateAdapter(fragment){
 
-    private val f1 = GroupFragment(layOutTag)
-    private var f2 = FriendsFragment(layOutTag)
+    val f1 = GroupFragment(layOutTag)
+    var f2 = FriendsFragment(layOutTag)
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {

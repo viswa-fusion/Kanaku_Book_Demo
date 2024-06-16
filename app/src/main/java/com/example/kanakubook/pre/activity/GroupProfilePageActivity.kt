@@ -87,7 +87,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
 
         supportFragmentManager.setFragmentResultListener("addFriend", this) { _, _ ->
             showLoading()
-            groupViewModel.addMembers(groupId, viewModel.selectedList.map {
+            groupViewModel.addMembers(getLoggedUserId(),groupId, viewModel.selectedList.map {
                 it.userId
             })
         }

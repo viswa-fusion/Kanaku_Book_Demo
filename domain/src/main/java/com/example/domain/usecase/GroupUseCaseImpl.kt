@@ -1,17 +1,24 @@
 package com.example.domain.usecase
 
 import android.graphics.Bitmap
-import android.provider.ContactsContract.Contacts.Data
+import com.example.domain.Converters.ActivityType
 import com.example.domain.helper.CryptoHelper
 import com.example.domain.helper.DateTimeHelper
+import com.example.domain.model.ActivityModelEntry
 import com.example.domain.model.GroupData
 import com.example.domain.model.GroupEntry
+import com.example.domain.repository.response.ActivityRepository
 import com.example.domain.repository.response.DataLayerResponse
 import com.example.domain.usecase.delegate.GroupRepositoryFunctionProviderDelegate
 import com.example.domain.usecase.response.PresentationLayerResponse
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
-class GroupUseCaseImpl(private val repo: GroupRepositoryFunctionProviderDelegate) :
+class GroupUseCaseImpl(
+    private val repo: GroupRepositoryFunctionProviderDelegate,
+    private val activityRepo: ActivityRepository
+    ) :
     UserUseCase.GroupUseCase {
     override suspend fun fetchLoggedInUserGroups(userId: Long): PresentationLayerResponse<List<GroupData>> {
 
@@ -34,6 +41,7 @@ class GroupUseCaseImpl(private val repo: GroupRepositoryFunctionProviderDelegate
     }
 
     override suspend fun addMembers(
+        userId:Long,
         groupId: Long,
         memberList: List<Long>
     ): PresentationLayerResponse<Boolean> {
@@ -43,6 +51,17 @@ class GroupUseCaseImpl(private val repo: GroupRepositoryFunctionProviderDelegate
         }
         return when(val result = repo.addMembers(decryptGroupId,decryptMembersId)){
             is DataLayerResponse.Success -> {
+                val activity = ActivityModelEntry(
+                    -1L,
+                    CryptoHelper.decrypt(userId),
+                    ActivityType.ADD_MEMBER_TO_GROUP,
+                    DateTimeHelper.getCurrentTime(),
+                    null,
+                    groupId = CryptoHelper.decrypt(groupId)
+                )
+                coroutineScope {
+                    launch { activityRepo.insertActivity(activity) }
+                }
                 PresentationLayerResponse.Success(result.data)
             }
             is DataLayerResponse.Error -> {
@@ -63,7 +82,21 @@ class GroupUseCaseImpl(private val repo: GroupRepositoryFunctionProviderDelegate
             }
         )
         return when (val result = repo.insertGroupEntry(decrypted)) {
-            is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
+            is DataLayerResponse.Success -> {
+                val activity = ActivityModelEntry(
+                    -1L,
+                    CryptoHelper.decrypt(createdBy),
+                    ActivityType.CREATE_GROUP,
+                    DateTimeHelper.getCurrentTime(),
+                    null,
+                    groupId = result.data
+                )
+                coroutineScope {
+                    launch { activityRepo.insertActivity(activity) }
+                }
+
+                PresentationLayerResponse.Success(true)
+            }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error("failed to retrieve data")
         }
     }

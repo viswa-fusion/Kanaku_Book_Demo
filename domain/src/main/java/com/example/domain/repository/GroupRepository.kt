@@ -9,7 +9,7 @@ import java.sql.Time
 
 interface GroupRepository {
     interface  Info{
-        suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Boolean>
+        suspend fun insertGroupEntry(group: GroupEntry): DataLayerResponse<Long>
         suspend fun retrieveUserGroupsByUserId(userId: Long): DataLayerResponse<List<GroupData>>
         suspend fun updateGroupActiveTime(groupId: Long,time: Long)
         suspend fun addMembers(groupId: Long,membersList: List<Long>): DataLayerResponse<Boolean>

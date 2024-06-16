@@ -3,6 +3,10 @@ package com.example.kanakubook.pre.adapter
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -16,13 +20,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
+import java.util.Locale
 import kotlin.math.abs
 
 class GroupsListAdapter(
     private val context: Context,
     private val callback: CallBack
 ) : RecyclerView.Adapter<GroupsListAdapter.GroupListViewHolder>() {
-
+    private var searchText:String = ""
     interface CallBack{
         suspend fun getImage(groupId: Long): Bitmap?
         fun onClickItemListener(groupData: GroupData)
@@ -50,6 +55,10 @@ class GroupsListAdapter(
 
     fun updateData(dataResponse: List<GroupData>) {
         asyncListDiffer.submitList(dataResponse)
+    }
+
+    fun getData():List<GroupData>{
+        return asyncListDiffer.currentList
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupListViewHolder {
@@ -89,7 +98,19 @@ class GroupsListAdapter(
         fun bind(groupData: GroupData){
             resetViewHolder()
             bindImageReferenceCheck = groupData.id
-            groupName.text = groupData.name
+
+            val name = groupData.name.lowercase(Locale.ROOT)
+            val spannable = SpannableString(name)
+            val startIndex = name.indexOf(searchText)
+            if (startIndex != -1) {
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    startIndex,
+                    startIndex + searchText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            groupName.text = spannable
             val decimalFormat = DecimalFormat("#,###.##")
             val calculateAmount = groupData.get - groupData.pay
             val absAmount = abs(calculateAmount)
@@ -124,5 +145,9 @@ class GroupsListAdapter(
                 }
             }
         }
+    }
+    fun highlightText(searchText: String) {
+        this.searchText = searchText
+        notifyDataSetChanged()
     }
 }

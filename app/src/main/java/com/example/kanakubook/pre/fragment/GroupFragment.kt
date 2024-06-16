@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.GroupData
@@ -38,6 +37,7 @@ class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : Ba
     private lateinit var preferenceHelper: PreferenceHelper
     private val viewModel : GroupViewModel by viewModels { GroupViewModel.FACTORY }
     private val commonViewModel: CommonViewModel by activityViewModels ()
+    private lateinit var adapter: GroupsListAdapter
 
 
     private val addGroupResultLauncher =
@@ -109,6 +109,8 @@ class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : Ba
             addGroupResultLauncher.launch(intent)
             binding.createFab.callOnClick()
         }
+
+
     }
 
     private fun setObserver(){
@@ -119,10 +121,24 @@ class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : Ba
                         binding.emptyTemplate.emptyTemplate.visibility = View.VISIBLE
                     }
                     else{
+
                         binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
                         val adapter = binding.recyclerview.adapter
                         if (adapter is GroupsListAdapter) {
-                            adapter.updateData(it.data)
+                             if(layoutTag == Constants.FOR_TAB_LAYOUT) {
+                                val data = it.data.sortedBy { u -> u.name }
+                                commonViewModel.listGroupData = data
+                                val filteredGroups = data.filter {
+                                    it.name.contains(
+                                        commonViewModel.filterString,
+                                        ignoreCase = true
+                                    )
+                                }
+                                adapter.highlightText(commonViewModel.filterString)
+                                adapter.updateData(filteredGroups)
+                            }else{
+                                 adapter.updateData(it.data)
+                             }
                         }
                     }
                 }
@@ -164,7 +180,7 @@ class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : Ba
 
     private fun initialSetUp(){
         checkLayoutNeed()
-        val adapter = GroupsListAdapter(requireActivity(), object : GroupsListAdapter.CallBack{
+        adapter = GroupsListAdapter(requireActivity(), object : GroupsListAdapter.CallBack{
             override suspend fun getImage(groupId: Long): Bitmap? {
                 return viewModel.getProfile(groupId)
             }
@@ -200,6 +216,17 @@ class GroupFragment(private val layoutTag:String = Constants.NORMAL_LAYOUT) : Ba
         binding.recyclerview.addItemDecoration(
             CustomDividerItemDecoration(requireActivity(), dividerDrawable, 200,16)
         )
+    }
+
+
+    fun filterGroups(query: String) {
+        if (!isAdded || activity == null) {
+            return
+        }
+        commonViewModel.filterString = query
+        val filteredGroups = commonViewModel.listGroupData.filter { it.name.contains(query, ignoreCase = true) }
+        adapter.highlightText(query)
+        adapter.updateData(filteredGroups)
     }
 
     private fun checkLayoutNeed() {

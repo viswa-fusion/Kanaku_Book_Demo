@@ -43,6 +43,11 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE userId IN (SELECT user2Id FROM FriendsConnectionCrossRef WHERE user1Id = :userId) OR userId IN(SELECT user1Id FROM FriendsConnectionCrossRef WHERE user2Id = :userId)")
     suspend fun getFriendsOfUser(userId: Long): List<UserEntity>
 
+
+    @Query("UPDATE friendsconnectioncrossref SET timeStamp = :timeStamp WHERE connectionId = :connectionId")
+    suspend fun updateConnectionActiveTime(connectionId:Long, timeStamp: Long)
+
+
     @Query(
         """SELECT * FROM FriendsConnectionCrossRef
                 INNER JOIN users ON FriendsConnectionCrossRef.user1Id = users.userId
@@ -50,7 +55,7 @@ interface UserDao {
                 UNION
                 SELECT * FROM FriendsConnectionCrossRef
                 INNER JOIN users ON FriendsConnectionCrossRef.user2Id = users.userId
-                WHERE FriendsConnectionCrossRef.user1Id = :userId ORDER BY name ASC"""
+                WHERE FriendsConnectionCrossRef.user1Id = :userId ORDER BY timeStamp DESC"""
     )
     suspend fun getFriendsWithConnectionId(userId: Long): List<FriendsWithConnectionId>
 

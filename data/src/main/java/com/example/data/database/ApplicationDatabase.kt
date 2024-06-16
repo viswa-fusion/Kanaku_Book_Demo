@@ -19,6 +19,8 @@ import com.example.data.entity.SplitEntity
 import com.example.data.entity.UserEntity
 import com.example.domain.Converters.Converters
 import com.example.data.crossreference.SplitExpenseCrossRef
+import com.example.data.dao.ActivityDao
+import com.example.data.entity.ActivityEntity
 
 @Database(
     entities = [
@@ -29,8 +31,9 @@ import com.example.data.crossreference.SplitExpenseCrossRef
         ExpenseEntity::class,
         SplitEntity::class,
         ExpenseCrossRef::class,
-        SplitExpenseCrossRef::class
-    ], version = 2
+        SplitExpenseCrossRef::class,
+        ActivityEntity::class
+    ], version = 3
 )
 @TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {
@@ -39,6 +42,7 @@ abstract class ApplicationDatabase : RoomDatabase() {
     abstract fun getMyProfilePhotoDao(): ProfilePhotoDao
     abstract fun getMyExpenseDao(): ExpenseDao
     abstract fun getMySplitDao(): SplitDao
+    abstract fun getMyActivityDao(): ActivityDao
 
 
     companion object {

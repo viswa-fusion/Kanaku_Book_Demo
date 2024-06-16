@@ -83,7 +83,6 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
                         it.toExpenseData(userData, listData.map{it.toSplitEntry()})
                     }
                     defArray.add(data)
-                    Log.i("coroutineDataTest","data async: $data")
                 }
             }
             val resultList = defArray.awaitAll()

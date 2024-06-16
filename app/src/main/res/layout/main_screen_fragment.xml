@@ -41,7 +41,9 @@
                         android:layout_height="50dp"
                         android:layout_weight="1"
                         android:hint="Search..."
-                        app:navigationIcon="@drawable/ic_discover_24" />
+                        app:navigationIcon="@drawable/ic_discover_24"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true" />
 
 
                     <com.google.android.material.imageview.ShapeableImageView

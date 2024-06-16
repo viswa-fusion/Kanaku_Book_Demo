@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.commit
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.SelectSplitWithBinding
@@ -19,11 +20,17 @@ class SelectSplitWithActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initialSetUp()
+        setListener()
         setObserver()
-
         supportFragmentManager.commit {
             replace(R.id.fragment_container_view_1,ViewPagerFragment())
             setReorderingAllowed(true)
+        }
+    }
+
+    private fun setListener() {
+        binding.searchView.addTextChangedListener {
+            filterViewPagerFragments(it.toString())
         }
     }
 
@@ -60,6 +67,13 @@ class SelectSplitWithActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(!isTaskRoot)
         binding.toolbar.setNavigationIcon(R.drawable.close_24px)
 
+    }
+
+    private fun filterViewPagerFragments(query: String) {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container_view_1)
+        if (fragment is ViewPagerFragment) {
+            fragment.filterData(query)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

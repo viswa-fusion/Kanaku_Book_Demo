@@ -3,9 +3,13 @@ package com.example.kanakubook.pre.fragment
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextWatcher
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -96,6 +100,7 @@ class MultiUserPickListFragment :
                 } else {
                     binding.searchNotFound.emptyTemplate.visibility = View.INVISIBLE
                 }
+                verticalAdapter.highlightText(searchText)
                 verticalAdapter.updateData(filteredList)
             }
         })
@@ -238,6 +243,7 @@ class MultiUserPickListFragment :
     inner class VerticalAdapter :
         RecyclerView.Adapter<VerticalAdapter.ViewHolder>() {
 
+        private var searchText: String = ""
         private val diffUtil = object :
             DiffUtil.ItemCallback<MySelectableUserData>() {
 
@@ -254,6 +260,12 @@ class MultiUserPickListFragment :
             ): Boolean {
                 return oldItem == newItem
             }
+        }
+
+
+        fun highlightText(searchText: String) {
+            this.searchText = searchText
+            notifyDataSetChanged()
         }
 
         private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
@@ -347,7 +359,19 @@ class MultiUserPickListFragment :
             fun bind(item: MySelectableUserData) {
                 resetViewHolder()
                 bindImageReferenceCheck = item.userId
-                textView.text = item.name
+
+                val name = item.name.lowercase(Locale.ROOT)
+                val spannable = SpannableString(name)
+                val startIndex = name.indexOf(searchText)
+                if (startIndex != -1) {
+                    spannable.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        startIndex,
+                        startIndex + searchText.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                textView.text = spannable
                 if (item.isSelected) {
                     binding.main.backgroundTintList = ContextCompat.getColorStateList(
                         requireActivity(),

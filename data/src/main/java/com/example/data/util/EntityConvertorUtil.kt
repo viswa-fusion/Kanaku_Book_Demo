@@ -1,5 +1,6 @@
 package com.example.data.util
 
+import com.example.data.entity.ActivityEntity
 import com.example.data.entity.ExpenseEntity
 import com.example.domain.model.GroupSummery
 import com.example.domain.model.UserEntryData
@@ -9,7 +10,10 @@ import com.example.data.entity.GroupEntity
 import com.example.data.entity.SplitEntity
 import com.example.data.relation.GroupWithMembers
 import com.example.data.entity.UserEntity
+import com.example.data.relation.ActivityRelation
 import com.example.data.relation.CommonGroupWithAmount
+import com.example.domain.model.ActivityModel
+import com.example.domain.model.ActivityModelEntry
 import com.example.domain.model.CommonGroupWIthAmountData
 import com.example.domain.model.ExpenseData
 import com.example.domain.model.ExpenseEntry
@@ -151,5 +155,41 @@ internal fun UserEntity.toUserProfileData(): UserProfileData {
         this.phone,
         this.amountToGet,
         this.amountToGive
+    )
+}
+
+internal fun ActivityModelEntry.toActivityEntity(): ActivityEntity{
+    return ActivityEntity(
+        this.userId,
+        this.activityType,
+        this.timestamp,
+        this.details,
+        this.friendId,
+        this.groupId,
+        this.expenseId
+    )
+}
+
+internal fun ActivityRelation.toActivityModelEntry(spenderData: UserProfileSummary?,
+                                                   listOfSplit: List<SplitEntry>?,
+                                                   groupEntity: GroupEntity?): ActivityModel {
+    return ActivityModel(
+        this.activity.activityId,
+        this.user.toUserProfileSummery(),
+        this.activity.activityType,
+        this.activity.timestamp,
+        this.activity.details,
+        this.friend?.toUserProfileSummery(),
+        groupEntity?.toGroupSummery(),
+        this.expense?.toExpenseData(spenderData!!,listOfSplit!!)
+    )
+}
+
+internal fun GroupEntity.toGroupSummery(): GroupSummery{
+    return GroupSummery(
+        this.groupId,
+        this.groupName,
+        this.createdBy,
+        this.lastActive
     )
 }

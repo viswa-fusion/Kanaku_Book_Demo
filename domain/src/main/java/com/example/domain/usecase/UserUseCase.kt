@@ -16,7 +16,7 @@ interface UserUseCase {
     interface GroupUseCase{
         suspend fun addGroup(name: String, image: Bitmap?, createdBy: Long, memberList: List<Long>): PresentationLayerResponse<Boolean>
         suspend fun fetchLoggedInUserGroups(userId: Long) : PresentationLayerResponse<List<GroupData>>
-        suspend fun addMembers(groupId:Long,memberList: List<Long>): PresentationLayerResponse<Boolean>
+        suspend fun addMembers(userId:Long,groupId:Long,memberList: List<Long>): PresentationLayerResponse<Boolean>
     }
 
     interface FriendsUseCase{

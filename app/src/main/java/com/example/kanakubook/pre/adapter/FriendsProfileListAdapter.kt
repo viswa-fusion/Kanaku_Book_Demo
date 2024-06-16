@@ -5,8 +5,12 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.params.ColorSpaceTransform
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -33,6 +38,7 @@ class FriendsProfileListAdapter(
     private val callback :Callbacks
 ) :
     RecyclerView.Adapter<FriendsProfileListAdapter.ProfileViewHolder>() {
+    private var searchText:String = ""
 
 
     private val diffUtil = object :
@@ -58,6 +64,10 @@ class FriendsProfileListAdapter(
 
     fun updateData(dataResponse: List<UserProfileSummary>) {
         asyncListDiffer.submitList(dataResponse)
+    }
+
+    fun getData():List<UserProfileSummary>{
+        return asyncListDiffer.currentList
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder {
@@ -98,7 +108,19 @@ class FriendsProfileListAdapter(
         fun bind(profile: UserProfileSummary){
             resetViewHolder()
             bindImageReferenceCheck = profile.userId
-            textViewName.text = profile.name
+
+            val name = profile.name.lowercase(Locale.ROOT)
+            val spannable = SpannableString(name)
+            val startIndex = name.indexOf(searchText)
+            if (startIndex != -1) {
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    startIndex,
+                    startIndex + searchText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            textViewName.text = spannable
             textViewAmount.setTextColor(context.getColor(R.color.black))
             val decimalFormat = DecimalFormat("#,###.##")
             val displayAmount = profile.get - profile.pay
@@ -144,5 +166,10 @@ class FriendsProfileListAdapter(
     interface Callbacks{
         suspend fun getImage(userId: Long): Bitmap?
         fun onClickItemListener(userProfileSummary: UserProfileSummary)
+    }
+
+    fun highlightText(searchText: String) {
+        this.searchText = searchText
+        notifyDataSetChanged()
     }
 }

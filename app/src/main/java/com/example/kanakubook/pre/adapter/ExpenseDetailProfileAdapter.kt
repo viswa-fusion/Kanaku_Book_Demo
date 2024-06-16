@@ -12,6 +12,7 @@ import com.example.domain.Converters.PaidStatus
 import com.example.domain.model.UserProfileSummary
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.SplitUserCardBinding
+import com.example.kanakubook.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +22,6 @@ class ExpenseDetailProfileAdapter(
     private val isOwnerView :Boolean,
     private val callback: CallBack
 ): RecyclerView.Adapter<ExpenseDetailProfileAdapter.MyViewHolder>() {
-    private val rupeeSymbol = "\u20B9"
 
     private val diffUtil = object :
         DiffUtil.ItemCallback<ExpenseDetailObject>() {
@@ -81,7 +81,7 @@ class ExpenseDetailProfileAdapter(
             reSetViewHolder()
             binding.textviewName.text = item.user.name
             val formatted = String.format("%.2f",item.splitAmount)
-            binding.textviewAmount.text = "$rupeeSymbol$formatted"
+            binding.textviewAmount.text = "${Constants.RUPEE_SYMBOL}$formatted"
             if (item.paidStatus == PaidStatus.Paid && isOwnerView){
                 binding.checkIcon.visibility = View.VISIBLE
             }

@@ -20,6 +20,7 @@ import com.example.kanakubook.pre.adapter.ExpenseDetailProfileAdapter
 import com.example.kanakubook.pre.adapter.ExpenseDetailScreenAdapter
 import com.example.kanakubook.pre.viewmodel.FriendsViewModel
 import com.example.kanakubook.pre.viewmodel.UserViewModel
+import com.example.kanakubook.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,7 +35,6 @@ class ExpenseDetailActivity: AppCompatActivity() {
     private lateinit var ownerName:String
     private var totalAmount:Double? = null
     private var listOfSplit :List<SplitEntry>? = null
-    private val rupeeSymbol = "\u20B9"
     private lateinit var adapter: ExpenseDetailProfileAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +77,7 @@ class ExpenseDetailActivity: AppCompatActivity() {
         val includeCount = listOfSplit?.count { it.splitAmount != 0.0 }?:0
         val paidCount = listOfSplit?.count{ it.paidStatus == PaidStatus.Paid  && it.splitAmount != 0.0}?:0
         if (userId == ownerId){
-            binding.titleText.text = "Total: $rupeeSymbol$totalAmount"
+            binding.titleText.text = "Total: ${Constants.RUPEE_SYMBOL}$totalAmount"
             var paidAmount = 0.0
             var leftAmount = 0.0
             listOfSplit?.forEach {
@@ -87,10 +87,10 @@ class ExpenseDetailActivity: AppCompatActivity() {
                 }
             }
             binding.progressBar.progress = (paidCount*100)/includeCount
-            binding.textLeft.text = "$rupeeSymbol${String.format("%.2f",paidAmount)} paid"
-            binding.textRight.text = "$rupeeSymbol${String.format("%.2f",leftAmount)} left"
+            binding.textLeft.text = "${Constants.RUPEE_SYMBOL}${String.format("%.2f",paidAmount)} paid"
+            binding.textRight.text = "${Constants.RUPEE_SYMBOL}${String.format("%.2f",leftAmount)} left"
         }else{
-            val text =  "$ownerName Requested '$rupeeSymbol${mySplit?.splitAmount?:0.00}'"
+            val text =  "$ownerName Requested '${Constants.RUPEE_SYMBOL}${mySplit?.splitAmount?:0.00}'"
             binding.titleText.text = text
             binding.content.visibility = View.GONE
             binding.progressBar.visibility = View.GONE

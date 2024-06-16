@@ -8,6 +8,7 @@ import com.example.data.database.ApplicationDatabase
 import com.example.data.repositoryImpl.UserRepositoryImpl
 import com.example.data.util.StorageHelper
 import com.example.domain.helper.CryptoHelper
+import com.example.domain.helper.DateTimeHelper
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.StorageHelperImpl
@@ -76,7 +77,7 @@ class DefaultDataInjection(val context: Context) {
                         userid = CryptoHelper.decrypt(it.data)
                     } else {
                         CoroutineScope(Dispatchers.IO).launch {
-                            repo.addFriend(userid!!, CryptoHelper.decrypt(it.data))
+                            repo.addFriend(userid!!, CryptoHelper.decrypt(it.data), DateTimeHelper.getCurrentTime())
                         }
                     }
                     count++

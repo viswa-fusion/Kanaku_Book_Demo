@@ -111,8 +111,8 @@ class FriendDetailPageActivity : AppCompatActivity() {
                 }
             }
 
-            override fun pay(expenseId: Long) {
-                showPaymentConfirmationDialog(expenseId)
+            override fun pay(expense: ExpenseData) {
+                showPaymentConfirmationDialog(expense.spender.userId,expense.expenseId)
             }
 
         })
@@ -214,7 +214,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPaymentConfirmationDialog(expenseId: Long) {
+    private fun showPaymentConfirmationDialog(spenderId:Long, expenseId: Long) {
         val dialogView = layoutInflater.inflate(R.layout.pay_expense_dialog, null)
         val binding = PayExpenseDialogBinding.bind(dialogView)
         val builder = AlertDialog.Builder(this)
@@ -227,7 +227,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
         }
         binding.btnProceed.setOnClickListener {
             binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
-            friendViewModel.pay(expenseId, getLoggedUserId())
+            friendViewModel.pay(spenderId, expenseId, getLoggedUserId())
         }
         alertDialog.show()
     }

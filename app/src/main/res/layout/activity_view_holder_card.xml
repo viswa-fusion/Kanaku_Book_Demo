@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/spacing_medium"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/mainImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginBottom="14dp"
+        android:src="@drawable/payment_vector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/squareEdgeShaped_extra"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/subImage"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentStart="true"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="-8dp"
+        android:layout_marginBottom="-8dp"
+        android:src="@drawable/default_profile_image"
+        app:layout_constraintBottom_toBottomOf="@id/mainImage"
+        app:layout_constraintEnd_toEndOf="@id/mainImage"
+        app:shapeAppearanceOverlay="@style/roundedShape" />
+
+
+    <TextView
+        android:id="@+id/textViewName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/text_view_amount"
+        android:layout_toEndOf="@id/shapeableImageView2"
+        android:paddingHorizontal="@dimen/spacing_medium"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="You added 'food' in 'friendsGroup'"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintBottom_toBottomOf="@+id/mainImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/subImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:paddingStart="@dimen/spacing_medium"
+        android:text="Today, 10.30 am"
+        android:textColor="@color/hint_enhance_black"
+        android:textSize="@dimen/text_size_extra_small"
+        app:layout_constraintStart_toEndOf="@+id/subImage"
+        app:layout_constraintTop_toBottomOf="@+id/textViewName" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

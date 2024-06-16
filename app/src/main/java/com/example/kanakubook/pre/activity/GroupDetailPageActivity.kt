@@ -180,8 +180,8 @@ class GroupDetailPageActivity : AppCompatActivity() {
                 }
             }
 
-            override fun pay(expenseId: Long) {
-                showPaymentConfirmationDialog(expenseId)
+            override fun pay(expense: ExpenseData) {
+                showPaymentConfirmationDialog(expense.spender.userId,expense.expenseId)
             }
         })
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
@@ -189,7 +189,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
         binding.recyclerview.adapter = adapter
     }
 
-    private fun showPaymentConfirmationDialog(expenseId: Long) {
+    private fun showPaymentConfirmationDialog(spenderId:Long, expenseId: Long) {
       if (::alertDialog.isInitialized){
           alertDialog.dismiss()
       }
@@ -205,7 +205,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
             }
             binding.btnProceed.setOnClickListener {
                 binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
-                groupViewModel.pay(expenseId, getLoggedUserId())
+                groupViewModel.pay(spenderId,expenseId, getLoggedUserId())
             }
 
         if(!alertDialog.isShowing) {

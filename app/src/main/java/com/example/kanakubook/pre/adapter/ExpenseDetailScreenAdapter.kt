@@ -20,6 +20,7 @@ import com.example.kanakubook.databinding.ExpenseLeftCardBinding
 import com.example.kanakubook.databinding.ExpenseRightCardBinding
 import com.example.kanakubook.pre.KanakuBookApplication
 import com.example.kanakubook.pre.activity.ExpenseDetailActivity
+import com.example.kanakubook.util.Constants
 import com.example.kanakubook.util.DateConvertor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,6 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
     private val preferenceHelper = PreferenceHelper(context)
     private val RIGHT_CARD = 1
     private val LEFT_CARD = 2
-    private val rupeeSymbol = "\u20B9"
 
     init {
         if (loggedUserId == null && preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
@@ -108,7 +108,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
 
         init {
             binding.payButton.setOnClickListener {
-                callback.pay(asyncListDiffer.currentList[absoluteAdapterPosition].expenseId)
+                callback.pay(asyncListDiffer.currentList[absoluteAdapterPosition])
             }
 
             binding.cardView.setOnClickListener {
@@ -139,10 +139,10 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
             val mySplit: SplitEntry? =
                 item.listOfSplits.singleOrNull { it.splitUserId == loggedUserId }
             val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
-            val amount = rupeeSymbol + mySplit?.splitAmount.toString()
+            val amount = Constants.RUPEE_SYMBOL + mySplit?.splitAmount.toString()
             val totalPaid: Int = item.listOfSplits.count { it.paidStatus == PaidStatus.Paid }
             if (mySplit != null) {
-                if (amount == "${rupeeSymbol}0.0") {
+                if (amount == "${Constants.RUPEE_SYMBOL}0.0") {
                     binding.amount.visibility = View.GONE
                     binding.progressBar.visibility = View.GONE
                     binding.paidStatusText.text = "No payment required"
@@ -221,7 +221,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
             } else {
                 binding.note.text = "Split request"
             }
-            val amount = rupeeSymbol + item.totalAmount
+            val amount = Constants.RUPEE_SYMBOL + item.totalAmount
             binding.amount.text = amount
             val totalPaid: Int =
                 item.listOfSplits.count { it.paidStatus == PaidStatus.Paid && it.splitAmount != 0.0 }
@@ -233,7 +233,7 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
                     leftAmount += it.splitAmount
                 }
             }
-            binding.progressText.text = "$rupeeSymbol${String.format("%.2f", leftAmount)} left"
+            binding.progressText.text = "${Constants.RUPEE_SYMBOL}${String.format("%.2f", leftAmount)} left"
             val time = DateConvertor.millisToDateTime(item.date)
             if (totalPaid == item.listOfSplits.size) {
                 binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
@@ -252,6 +252,6 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
         suspend fun getProfile(userId: Long): Bitmap?
 
         fun onclickCard(item: ExpenseData, view: View)
-        fun pay(expenseId: Long)
+        fun pay(expense: ExpenseData)
     }
 }

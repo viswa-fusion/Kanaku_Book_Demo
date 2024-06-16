@@ -58,6 +58,12 @@
         <item name="android:background">@color/transparent</item>
     </style>
 
+    <style name="squareEdgeShaped_extra">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">30%</item>
+        <item name="android:background">@color/transparent</item>
+    </style>
+
     <style name="roundedShape">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>

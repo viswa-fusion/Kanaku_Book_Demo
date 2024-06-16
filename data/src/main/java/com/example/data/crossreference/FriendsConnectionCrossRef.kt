@@ -20,11 +20,12 @@ import com.example.data.entity.UserEntity
             childColumns = ["user2Id"],
         )
     ],
-    indices = [Index(value = ["user1Id"]),Index(value = ["user2Id"])]
+    indices = [Index(value = ["user1Id"]),Index(value = ["user2Id"]),Index(value = ["timeStamp"])]
 )
 data class FriendsConnectionCrossRef(
     val user1Id: Long,
     val user2Id: Long,
+    val timeStamp: Long,
 
     @PrimaryKey(autoGenerate = true)
     val connectionId: Long = 0

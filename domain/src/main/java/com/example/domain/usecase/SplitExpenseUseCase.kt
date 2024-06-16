@@ -17,7 +17,7 @@ interface SplitExpenseUseCase {
 
         suspend fun getGroupExpenseById(groupId: Long): PresentationLayerResponse<List<ExpenseData>>
 
-        suspend fun payForExpense(expenseId: Long, userId: Long): PresentationLayerResponse<Boolean>
+        suspend fun payForExpense(spenderId:Long, expenseId: Long, userId: Long): PresentationLayerResponse<Boolean>
     }
 
     interface FriendsExpense{
@@ -30,7 +30,7 @@ interface SplitExpenseUseCase {
             splitList: List<Pair<Long,Double>>
         ): PresentationLayerResponse<Boolean>
         suspend fun getFriendsExpenseById(connectionId: Long): PresentationLayerResponse<List<ExpenseData>>
-        suspend fun payForExpense(expenseId: Long, userId: Long): PresentationLayerResponse<Boolean>
+        suspend fun payForExpense(spenderId:Long, expenseId: Long, userId: Long): PresentationLayerResponse<Boolean>
 
         suspend fun getCommonGroupWithFriendIdWithCalculatedAmount(userId: Long, friendId: Long): PresentationLayerResponse<List<CommonGroupWIthAmountData>>
     }

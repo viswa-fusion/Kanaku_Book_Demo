@@ -2,12 +2,17 @@ package com.example.domain.usecase
 
 
 import android.graphics.Bitmap
+import com.example.domain.Converters.ActivityType
 import com.example.domain.helper.CryptoHelper
+import com.example.domain.helper.DateTimeHelper
+import com.example.domain.model.ActivityModel
+import com.example.domain.model.ActivityModelEntry
 import com.example.domain.model.UserEntryData
 import com.example.domain.model.UserProfileData
 import com.example.domain.model.UserProfileSummary
 import com.example.domain.repository.GroupRepository
 import com.example.domain.repository.UserRepository
+import com.example.domain.repository.response.ActivityRepository
 import com.example.domain.repository.response.DataLayerResponse
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.domain.usecase.util.ImageDirectoryType
@@ -17,12 +22,14 @@ class UserUseCaseImpl(
     private val userInfoRepo: UserRepository.Info,
     private val userAuthenticationRepo: UserRepository.Authentication,
     private val groupRepo: GroupRepository.Profile,
-    private val userProfile: UserRepository.UserProfile
+    private val userProfile: UserRepository.UserProfile,
+    private val activityRepo: ActivityRepository,
     ) : SignUpUseCase,
     LoginUseCase,
     ProfilePictureUseCase,
     UserUseCase.FriendsUseCase,
-    UserUseCase.CommonUserUseCase{
+    UserUseCase.CommonUserUseCase,
+    ActivityUseCase{
 
     override suspend fun addUser(
         name: String,
@@ -133,8 +140,21 @@ class UserUseCaseImpl(
     ): PresentationLayerResponse<Boolean> {
         return when (val friendUserId = userInfoRepo.getUserIdByPhone(friendPhone)) {
             is DataLayerResponse.Success -> {
-                when (val result = userInfoRepo.addFriend(CryptoHelper.decrypt(userId), friendUserId.data)) {
-                    is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
+                when (val result = userInfoRepo.addFriend(CryptoHelper.decrypt(userId), friendUserId.data, DateTimeHelper.getCurrentTime())) {
+                    is DataLayerResponse.Success -> {
+                        val activity = ActivityModelEntry(
+                            -1L,
+                            CryptoHelper.decrypt(userId),
+                            ActivityType.ADD_FRIEND,
+                            DateTimeHelper.getCurrentTime(),
+                            null,
+                            friendId = friendUserId.data
+                        )
+                        when(val activityResult = activityRepo.insertActivity(activity)){
+                            is DataLayerResponse.Success -> PresentationLayerResponse.Success(true)
+                            is DataLayerResponse.Error -> PresentationLayerResponse.Error(activityResult.errorCode.toString())
+                        }
+                    }
                     is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
                 }
             }
@@ -158,6 +178,7 @@ class UserUseCaseImpl(
             }
 
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(listOfUsers.errorCode.toString())
+
         }
     }
 
@@ -188,5 +209,39 @@ class UserUseCaseImpl(
             }
         }
 
+    }
+
+    override suspend fun getAllMyActivity(userId: Long): PresentationLayerResponse<List<ActivityModel>> {
+       return when(val result =  activityRepo.getAllMyActivity(CryptoHelper.decrypt(userId))){
+           is DataLayerResponse.Success -> {
+               val encryptData = result.data.map {
+                   it.copy(
+                       activityId = CryptoHelper.encrypt(it.activityId),
+                       user = it.user.copy(
+                           userId = CryptoHelper.encrypt(it.user.userId)
+                       ),
+                       friend = it.friend?.let {_-> it.friend.copy(
+                           userId = CryptoHelper.encrypt(it.friend.userId)
+                       ) },
+                       group = it.group?.let {_-> it.group.copy(
+                          id = CryptoHelper.encrypt(it.group.id)
+                       ) },
+                       expense = it.expense?.let {_-> it.expense.copy(
+                           expenseId = CryptoHelper.encrypt(it.expense.expenseId).dec(),
+                           listOfSplits = it.expense.listOfSplits.map {list ->
+                               list.copy(
+                                   splitUserId = CryptoHelper.encrypt(list.splitUserId)
+                               )
+                           }
+                       ) }
+                   )
+               }
+               PresentationLayerResponse.Success(encryptData)
+           }
+
+           is DataLayerResponse.Error -> {
+                PresentationLayerResponse.Error(result.errorCode.toString())
+           }
+       }
     }
 }

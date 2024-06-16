@@ -74,9 +74,9 @@ class FriendsViewModel(
         }
     }
 
-    fun pay(expenseId:Long,userId: Long){
+    fun pay(spenderId:Long,expenseId:Long,userId: Long){
         viewModelScope.launch(Dispatchers.IO) {
-            _payResponse.postValue(expenseUseCase.payForExpense(expenseId,userId))
+            _payResponse.postValue(expenseUseCase.payForExpense(spenderId,expenseId, userId))
         }
     }
 
