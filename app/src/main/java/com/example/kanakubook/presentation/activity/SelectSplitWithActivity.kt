@@ -16,14 +16,14 @@ import com.example.kanakubook.presentation.viewmodel.CommonViewModel
 class SelectSplitWithActivity : AppCompatActivity() {
 
     private lateinit var binding: SelectSplitWithBinding
-    private val commonViewModel: CommonViewModel by viewModels ()
+    private val commonViewModel: CommonViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initialSetUp()
         setListener()
         setObserver()
         supportFragmentManager.commit {
-            replace(R.id.fragment_container_view_1,ViewPagerFragment())
+            replace(R.id.fragment_container_view_1, ViewPagerFragment())
             setReorderingAllowed(true)
         }
     }
@@ -35,17 +35,17 @@ class SelectSplitWithActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
-        commonViewModel.selectSplitWithListener.observe(this){
-            val customIntent:Intent = if (it.expenseType){
+        commonViewModel.selectSplitWithListener.observe(this) {
+            val customIntent: Intent = if (it.expenseType) {
                 val gIntent = Intent()
                 val bundle = Bundle()
                 val list: List<Long> = it.members
                 bundle.putLongArray("members", list.toLongArray())
                 gIntent.putExtra("bundleFromDetailPage", bundle)
-                gIntent.putExtra("connectionId",it.id)
-                gIntent.putExtra("ExpenseType",true)
+                gIntent.putExtra("connectionId", it.id)
+                gIntent.putExtra("ExpenseType", true)
                 gIntent
-            }else{
+            } else {
                 val fIntent = Intent()
                 val bundle = Bundle()
                 bundle.putLongArray("members", it.members.toLongArray())
@@ -55,7 +55,7 @@ class SelectSplitWithActivity : AppCompatActivity() {
                 fIntent
             }
 
-            setResult(Activity.RESULT_OK,customIntent)
+            setResult(Activity.RESULT_OK, customIntent)
             finish()
         }
     }
@@ -77,7 +77,7 @@ class SelectSplitWithActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             android.R.id.home -> {
                 finish()
             }

@@ -34,24 +34,26 @@ class FriendDetailPageActivity : AppCompatActivity() {
 
     private lateinit var binding: DetailPageActivityBinding
     private val friendViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private var connectionId:Long? = null
+    private var connectionId: Long? = null
     private var friendId: Long? = null
     private val preferenceHelper = PreferenceHelper(this)
     private lateinit var alertDialog: Dialog
-    private lateinit var number:String
-    private lateinit var friendName:String
+    private lateinit var number: String
+    private lateinit var friendName: String
 
     private lateinit var adapter: ExpenseDetailScreenAdapter
 
-    private val addExpenseActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode == Activity.RESULT_OK){
-            if(connectionId != null) {
-                friendViewModel.getAllExpenseByConnectionId(connectionId!!)
-            }else{
-                Toast.makeText(this, "No connection id", Toast.LENGTH_SHORT).show()
+    private val addExpenseActivityResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                if (connectionId != null) {
+                    friendViewModel.getAllExpenseByConnectionId(connectionId!!)
+                } else {
+                    Toast.makeText(this, "No connection id", Toast.LENGTH_SHORT).show()
+                }
             }
         }
-    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initialSetUp()
@@ -65,17 +67,17 @@ class FriendDetailPageActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(!isTaskRoot)
         supportActionBar?.title = ""
-        friendName = intent.getStringExtra("name")?:""
+        friendName = intent.getStringExtra("name") ?: ""
         binding.name.text = friendName
         number = "+91 ${intent.getLongExtra("phone", 0)}"
-        connectionId = intent.getLongExtra("connectionId",-1)
-        friendId = intent.getLongExtra("userId",-1)
+        connectionId = intent.getLongExtra("connectionId", -1)
+        friendId = intent.getLongExtra("userId", -1)
 
 
-        if(friendId != -1L ){
+        if (friendId != -1L) {
             lifecycleScope.launch(Dispatchers.IO) {
                 val result = friendViewModel.getProfile(friendId!!)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     result?.let {
                         binding.profile.setImageBitmap(it)
                     } ?: binding.profile.setImageResource(R.drawable.default_profile_image)
@@ -84,7 +86,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
         }
         binding.number.text = number
 
-        adapter = ExpenseDetailScreenAdapter(this,object : ExpenseDetailScreenAdapter.Callback{
+        adapter = ExpenseDetailScreenAdapter(this, object : ExpenseDetailScreenAdapter.Callback {
             override suspend fun getProfile(userId: Long): Bitmap? {
                 return friendViewModel.getProfile(userId)
             }
@@ -93,7 +95,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
                 val check = item.listOfSplits.singleOrNull {
                     it.splitUserId == getLoggedUserId()
                 }
-                if(check != null && check.splitAmount != 0.0 || check?.splitUserId == item.spender.userId){
+                if (check != null && check.splitAmount != 0.0 || check?.splitUserId == item.spender.userId) {
                     val intent =
                         Intent(this@FriendDetailPageActivity, ExpenseDetailActivity::class.java)
 
@@ -104,7 +106,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
                     intent.putParcelableArrayListExtra("splitList", ArrayList(item.listOfSplits))
 
                     startActivity(intent)
-                }else {
+                } else {
                     Toast.makeText(
                         this@FriendDetailPageActivity,
                         "not include in split",
@@ -114,7 +116,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
             }
 
             override fun pay(expense: ExpenseData) {
-                showPaymentConfirmationDialog(expense.spender.userId,expense.expenseId)
+                showPaymentConfirmationDialog(expense.spender.userId, expense.expenseId)
             }
 
         })
@@ -132,13 +134,13 @@ class FriendDetailPageActivity : AppCompatActivity() {
 
     private fun setListener() {
         binding.createFab.setOnClickListener {
-            val intent = Intent(this,AddExpenseActivity::class.java)
+            val intent = Intent(this, AddExpenseActivity::class.java)
             val bundle = Bundle()
             val list: List<Long> = listOf(getLoggedUserId(), friendId!!)
             bundle.putLongArray("members", list.toLongArray())
             intent.putExtra("bundleFromDetailPage", bundle)
-            intent.putExtra("connectionId",connectionId!!)
-            intent.putExtra("ExpenseType",true)
+            intent.putExtra("connectionId", connectionId!!)
+            intent.putExtra("ExpenseType", true)
 
             addExpenseActivityResult.launch(intent)
         }
@@ -148,15 +150,15 @@ class FriendDetailPageActivity : AppCompatActivity() {
 
             intent.putExtra("userId", getLoggedUserId())
             intent.putExtra("friendId", friendId!!)
-            intent.putExtra("friendName",friendName)
-            intent.putExtra("friendNumber",number)
+            intent.putExtra("friendName", friendName)
+            intent.putExtra("friendNumber", number)
             startActivity(intent)
         }
     }
 
-    private fun setObserver(){
-        friendViewModel.payResponse.observe(this){
-            if(::alertDialog.isInitialized) {
+    private fun setObserver() {
+        friendViewModel.payResponse.observe(this) {
+            if (::alertDialog.isInitialized) {
                 when (it) {
                     is PresentationLayerResponse.Success -> {
                         friendViewModel.getAllExpenseByConnectionId(connectionId!!)
@@ -203,7 +205,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
         }
     }
 
-    private fun getLoggedUserId() :Long{
+    private fun getLoggedUserId(): Long {
         if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
             val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
             return userId
@@ -216,7 +218,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPaymentConfirmationDialog(spenderId:Long, expenseId: Long) {
+    private fun showPaymentConfirmationDialog(spenderId: Long, expenseId: Long) {
         val dialogView = layoutInflater.inflate(R.layout.pay_expense_dialog, null)
         val binding = PayExpenseDialogBinding.bind(dialogView)
         val builder = AlertDialog.Builder(this)

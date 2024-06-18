@@ -18,23 +18,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ExpenseDetailProfileAdapter(
-    private val isOwnerView :Boolean,
+    private val isOwnerView: Boolean,
     private val callback: CallBack
-): RecyclerView.Adapter<ExpenseDetailProfileAdapter.MyViewHolder>() {
+) : RecyclerView.Adapter<ExpenseDetailProfileAdapter.MyViewHolder>() {
 
     private val diffUtil = object :
         DiffUtil.ItemCallback<ExpenseDetailObject>() {
 
         override fun areItemsTheSame(
             oldItem: ExpenseDetailObject,
-            newItem:  ExpenseDetailObject
+            newItem: ExpenseDetailObject
         ): Boolean {
             return oldItem.user.userId == newItem.user.userId
         }
 
         override fun areContentsTheSame(
-            oldItem:  ExpenseDetailObject,
-            newItem:  ExpenseDetailObject
+            oldItem: ExpenseDetailObject,
+            newItem: ExpenseDetailObject
         ): Boolean {
             return oldItem == newItem
         }
@@ -42,7 +42,7 @@ class ExpenseDetailProfileAdapter(
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
 
-    fun updateList(list: List<ExpenseDetailObject>){
+    fun updateList(list: List<ExpenseDetailObject>) {
         asyncListDiffer.submitList(list)
     }
 
@@ -52,15 +52,16 @@ class ExpenseDetailProfileAdapter(
         return MyViewHolder(SplitUserCardBinding.bind(view))
     }
 
-    override fun getItemCount(): Int  = asyncListDiffer.currentList.size
+    override fun getItemCount(): Int = asyncListDiffer.currentList.size
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val item = asyncListDiffer.currentList[position]
         holder.bind(item)
     }
 
-    inner class MyViewHolder(val binding: SplitUserCardBinding): RecyclerView.ViewHolder(binding.root){
-        private var bindImageReferenceCheck : Long = -1
+    inner class MyViewHolder(val binding: SplitUserCardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var bindImageReferenceCheck: Long = -1
 
         init {
             binding.root.setOnClickListener {
@@ -68,39 +69,40 @@ class ExpenseDetailProfileAdapter(
             }
         }
 
-        private fun reSetViewHolder(){
+        private fun reSetViewHolder() {
             bindImageReferenceCheck = -1
             binding.textviewName.text = ""
             binding.textviewAmount.text = ""
             binding.checkIcon.visibility = View.GONE
             binding.imageProfile.setImageResource(R.drawable.default_profile_image)
         }
-        fun bind(item:  ExpenseDetailObject){
+
+        fun bind(item: ExpenseDetailObject) {
             bindImageReferenceCheck = item.user.userId
             reSetViewHolder()
             binding.textviewName.text = item.user.name
-            val formatted = String.format("%.2f",item.splitAmount)
+            val formatted = String.format("%.2f", item.splitAmount)
             binding.textviewAmount.text = "${Constants.RUPEE_SYMBOL}$formatted"
-            if (item.paidStatus == PaidStatus.Paid && isOwnerView){
+            if (item.paidStatus == PaidStatus.Paid && isOwnerView) {
                 binding.checkIcon.visibility = View.VISIBLE
             }
-            if (item.user.profile != null){
+            if (item.user.profile != null) {
                 binding.imageProfile.setImageBitmap(item.user.profile)
-            }else{
+            } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     item.user.profile = callback.getImage(item.user.userId)
-                    withContext(Dispatchers.Main){
-                        item.user.profile?.let{binding.imageProfile.setImageBitmap(item.user.profile)}
+                    withContext(Dispatchers.Main) {
+                        item.user.profile?.let { binding.imageProfile.setImageBitmap(item.user.profile) }
                     }
                 }
             }
         }
     }
 
-   interface CallBack{
-       suspend fun getImage(userId:Long):Bitmap?
-       fun onClick(user: UserProfileSummary)
-   }
+    interface CallBack {
+        suspend fun getImage(userId: Long): Bitmap?
+        fun onClick(user: UserProfileSummary)
+    }
 
     data class ExpenseDetailObject(
         val user: UserProfileSummary,

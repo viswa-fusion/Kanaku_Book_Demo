@@ -1,7 +1,6 @@
 package com.example.data.repositoryImpl
 
 import android.graphics.Bitmap
-import android.util.Log
 import com.example.domain.repository.GroupRepository
 import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.dao.GroupDao
@@ -60,34 +59,31 @@ class RepositoryImpl(
         val listOfGroupEntity = groupDao.getGroupsWithMembersAndBalances(userId)
         val listOfGroup = listOfGroupEntity.map { it.toGroupData() }
 
-        listOfGroupEntity.forEach {
-            Log.i("QueryData","data: $it")
-        }
-
         return DataLayerResponse.Success(listOfGroup)
     }
 
     override suspend fun updateGroupActiveTime(groupId: Long, time: Long) {
         groupDao.updateGroupActiveTime(groupId, time)
     }
+
     override suspend fun addMembers(
         groupId: Long,
         membersList: List<Long>
     ): DataLayerResponse<Boolean> {
-        return try{
+        return try {
             val crossRef = membersList.map { memberId -> GroupMemberCrossRef(groupId, memberId) }
             groupDao.insertGroupMembers(crossRef)
             DataLayerResponse.Success(true)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
 
     }
 
     override suspend fun getGroupByGroupId(groupId: Long): DataLayerResponse<GroupData> {
-        return try{
+        return try {
             DataLayerResponse.Success(groupDao.getGroupByGroupId(groupId).toGroupData())
-        }catch (e:Exception){
+        } catch (e: Exception) {
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
     }
@@ -96,12 +92,12 @@ class RepositoryImpl(
         userId: Long,
         friendId: Long
     ): DataLayerResponse<List<CommonGroupWIthAmountData>> {
-        return try{
+        return try {
             val result = groupDao.getCommonGroupsWithCalculatedBalance(userId, friendId).map {
                 it.toCommonGroupWithAmountData()
             }
             DataLayerResponse.Success(result)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
     }
@@ -113,9 +109,9 @@ class RepositoryImpl(
         val file = File(groupProfileImageFileDir, "$groupId${StorageHelper.IMAGE_TYPE_JPG}")
         return profilePhotoDao.saveImage(image, file)
     }
+
     override suspend fun getProfilePhoto(groupId: Long): DataLayerResponse<Bitmap> {
         val file = File(groupProfileImageFileDir, "$groupId${StorageHelper.IMAGE_TYPE_JPG}")
-        Log.i("dataTest","data : $file")
         return profilePhotoDao.getProfilePhoto(file.absolutePath)
     }
 

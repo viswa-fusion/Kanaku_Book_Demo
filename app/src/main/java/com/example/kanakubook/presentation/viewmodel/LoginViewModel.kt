@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class LoginViewModel (
+class LoginViewModel(
     private val useCase: LoginUseCase
 ) : ViewModel() {
 
@@ -34,20 +34,21 @@ class LoginViewModel (
         }
     }
 
-    fun  getLoggedUser(userId: Long){
+    fun getLoggedUser(userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = useCase.loggedUserByUserId(userId)
             _loggedUserProfile.postValue(result)
         }
     }
 
-    companion object{
-        val FACTORY = object : ViewModelProvider.Factory{
+    companion object {
+        val FACTORY = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
 
                 val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                val applicationDataInjection = application!!.applicationContext as KanakuBookApplication
+                val applicationDataInjection =
+                    application!!.applicationContext as KanakuBookApplication
                 val loginUseCase = applicationDataInjection.loginUseCase
 
                 return LoginViewModel(loginUseCase) as T

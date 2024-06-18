@@ -56,7 +56,7 @@ class DefaultDataInjection(val context: Context) {
         }
 
         dataList.forEach {
-            viewModel.signUp(it.name, it.phone,"19/5/2001", it.password, it.repeatPassword)
+            viewModel.signUp(it.name, it.phone, "19/5/2001", it.password, it.repeatPassword)
             Log.i("initialData123", "data : ${it.phone}")
         }
     }
@@ -84,12 +84,16 @@ class DefaultDataInjection(val context: Context) {
         var count = 1
         viewModel.userId.observeForever {
             if (it is PresentationLayerResponse.Success) {
-                if(count < 100){
+                if (count < 100) {
                     if (userid == null) {
                         userid = CryptoHelper.decrypt(it.data)
                     } else {
                         CoroutineScope(Dispatchers.IO).launch {
-                            repo.addFriend(userid!!, CryptoHelper.decrypt(it.data), DateTimeHelper.getCurrentTime())
+                            repo.addFriend(
+                                userid!!,
+                                CryptoHelper.decrypt(it.data),
+                                DateTimeHelper.getCurrentTime()
+                            )
                         }
                     }
                     count++
@@ -97,26 +101,47 @@ class DefaultDataInjection(val context: Context) {
                 val photoId = listOfProfile[Random.nextInt(0, 16)]
                 val photo = BitmapFactory.decodeResource(context.resources, photoId)
                 photoViewModel.addProfile(it.data, photo)
-                Log.i("initialData321", "data : ${it.data}")
             }
         }
     }
+
     suspend fun copyDefaultProfileImages(context: Context) = withContext(Dispatchers.IO) {
         val profileImageFolder = File(context.filesDir, "userProfilePhoto")
         profileImageFolder.mkdirs()
 
-        try {
-            val defaultImageNames = context.assets.list("db_user_photos") ?: emptyArray()
-            for (imageName in defaultImageNames) {
-                val inputStream = context.assets.open("db_user_photos/$imageName")
-                val outputStream = FileOutputStream(File(profileImageFolder, imageName))
-                inputStream.copyTo(outputStream)
-                inputStream.close()
-                outputStream.close()
+        val groupProfileImageFolder = File(context.filesDir, "GroupProfilePhoto")
+        groupProfileImageFolder.mkdirs()
+
+        launch {
+            try {
+                val defaultImageNames = context.assets.list("userProfilePhoto") ?: emptyArray()
+                for (imageName in defaultImageNames) {
+                    val inputStream = context.assets.open("userProfilePhoto/$imageName")
+                    val outputStream = FileOutputStream(File(profileImageFolder, imageName))
+                    inputStream.copyTo(outputStream)
+                    inputStream.close()
+                    outputStream.close()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
+        launch {
+            try {
+                val defaultImageNames = context.assets.list("GroupProfilePhoto") ?: emptyArray()
+                for (imageName in defaultImageNames) {
+                    val inputStream = context.assets.open("GroupProfilePhoto/$imageName")
+                    val outputStream = FileOutputStream(File(groupProfileImageFolder, imageName))
+                    inputStream.copyTo(outputStream)
+                    inputStream.close()
+                    outputStream.close()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+
     }
 
 }

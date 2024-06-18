@@ -9,7 +9,10 @@ import com.example.kanakubook.presentation.adapter.ViewPagerAdapter
 import com.example.kanakubook.util.Constants
 import com.google.android.material.tabs.TabLayoutMediator
 
-class ViewPagerFragment(private val layOutTag: String = Constants.FOR_TAB_LAYOUT,private val withoutToolBar :Boolean = false) : Fragment(R.layout.view_pager_layout) {
+class ViewPagerFragment(
+    private val layOutTag: String = Constants.FOR_TAB_LAYOUT,
+    private val withoutToolBar: Boolean = false
+) : Fragment(R.layout.view_pager_layout) {
     private lateinit var binding: ViewPagerLayoutBinding
     private lateinit var adapter: ViewPagerAdapter
     private lateinit var groupFragment: GroupFragment
@@ -18,7 +21,7 @@ class ViewPagerFragment(private val layOutTag: String = Constants.FOR_TAB_LAYOUT
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = ViewPagerLayoutBinding.bind(view)
-        adapter = ViewPagerAdapter(this, layOutTag,withoutToolBar)
+        adapter = ViewPagerAdapter(this, layOutTag, withoutToolBar)
         binding.viewPager.adapter = adapter
 
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
@@ -27,6 +30,7 @@ class ViewPagerFragment(private val layOutTag: String = Constants.FOR_TAB_LAYOUT
                     tab.text = "Groups"
 
                 }
+
                 1 -> {
                     tab.text = "Friends"
 

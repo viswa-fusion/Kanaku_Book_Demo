@@ -50,17 +50,18 @@ class AddFriendActivity : AppCompatActivity() {
         setObserver()
         setListener()
         preferenceHelper = PreferenceHelper(this)
-        adapter = UserListingAdapter(this,object : UserListingAdapter.Callback {
+        adapter = UserListingAdapter(this, object : UserListingAdapter.Callback {
             override suspend fun getImage(userId: Long): Bitmap? {
                 return viewModel.getProfile(userId)
             }
 
 
             override fun clickListener(user: UserProfileSummary) {
-                val view = LayoutInflater.from(this@AddFriendActivity).inflate(R.layout.search_user_list_layout_1, null)
+                val view = LayoutInflater.from(this@AddFriendActivity)
+                    .inflate(R.layout.search_user_list_layout_1, null)
                 val binding = SearchUserListLayout1Binding.bind(view)
                 binding.textview.text = user.name
-                user.profile?.let { binding.imageProfile.setImageBitmap(user.profile)}
+                user.profile?.let { binding.imageProfile.setImageBitmap(user.profile) }
                 AlertDialog.Builder(this@AddFriendActivity).apply {
                     setView(view)
                     setMessage("Confirm to add this friend")
@@ -68,14 +69,15 @@ class AddFriendActivity : AppCompatActivity() {
                         showLoading()
                         viewModel.addFriend(getLoggedUserId(), user.phone)
                     }
-                    setNegativeButton("Cancel"){_,_->}
+                    setNegativeButton("Cancel") { _, _ -> }
                     show()
                 }
 
             }
 
         })
-        binding.verticalRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        binding.verticalRecyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.verticalRecyclerView.adapter = adapter
 
 
@@ -89,9 +91,9 @@ class AddFriendActivity : AppCompatActivity() {
                 val filteredList = viewModel.listOfMySelectableUserProfileSummary.filter {
                     it.name.lowercase(Locale.ROOT).contains(viewModel.searchText)
                 }
-                if (filteredList.isEmpty()){
+                if (filteredList.isEmpty()) {
                     binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
-                }else{
+                } else {
                     binding.searchNotFound.emptyTemplate.visibility = View.GONE
                     adapter.highlightText(viewModel.searchText)
                     adapter.updateData(filteredList)
@@ -115,14 +117,16 @@ class AddFriendActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             android.R.id.home -> {
                 finish()
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
     override fun onResume() {
         super.onResume()
         userViewModel.getAllKanakuBookUsers(getLoggedUserId())
@@ -131,7 +135,7 @@ class AddFriendActivity : AppCompatActivity() {
     private fun setObserver() {
 
         userViewModel.allUserData.observe(this) {
-            if(viewModel.listOfMySelectableUserProfileSummary.isEmpty()){
+            if (viewModel.listOfMySelectableUserProfileSummary.isEmpty()) {
                 when (it) {
                     is PresentationLayerResponse.Success -> {
                         if (it.data.isEmpty()) {

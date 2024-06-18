@@ -30,15 +30,15 @@ class FriendsViewModel(
 ) : ViewModel() {
 
     var profileImage: Bitmap? = null
-    var profileUri : Uri? = null
+    var profileUri: Uri? = null
     var selectedList = mutableListOf<MultiUserPickListFragment.MySelectableUserData>()
     var listOfMySelectableUserData = emptyList<MultiUserPickListFragment.MySelectableUserData>()
     var listOfMySelectableUserProfileSummary = emptyList<UserProfileSummary>()
     var isNotFirstTimeValidation = false
-    var userId :Long? = null
-    var phone :Long? = null
-    var name :String? = null
-    var searchText:String = ""
+    var userId: Long? = null
+    var phone: Long? = null
+    var name: String? = null
+    var searchText: String = ""
 
     private val _friendsList =
         MutableLiveData<PresentationLayerResponse<List<UserProfileSummary>>>()
@@ -47,22 +47,26 @@ class FriendsViewModel(
     private val _addFriend = MutableLiveData<PresentationLayerResponse<Boolean>>()
     val addFriend: LiveData<PresentationLayerResponse<Boolean>> = _addFriend
 
-    private val _friendsExpenseCreateResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
+    private val _friendsExpenseCreateResponse =
+        MutableLiveData<PresentationLayerResponse<Boolean>>()
     val friendsExpenseCreateResponse: LiveData<PresentationLayerResponse<Boolean>> =
         _friendsExpenseCreateResponse
 
-    private val _getAllFriendsExpenseResponse = MutableLiveData< PresentationLayerResponse<List<ExpenseData>>>()
-    val getAllFriendsExpenseResponse: LiveData< PresentationLayerResponse<List<ExpenseData>>> =
+    private val _getAllFriendsExpenseResponse =
+        MutableLiveData<PresentationLayerResponse<List<ExpenseData>>>()
+    val getAllFriendsExpenseResponse: LiveData<PresentationLayerResponse<List<ExpenseData>>> =
         _getAllFriendsExpenseResponse
 
-    private val _commonGroupResponse = MutableLiveData<PresentationLayerResponse<List<CommonGroupWIthAmountData>>>()
-    val commonGroupResponse :LiveData<PresentationLayerResponse<List<CommonGroupWIthAmountData>>> = _commonGroupResponse
+    private val _commonGroupResponse =
+        MutableLiveData<PresentationLayerResponse<List<CommonGroupWIthAmountData>>>()
+    val commonGroupResponse: LiveData<PresentationLayerResponse<List<CommonGroupWIthAmountData>>> =
+        _commonGroupResponse
 
     private val _payResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
-    val payResponse : LiveData<PresentationLayerResponse<Boolean>> = _payResponse
+    val payResponse: LiveData<PresentationLayerResponse<Boolean>> = _payResponse
 
     private val _userUpdateResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
-    val userUpdateResponse : LiveData<PresentationLayerResponse<Boolean>> = _userUpdateResponse
+    val userUpdateResponse: LiveData<PresentationLayerResponse<Boolean>> = _userUpdateResponse
 
 
     fun createExpense(
@@ -85,33 +89,35 @@ class FriendsViewModel(
         }
     }
 
-    fun pay(spenderId:Long,expenseId:Long,userId: Long){
+    fun pay(spenderId: Long, expenseId: Long, userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            _payResponse.postValue(expenseUseCase.payForExpense(spenderId,expenseId, userId))
+            _payResponse.postValue(expenseUseCase.payForExpense(spenderId, expenseId, userId))
         }
     }
 
-    fun getCommonGroupWithFriendIdWithCalculatedAmount(userId: Long, friendId:Long){
+    fun getCommonGroupWithFriendIdWithCalculatedAmount(userId: Long, friendId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = expenseUseCase.getCommonGroupWithFriendIdWithCalculatedAmount(userId,friendId)
+            val result =
+                expenseUseCase.getCommonGroupWithFriendIdWithCalculatedAmount(userId, friendId)
 
-                _commonGroupResponse.postValue(result)
+            _commonGroupResponse.postValue(result)
         }
     }
 
-    fun updateUser(userId: Long, userName: String?, dob:String?,profile:Uri?,context: Context){
+    fun updateUser(userId: Long, userName: String?, dob: String?, profile: Uri?, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val bitmap = profile?.let {  ImageConversionHelper.loadBitmapFromUri(context,profile)}
-            _userUpdateResponse.postValue(useCase.updateUser(userId,userName,dob,bitmap))
+            val bitmap = profile?.let { ImageConversionHelper.loadBitmapFromUri(context, profile) }
+            _userUpdateResponse.postValue(useCase.updateUser(userId, userName, dob, bitmap))
         }
     }
 
-    fun getAllExpenseByConnectionId(connectionId: Long){
+    fun getAllExpenseByConnectionId(connectionId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val data = expenseUseCase.getFriendsExpenseById(connectionId)
             _getAllFriendsExpenseResponse.postValue(data)
         }
     }
+
     fun addFriend(userId: Long, friendPhone: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             _addFriend.postValue(useCase.addFriend(userId, friendPhone))
@@ -129,6 +135,7 @@ class FriendsViewModel(
             is PresentationLayerResponse.Success -> {
                 result.data
             }
+
             is PresentationLayerResponse.Error -> {
                 null
             }
@@ -148,7 +155,8 @@ class FriendsViewModel(
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
 
                 val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                val applicationDataInjection = application!!.applicationContext as KanakuBookApplication
+                val applicationDataInjection =
+                    application!!.applicationContext as KanakuBookApplication
                 val loginUseCase = applicationDataInjection.friendsUseCase
                 val profilePictureUseCase = applicationDataInjection.profilePictureUseCase
                 val friendsExpense = applicationDataInjection.friendsExpenseUseCase

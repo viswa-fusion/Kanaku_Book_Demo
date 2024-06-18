@@ -21,7 +21,7 @@ class ActivityListingAdapter(
     private val callback: CallBack
 ) : RecyclerView.Adapter<ActivityListingAdapter.ActivityListViewHolder>() {
 
-    interface CallBack{
+    interface CallBack {
         suspend fun getUserImage(userId: Long): Bitmap?
         suspend fun getGroupImage(groupId: Long): Bitmap?
         fun onClickItemListener(activity: ActivityModel)
@@ -66,8 +66,9 @@ class ActivityListingAdapter(
         holder.bind(group)
     }
 
-    inner class ActivityListViewHolder(binding: ActivityViewHolderCardBinding) : RecyclerView.ViewHolder(binding.root){
-        private var bindImageReferenceCheck : Long = -1
+    inner class ActivityListViewHolder(binding: ActivityViewHolderCardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var bindImageReferenceCheck: Long = -1
         private val mainImage = binding.mainImage
         private val subImage = binding.subImage
         private val content = binding.textViewName
@@ -79,7 +80,7 @@ class ActivityListingAdapter(
             }
         }
 
-        private fun resetViewHolder(){
+        private fun resetViewHolder() {
             bindImageReferenceCheck = -1
             content.text = ""
             date.text = ""
@@ -87,11 +88,11 @@ class ActivityListingAdapter(
             subImage.setImageResource(R.drawable.default_profile_image)
         }
 
-        fun bind(item: ActivityModel){
+        fun bind(item: ActivityModel) {
             resetViewHolder()
             bindImageReferenceCheck = item.activityId
 
-            fun getGroupProfileForMain(groupId: Long){
+            fun getGroupProfileForMain(groupId: Long) {
                 if (item.mainImage != null) {
                     mainImage.setImageBitmap(item.mainImage)
                 } else {
@@ -99,15 +100,16 @@ class ActivityListingAdapter(
                         val bitmap = callback.getGroupImage(groupId)
                         item.mainImage = bitmap
                         withContext(Dispatchers.Main) {
-                            if (bindImageReferenceCheck == item.activityId ) {
-                                item.mainImage?.let{mainImage.setImageBitmap(item.mainImage)}?:mainImage.setImageResource(R.drawable.default_group_profile12)
+                            if (bindImageReferenceCheck == item.activityId) {
+                                item.mainImage?.let { mainImage.setImageBitmap(item.mainImage) }
+                                    ?: mainImage.setImageResource(R.drawable.default_group_profile12)
                             }
                         }
                     }
                 }
             }
 
-            fun getGroupProfileFroSub(groupId: Long){
+            fun getGroupProfileFroSub(groupId: Long) {
                 if (item.subImage != null) {
                     subImage.setImageBitmap(item.subImage)
                 } else {
@@ -122,7 +124,8 @@ class ActivityListingAdapter(
                     }
                 }
             }
-            fun getUserProfileForSub(userId: Long){
+
+            fun getUserProfileForSub(userId: Long) {
                 if (item.subImage != null) {
                     subImage.setImageBitmap(item.subImage)
                 } else {
@@ -137,7 +140,8 @@ class ActivityListingAdapter(
                     }
                 }
             }
-            fun getUserProfileForMain(userId: Long){
+
+            fun getUserProfileForMain(userId: Long) {
                 if (item.mainImage != null) {
                     mainImage.setImageBitmap(item.mainImage)
                 } else {
@@ -153,42 +157,49 @@ class ActivityListingAdapter(
                 }
             }
 
-            val str = when(item.activityType){
-                ActivityType.ADD_FRIEND ->{
-                        getUserProfileForSub(item.user.userId)
-                        item.friend?.let { getUserProfileForMain(item.friend!!.userId) }
-                    "You added new connection '${item.friend?.name}'"
+            val str = when (item.activityType) {
+                ActivityType.ADD_FRIEND -> {
+                    getUserProfileForSub(item.user.userId)
+                    item.friend?.let { getUserProfileForMain(item.friend!!.userId) }
+                    "You made a new connection '${item.friend?.name}'"
                 }
 
                 ActivityType.CREATE_GROUP -> {
                     getUserProfileForSub(item.user.userId)
                     item.group?.let { getGroupProfileForMain(item.group!!.id) }
-                    "You created new group '${item.group?.name}'"
+                    "You created a new group '${item.group?.name}'"
                 }
 
                 ActivityType.ADD_EXPENSE -> {
                     getUserProfileForSub(item.user.userId)
                     mainImage.setImageResource(R.drawable.expense_vector)
-                    "You create new expense in '${item.group?.name?:item.friend?.name}'"
+                    "You created a new expense in '${item.group?.name ?: item.friend?.name}'"
                 }
+
                 ActivityType.ADD_MEMBER_TO_GROUP -> {
                     getUserProfileForSub(item.user.userId)
                     item.group?.let { getUserProfileForMain(item.group!!.id) }
-                    "You add new member in '${item.group?.name}'"
+                    "You added new member in '${item.group?.name}'"
                 }
+
                 ActivityType.PAY_FOR_EXPENSE -> {
                     getUserProfileForSub(item.user.userId)
                     mainImage.setImageResource(R.drawable.payment_vector)
-                    "You pay '${Constants.RUPEE_SYMBOL}${item.expense?.listOfSplits?.single { 
-                        it.splitUserId == item.user.userId
-                    }?.splitAmount}' for expense '${if(item.expense?.note.isNullOrEmpty()) "Split Request" else item.expense?.note}'"
+                    "You paid '${Constants.RUPEE_SYMBOL}${
+                        item.expense?.listOfSplits?.single {
+                            it.splitUserId == item.user.userId
+                        }?.splitAmount
+                    }' for expense '${if (item.expense?.note.isNullOrEmpty()) "Split Request" else item.expense?.note}'"
                 }
+
                 ActivityType.SPLIT_MEMBER_PAY -> {
                     item.friend?.let { getUserProfileForSub(item.friend!!.userId) }
                     mainImage.setImageResource(R.drawable.payment_vector)
-                    "${item.friend?.name} pay '${Constants.RUPEE_SYMBOL}${item.expense?.listOfSplits?.single {
-                        it.splitUserId == item.friend?.userId
-                    }?.splitAmount}' for expense '${if(item.expense?.note.isNullOrEmpty()) "Split Request" else item.expense?.note}'"
+                    "${item.friend?.name} paid '${Constants.RUPEE_SYMBOL}${
+                        item.expense?.listOfSplits?.single {
+                            it.splitUserId == item.friend?.userId
+                        }?.splitAmount
+                    }' for expense '${if (item.expense?.note.isNullOrEmpty()) "Split Request" else item.expense?.note}'"
                 }
             }
             content.text = str

@@ -1,6 +1,5 @@
 package com.example.domain.model
 
-import android.graphics.Bitmap
 import android.os.Parcel
 import android.os.Parcelable
 import com.example.domain.Converters.PaidStatus
@@ -10,7 +9,7 @@ data class SplitEntry(
     val splitAmount: Double,
     val paidStatus: PaidStatus,
     val paidTime: Long? = null
-): Parcelable {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readDouble(),

@@ -1,7 +1,6 @@
 package com.example.data.dao
 
 import androidx.room.Dao
-import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -22,13 +21,14 @@ interface GroupDao {
 
     @Query("SELECT * FROM groups WHERE groupId = :groupId")
     suspend fun getGroupEntity(groupId: Long): GroupEntity
+
     @Query("SELECT * FROM groups WHERE groupId = :groupId")
     suspend fun getGroupByGroupId(groupId: Long): GroupWithMembersOnly
 
 
-
-@Transaction
-@Query("""
+    @Transaction
+    @Query(
+        """
     SELECT 
         groups.groupId,
         groups.groupName,
@@ -50,16 +50,14 @@ interface GroupDao {
         gmc.userId = :userId
     GROUP BY 
         groups.groupId, groups.groupName, groups.createdBy, groups.lastActive
-""")
-suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers>
-
-
+"""
+    )
+    suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers>
 
 
     @Transaction
     @Query("UPDATE groups SET lastActive = :time WHERE groupId = :groupId")
     suspend fun updateGroupActiveTime(groupId: Long, time: Long)
-
 
 
     @Transaction
@@ -106,9 +104,3 @@ suspend fun getGroupsWithMembersAndBalances(userId: Long): List<GroupWithMembers
 
 }
 
-
-data class GroupWithPayAndGet(
-    @Embedded val group: GroupEntity,
-    val pay: Double,
-    val get: Double
-)

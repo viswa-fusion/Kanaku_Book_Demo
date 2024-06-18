@@ -13,7 +13,7 @@ data class UserEntity(
     val dateOfBirth: Long?,
     val amountToGet: Double = 0.0,
     val amountToGive: Double = 0.0,
-){
+) {
     @PrimaryKey(autoGenerate = true)
     var userId: Long = 0L
 }

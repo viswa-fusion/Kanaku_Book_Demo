@@ -4,7 +4,7 @@ import android.text.format.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
-object DateConvertor{
+object DateConvertor {
     fun millisToDateTime(millis: Long): String {
         val currentTime = System.currentTimeMillis()
         val calendar = Calendar.getInstance()
@@ -35,9 +35,11 @@ object DateConvertor{
             DateUtils.isToday(millis) -> {
                 SimpleDateFormat("'Today, 'hh:mm a", Locale.getDefault()).format(calendar.time)
             }
+
             DateUtils.isToday(millis + DateUtils.DAY_IN_MILLIS) -> {
                 SimpleDateFormat("'Yesterday, 'hh:mm a", Locale.getDefault()).format(calendar.time)
             }
+
             else -> {
                 SimpleDateFormat("d MMM, hh:mm a", Locale.getDefault()).format(calendar.time)
             }

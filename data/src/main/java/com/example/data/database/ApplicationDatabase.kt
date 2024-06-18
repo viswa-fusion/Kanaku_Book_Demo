@@ -24,6 +24,7 @@ import com.example.data.dao.ActivityDao
 import com.example.data.entity.ActivityEntity
 import java.io.BufferedReader
 import java.io.InputStreamReader
+
 @Database(
     entities = [
         UserEntity::class,
@@ -58,7 +59,7 @@ abstract class ApplicationDatabase : RoomDatabase() {
                     "kanaku_note_database"
                 )
                     .fallbackToDestructiveMigration()
-//                    .createFromAsset("kanaku_note_database.db")
+                    .createFromAsset("kanaku_note_database.db")
                     .build()
 
                 INSTANCE = instance

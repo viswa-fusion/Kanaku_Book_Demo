@@ -16,6 +16,6 @@ class FabViewModel : ViewModel() {
 
     fun setFabVisibility(visibility: Boolean) {
         fabVisibility.value = (visibility)
-        Log.i("test","visibility: $visibility")
+        Log.i("test", "visibility: $visibility")
     }
 }

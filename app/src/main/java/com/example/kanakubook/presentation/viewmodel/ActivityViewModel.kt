@@ -17,9 +17,12 @@ class ActivityViewModel(
     private val activityUseCase: ActivityUseCase
 ) : ViewModel() {
 
-    private val _activityResponse = MutableLiveData<PresentationLayerResponse<List<ActivityModel>>>()
-    val activityResponse :LiveData<PresentationLayerResponse<List<ActivityModel>>> = _activityResponse
-    fun getAllMyActivity(userId: Long){
+    private val _activityResponse =
+        MutableLiveData<PresentationLayerResponse<List<ActivityModel>>>()
+    val activityResponse: LiveData<PresentationLayerResponse<List<ActivityModel>>> =
+        _activityResponse
+
+    fun getAllMyActivity(userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             _activityResponse.postValue(activityUseCase.getAllMyActivity(userId))
         }

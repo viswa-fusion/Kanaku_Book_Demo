@@ -219,7 +219,7 @@ class MultiUserPickListFragment :
         }
 
         fun updateData(dataResponse: List<MySelectableUserData>) {
-             binding.shapeableImageView3.isEnabled = dataResponse.isNotEmpty()
+            binding.shapeableImageView3.isEnabled = dataResponse.isNotEmpty()
             if (dataResponse.isEmpty()) asyncListDiffer.submitList(emptyList())
             else {
                 asyncListDiffer.submitList(dataResponse)

@@ -27,6 +27,7 @@ import com.example.kanakubook.presentation.adapter.UserListingAdapter
 import com.example.kanakubook.presentation.fragment.MultiUserPickListFragment
 import com.example.kanakubook.presentation.viewmodel.FriendsViewModel
 import com.example.kanakubook.presentation.viewmodel.GroupViewModel
+import com.example.kanakubook.presentation.viewmodel.LoginViewModel
 import com.example.kanakubook.presentation.viewmodel.UserViewModel
 import com.example.kanakubook.util.ImageConversionHelper
 import com.google.android.material.imageview.ShapeableImageView
@@ -45,6 +46,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
     private lateinit var groupName: String
     private var groupId: Long = -1
     private lateinit var membersId: List<Long>
+    private var createdBy: Long? = null
     private var members: List<UserProfileSummary>? = null
 
     private val startActivityResultForProfilePhoto =
@@ -56,7 +58,10 @@ class GroupProfilePageActivity : AppCompatActivity() {
                     groupViewModel.groupProfileUri = selectedImageUri
                     binding.profile.setImageURI(selectedImageUri)
                     lifecycleScope.launch(Dispatchers.IO) {
-                        val bitmap = ImageConversionHelper.loadBitmapFromUri(this@GroupProfilePageActivity, selectedImageUri)
+                        val bitmap = ImageConversionHelper.loadBitmapFromUri(
+                            this@GroupProfilePageActivity,
+                            selectedImageUri
+                        )
                         bitmap?.let { groupViewModel.addProfile(groupId, it) }
                     }
                 }
@@ -108,7 +113,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
         }
     }
 
-    private fun showEnlargedImage(imageDrawable:Drawable?) {
+    private fun showEnlargedImage(imageDrawable: Drawable?) {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_enlarged_image)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -158,7 +163,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(this,"can't add members right now", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "can't add members right now", Toast.LENGTH_SHORT).show()
                 }
             }
             hideLoading()
@@ -183,6 +188,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
     private fun getGroupProfileData() {
         groupId = intent.getLongExtra("groupId", -1)
         groupName = intent.getStringExtra("name") ?: "- empty -"
+        createdBy = intent.getLongExtra("createdBy", -1)
         val bundle = intent.getBundleExtra("bundleFromDetailPage")
         bundle?.let {
             it.getLongArray("members")?.toList()?.let { data ->
@@ -218,7 +224,8 @@ class GroupProfilePageActivity : AppCompatActivity() {
 
             override fun clickListener(user: UserProfileSummary) {
                 if (user.userId != getLoggedUserId()) {
-                    val intent = Intent(this@GroupProfilePageActivity, FriendProfilePageActivity::class.java)
+                    val intent =
+                        Intent(this@GroupProfilePageActivity, FriendProfilePageActivity::class.java)
                     intent.putExtra("userId", getLoggedUserId())
                     intent.putExtra("friendId", user.userId)
                     intent.putExtra("friendName", user.name)
@@ -234,6 +241,7 @@ class GroupProfilePageActivity : AppCompatActivity() {
                 }
             }
         })
+        adapter.setGroupAdmin(createdBy)
         binding.recyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.recyclerView.adapter = adapter

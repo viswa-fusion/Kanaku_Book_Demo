@@ -31,23 +31,26 @@ import kotlinx.coroutines.withContext
 open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentLayoutId) {
 
     protected lateinit var binding: MainScreenFragmentBinding
-    private val viewModel : LoginViewModel by viewModels{ LoginViewModel.FACTORY }
-    private val userViewModel : FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private lateinit var userData : UserProfileData
+    private val viewModel: LoginViewModel by viewModels { LoginViewModel.FACTORY }
+    private val userViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
+    private lateinit var userData: UserProfileData
     private var profileImage: Bitmap? = null
-    private lateinit var preferenceHelper : PreferenceHelper
+    private lateinit var preferenceHelper: PreferenceHelper
     override fun onAttach(context: Context) {
         super.onAttach(context)
         preferenceHelper = PreferenceHelper(context)
     }
-    private val activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        binding.createFab.callOnClick()
-    }
+
+    private val activityResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            binding.createFab.callOnClick()
+        }
 
     override fun onResume() {
         super.onResume()
         viewModel.getLoggedUser(getLoggedUserId())
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = MainScreenFragmentBinding.bind(view)
@@ -86,30 +89,28 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
     }
 
 
-
     private fun setObserver() {
-        viewModel.loggedUserProfile.observe(viewLifecycleOwner){
-            when(it){
+        viewModel.loggedUserProfile.observe(viewLifecycleOwner) {
+            when (it) {
                 is PresentationLayerResponse.Success -> {
                     userData = it.data
-                    if (profileImage == null){
+                    if (profileImage == null) {
                         CoroutineScope(Dispatchers.IO).launch {
                             profileImage = userViewModel.getProfile(it.data.userId)
-                            withContext(Dispatchers.Main){
-                                profileImage?.let{ binding.imageProfile.setImageBitmap(profileImage) }
+                            withContext(Dispatchers.Main) {
+                                profileImage?.let { binding.imageProfile.setImageBitmap(profileImage) }
                             }
                         }
                     }
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(requireActivity(),"something went wrong",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), "something went wrong", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
     }
-
-
 
 
     fun getLoggedUserId(): Long {

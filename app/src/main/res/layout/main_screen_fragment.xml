@@ -32,6 +32,7 @@
                     android:layout_height="wrap_content"
                     android:paddingEnd="@dimen/spacing_medium"
                     android:gravity="center"
+                    android:splitMotionEvents="false"
                     android:orientation="horizontal">
 
 
@@ -44,7 +45,6 @@
                         app:navigationIcon="@drawable/ic_discover_24"
                         android:focusable="true"
                         android:clickable="true"/>
-
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/image_profile"

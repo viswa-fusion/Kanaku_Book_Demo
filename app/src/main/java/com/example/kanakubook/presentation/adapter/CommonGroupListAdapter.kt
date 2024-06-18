@@ -23,7 +23,7 @@ class CommonGroupListAdapter(
     private val callback: CallBack
 ) : RecyclerView.Adapter<CommonGroupListAdapter.GroupListViewHolder>() {
 
-    interface CallBack{
+    interface CallBack {
         suspend fun getImage(groupId: Long): Bitmap?
         fun onClickItemListener(groupData: CommonGroupWIthAmountData)
     }
@@ -67,8 +67,9 @@ class CommonGroupListAdapter(
         holder.bind(group)
     }
 
-    inner class GroupListViewHolder(binding: GroupViewHolderCardTestBinding) : RecyclerView.ViewHolder(binding.root){
-        private var bindImageReferenceCheck : Long = -1
+    inner class GroupListViewHolder(binding: GroupViewHolderCardTestBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var bindImageReferenceCheck: Long = -1
         private val profile = binding.shapeableImageView2
         private val groupName = binding.textViewName
         private val amount = binding.textViewAmount
@@ -79,45 +80,47 @@ class CommonGroupListAdapter(
             }
         }
 
-        private fun resetViewHolder(){
+        private fun resetViewHolder() {
             bindImageReferenceCheck = -1
             groupName.text = ""
             amount.text = ""
             profile.setImageResource(R.drawable.default_group_profile12)
         }
 
-        fun bind(groupData: CommonGroupWIthAmountData){
+        fun bind(groupData: CommonGroupWIthAmountData) {
             resetViewHolder()
             bindImageReferenceCheck = groupData.group.id
             groupName.text = groupData.group.name
 
             val cAmount = groupData.get - groupData.pay
-            val formatted = String.format("% .2f",abs(cAmount))
-            when{
+            val formatted = String.format("% .2f", abs(cAmount))
+            when {
                 cAmount > 0 -> {
                     amount.text = "${Constants.RUPEE_SYMBOL}$formatted"
                     amount.setTextColor(context.getColor(R.color.amount_Green_text))
                 }
+
                 cAmount < 0 -> {
 
                     amount.text = "${Constants.RUPEE_SYMBOL}$formatted"
                     amount.setTextColor(context.getColor(R.color.amount_Red_text))
                 }
-                else ->{
-                    amount.text ="no pending"
+
+                else -> {
+                    amount.text = "no pending"
                     amount.setTextColor(Color.GRAY)
                 }
             }
 
 
-            if(groupData.profile != null){
+            if (groupData.profile != null) {
                 profile.setImageBitmap(groupData.profile)
-            }else {
+            } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     val bitmap = callback.getImage(groupData.group.id)
                     groupData.profile = bitmap
-                    withContext(Dispatchers.Main){
-                        if(bindImageReferenceCheck  == groupData.group.id && groupData.profile != null) {
+                    withContext(Dispatchers.Main) {
+                        if (bindImageReferenceCheck == groupData.group.id && groupData.profile != null) {
                             profile.setImageBitmap(groupData.profile)
                         }
                     }

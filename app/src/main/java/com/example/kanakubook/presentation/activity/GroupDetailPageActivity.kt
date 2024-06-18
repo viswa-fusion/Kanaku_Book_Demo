@@ -53,12 +53,13 @@ class GroupDetailPageActivity : AppCompatActivity() {
             }
         }
 
-    private val profileResultActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode == Activity.RESULT_OK){
-            members = it.data?.getLongArrayExtra("membersId")?.toList() ?: emptyList()
-            binding.number.text = "${members.size} members"
+    private val profileResultActivity =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                members = it.data?.getLongArrayExtra("membersId")?.toList() ?: emptyList()
+                binding.number.text = "${members.size} members"
+            }
         }
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,6 +133,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
             intent.putExtra("bundleFromDetailPage", bundle)
             intent.putExtra("groupId", groupId)
             intent.putExtra("name", groupName)
+            intent.putExtra("createdBy", createBy)
             profileResultActivity.launch(intent)
         }
     }
@@ -180,7 +182,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
             }
 
             override fun pay(expense: ExpenseData) {
-                showPaymentConfirmationDialog(expense.spender.userId,expense.expenseId)
+                showPaymentConfirmationDialog(expense.spender.userId, expense.expenseId)
             }
         })
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
@@ -188,26 +190,26 @@ class GroupDetailPageActivity : AppCompatActivity() {
         binding.recyclerview.adapter = adapter
     }
 
-    private fun showPaymentConfirmationDialog(spenderId:Long, expenseId: Long) {
-      if (::alertDialog.isInitialized){
-          alertDialog.dismiss()
-      }
-            val dialogView = layoutInflater.inflate(R.layout.pay_expense_dialog, null)
-            val binding = PayExpenseDialogBinding.bind(dialogView)
-            val builder = AlertDialog.Builder(this)
-                .setView(dialogView)
-            alertDialog = builder.create()
-            alertDialog.setCanceledOnTouchOutside(false)
-            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            binding.btnCancel.setOnClickListener {
-                alertDialog.dismiss()
-            }
-            binding.btnProceed.setOnClickListener {
-                binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
-                groupViewModel.pay(spenderId,expenseId, getLoggedUserId())
-            }
+    private fun showPaymentConfirmationDialog(spenderId: Long, expenseId: Long) {
+        if (::alertDialog.isInitialized) {
+            alertDialog.dismiss()
+        }
+        val dialogView = layoutInflater.inflate(R.layout.pay_expense_dialog, null)
+        val binding = PayExpenseDialogBinding.bind(dialogView)
+        val builder = AlertDialog.Builder(this)
+            .setView(dialogView)
+        alertDialog = builder.create()
+        alertDialog.setCanceledOnTouchOutside(false)
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        binding.btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
+        binding.btnProceed.setOnClickListener {
+            binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
+            groupViewModel.pay(spenderId, expenseId, getLoggedUserId())
+        }
 
-        if(!alertDialog.isShowing) {
+        if (!alertDialog.isShowing) {
             alertDialog.show()
         }
     }

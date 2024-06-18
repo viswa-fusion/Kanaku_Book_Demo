@@ -12,11 +12,11 @@ data class ActivityRelation(
     @Relation(
         parentColumn = "userId",
         entityColumn = "userId"
-    )val user: UserEntity,
+    ) val user: UserEntity,
     @Relation(
         parentColumn = "friendId",
         entityColumn = "userId"
-    )val friend: UserEntity?,
+    ) val friend: UserEntity?,
     @Relation(
         parentColumn = "groupId",
         entityColumn = "groupId"
@@ -25,4 +25,4 @@ data class ActivityRelation(
         parentColumn = "expenseId",
         entityColumn = "expenseId"
     ) val expense: ExpenseEntity?
-    )
+)

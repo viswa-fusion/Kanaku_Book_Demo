@@ -27,15 +27,16 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
     private lateinit var binding: RecyclerviewLayoutBinding
     private lateinit var adapter: SplitListAdapter
     private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private val commonViewModel: CommonViewModel by viewModels ()
+    private val commonViewModel: CommonViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = RecyclerviewLayoutBinding.bind(view)
 
         binding.recyclerview.itemAnimator = null
-        binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
-        adapter = SplitListAdapter(requireActivity(),object : SplitListAdapter.Callback {
+        binding.recyclerview.layoutManager =
+            LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
+        adapter = SplitListAdapter(requireActivity(), object : SplitListAdapter.Callback {
             override suspend fun getProfile(userId: Long): Bitmap? {
                 return friendsViewModel.getProfile(userId)
             }
@@ -49,8 +50,9 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
                 list.forEach {
                     if (!it.isSelected) deselectCount++
                 }
-                val divider:Double = (list.size - deselectCount).toDouble()
-                val currentSplitAmountPerHead = commonViewModel.totalAmountSplitUserListFragment.div(divider)
+                val divider: Double = (list.size - deselectCount).toDouble()
+                val currentSplitAmountPerHead =
+                    commonViewModel.totalAmountSplitUserListFragment.div(divider)
 
                 list.forEach {
                     if (it.isSelected) {
@@ -75,8 +77,11 @@ class SplitUserListFragment : Fragment(R.layout.recyclerview_layout), CallbackLi
 
     override fun onResume() {
         super.onResume()
-        if (commonViewModel.listUserSplitUserListFragment != null){
-            setList(commonViewModel.totalAmountSplitUserListFragment, commonViewModel.listUserSplitUserListFragment!!)
+        if (commonViewModel.listUserSplitUserListFragment != null) {
+            setList(
+                commonViewModel.totalAmountSplitUserListFragment,
+                commonViewModel.listUserSplitUserListFragment!!
+            )
         }
     }
 

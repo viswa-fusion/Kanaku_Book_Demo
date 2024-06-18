@@ -7,6 +7,6 @@ data class CommonGroupWIthAmountData(
     val pay: Double,
     val get: Double,
     val members: List<UserProfileSummary>
-){
+) {
     var profile: Bitmap? = null
 }

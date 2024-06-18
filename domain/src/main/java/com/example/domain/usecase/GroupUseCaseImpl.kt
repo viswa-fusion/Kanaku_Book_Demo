@@ -31,7 +31,8 @@ class GroupUseCaseImpl(
                             userData.copy(
                                 userId = CryptoHelper.encrypt(userData.userId)
                             )
-                        })
+                        },
+                        createdBy = CryptoHelper.encrypt(it.createdBy))
                 }
                 val sortedData = data.sortedByDescending { it.lastActiveTime }
                 PresentationLayerResponse.Success(sortedData)

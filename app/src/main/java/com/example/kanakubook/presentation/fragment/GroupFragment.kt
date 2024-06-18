@@ -161,9 +161,17 @@ class GroupFragment(
                                 if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) it.data.sortedBy { u -> u.name } else it.data
 
                             commonViewModel.listGroupData = data
-                            val filteredGroups = if(layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) {
-                                data.filter {f-> f.name.contains(commonViewModel.filterString, ignoreCase = true) }
-                            }else { data }
+                            val filteredGroups =
+                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) {
+                                    data.filter { f ->
+                                        f.name.contains(
+                                            commonViewModel.filterString,
+                                            ignoreCase = true
+                                        )
+                                    }
+                                } else {
+                                    data
+                                }
                             adapter.highlightText(commonViewModel.filterString)
                             if (filteredGroups.isEmpty()) {
                                 binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE

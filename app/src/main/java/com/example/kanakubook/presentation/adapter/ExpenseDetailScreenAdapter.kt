@@ -229,7 +229,8 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
                     leftAmount += it.splitAmount
                 }
             }
-            binding.progressText.text = "${Constants.RUPEE_SYMBOL}${String.format("%.2f", leftAmount)} left"
+            binding.progressText.text =
+                "${Constants.RUPEE_SYMBOL}${String.format("%.2f", leftAmount)} left"
             val time = DateConvertor.millisToDateTime(item.date)
             if (totalPaid == item.listOfSplits.size) {
                 binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)

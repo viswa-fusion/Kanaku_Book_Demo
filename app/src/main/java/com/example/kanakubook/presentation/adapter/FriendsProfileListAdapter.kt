@@ -31,10 +31,10 @@ import kotlin.math.abs
 
 class FriendsProfileListAdapter(
     private val context: Context,
-    private val callback :Callbacks
+    private val callback: Callbacks
 ) :
     RecyclerView.Adapter<FriendsProfileListAdapter.ProfileViewHolder>() {
-    private var searchText:String = ""
+    private var searchText: String = ""
 
 
     private val diffUtil = object :
@@ -62,7 +62,7 @@ class FriendsProfileListAdapter(
         asyncListDiffer.submitList(dataResponse)
     }
 
-    fun getData():List<UserProfileSummary>{
+    fun getData(): List<UserProfileSummary> {
         return asyncListDiffer.currentList
     }
 
@@ -83,7 +83,7 @@ class FriendsProfileListAdapter(
 
     inner class ProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = FriendsViewHolderCardTestBinding.bind(itemView)
-        private var bindImageReferenceCheck : Long = -1
+        private var bindImageReferenceCheck: Long = -1
         private val textViewName: TextView = binding.textViewName
         private val textViewAmount: TextView = binding.textViewAmount
         private val image: ShapeableImageView = binding.imageViewProfile
@@ -98,14 +98,15 @@ class FriendsProfileListAdapter(
                 callback.clickImage(binding.imageViewProfile.drawable)
             }
         }
-        private fun resetViewHolder(){
+
+        private fun resetViewHolder() {
             bindImageReferenceCheck = -1
             textViewName.text = ""
             textViewAmount.text = ""
             image.setImageResource(R.drawable.default_profile_image)
         }
 
-        fun bind(profile: UserProfileSummary){
+        fun bind(profile: UserProfileSummary) {
             resetViewHolder()
             bindImageReferenceCheck = profile.userId
 
@@ -122,7 +123,8 @@ class FriendsProfileListAdapter(
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                val colorSpan = ForegroundColorSpan(context.getColor(R.color.md_theme_primaryContainer_mediumContrast))
+                val colorSpan =
+                    ForegroundColorSpan(context.getColor(R.color.md_theme_primaryContainer_mediumContrast))
                 spannable.setSpan(
                     colorSpan,
                     startIndex,
@@ -156,14 +158,14 @@ class FriendsProfileListAdapter(
             }
 
             phone.text = profile.phone.toString()
-            if(profile.profile != null){
+            if (profile.profile != null) {
                 image.setImageBitmap(profile.profile)
             } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     val bitmap = callback.getImage(profile.userId)
                     profile.profile = bitmap
-                    withContext(Dispatchers.Main){
-                        if(bindImageReferenceCheck  == profile.userId && profile.profile != null) {
+                    withContext(Dispatchers.Main) {
+                        if (bindImageReferenceCheck == profile.userId && profile.profile != null) {
                             image.setImageBitmap(profile.profile)
                         }
                     }
@@ -174,7 +176,7 @@ class FriendsProfileListAdapter(
     }
 
 
-    interface Callbacks{
+    interface Callbacks {
         suspend fun getImage(userId: Long): Bitmap?
         fun onClickItemListener(userProfileSummary: UserProfileSummary)
         fun clickImage(drawable: Drawable?)

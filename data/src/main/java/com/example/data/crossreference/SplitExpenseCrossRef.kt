@@ -7,7 +7,7 @@ import com.example.data.entity.ExpenseEntity
 import com.example.data.entity.SplitEntity
 
 @Entity(
-    primaryKeys = ["expenseId","splitId"],
+    primaryKeys = ["expenseId", "splitId"],
     foreignKeys = [
         ForeignKey(
             entity = ExpenseEntity::class,
@@ -20,7 +20,7 @@ import com.example.data.entity.SplitEntity
             childColumns = ["splitId"]
         )
     ],
-    indices = [Index(value = ["expenseId"]),Index(value = ["splitId"])]
+    indices = [Index(value = ["expenseId"]), Index(value = ["splitId"])]
 )
 data class SplitExpenseCrossRef(
     val expenseId: Long,

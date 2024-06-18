@@ -20,24 +20,26 @@ class UserViewModel(
 ) : ViewModel() {
 
     private val _userData = MutableLiveData<List<UserProfileSummary>>()
-    val userData : LiveData<List<UserProfileSummary>> = _userData
+    val userData: LiveData<List<UserProfileSummary>> = _userData
 
-    private val _allUserData = MutableLiveData<PresentationLayerResponse<List<UserProfileSummary>>>()
-    val allUserData : LiveData<PresentationLayerResponse<List<UserProfileSummary>>> = _allUserData
+    private val _allUserData =
+        MutableLiveData<PresentationLayerResponse<List<UserProfileSummary>>>()
+    val allUserData: LiveData<PresentationLayerResponse<List<UserProfileSummary>>> = _allUserData
 
-    fun getUser(userId: List<Long>){
+    fun getUser(userId: List<Long>) {
         val members = mutableListOf<UserProfileSummary>()
         viewModelScope.launch(Dispatchers.IO) {
             val asyncData = userId.map {
-                this.async {useCase.getUserById(it)}
+                this.async { useCase.getUserById(it) }
             }
             val data = asyncData.awaitAll()
             data.forEach {
-                when(it){
-                    is PresentationLayerResponse.Success ->{
+                when (it) {
+                    is PresentationLayerResponse.Success -> {
                         members.add(it.data)
                     }
-                    is PresentationLayerResponse.Error ->{
+
+                    is PresentationLayerResponse.Error -> {
                         return@launch
                     }
                 }
@@ -47,23 +49,24 @@ class UserViewModel(
     }
 
 
-
-
-    fun getAllKanakuBookUsers(userId: Long){
+    fun getAllKanakuBookUsers(userId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             _allUserData.postValue(useCase.getAllKanakuBookUsers(userId))
         }
     }
-    companion object{
-        val FACTORY = object : ViewModelProvider.Factory{
+
+    companion object {
+        val FACTORY = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
 
                 val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                val applicationDataInjection = application!!.applicationContext as KanakuBookApplication
-                val userUseCaseCommonUserUseCase = applicationDataInjection.userUseCaseCommonUserUseCase
+                val applicationDataInjection =
+                    application!!.applicationContext as KanakuBookApplication
+                val userUseCaseCommonUserUseCase =
+                    applicationDataInjection.userUseCaseCommonUserUseCase
 
-                return UserViewModel(userUseCaseCommonUserUseCase)as T
+                return UserViewModel(userUseCaseCommonUserUseCase) as T
             }
         }
     }

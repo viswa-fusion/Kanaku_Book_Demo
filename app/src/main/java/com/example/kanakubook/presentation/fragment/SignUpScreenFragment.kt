@@ -78,8 +78,8 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
 
             if (nameError != null) {
                 binding.layoutName.error = nameError
-                if(!viewModel.isNotFirstTimeValidation)viewModel.isNotFirstTimeValidation = true
-                if(binding.editTextName.requestFocus()) {
+                if (!viewModel.isNotFirstTimeValidation) viewModel.isNotFirstTimeValidation = true
+                if (binding.editTextName.requestFocus()) {
                     requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
                 return@setOnClickListener
@@ -89,7 +89,7 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
 
             if (phoneError != null) {
                 binding.layoutPhoneNumber.error = phoneError
-                if(!viewModel.isNotFirstTimeValidation)viewModel.isNotFirstTimeValidation = true
+                if (!viewModel.isNotFirstTimeValidation) viewModel.isNotFirstTimeValidation = true
                 binding.editTextPhoneNumber.requestFocus()
                 return@setOnClickListener
             } else {
@@ -99,8 +99,11 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
             if (passwordError.errorMessage != null) {
                 binding.layoutPassword.error = passwordError.errorMessage
                 binding.passwordStrengthIndicator.text = passwordError.strength.text
-                binding.passwordStrengthProgress.setProgressCompat(passwordError.strength.indicator,true)
-                if(!viewModel.isNotFirstTimeValidation)viewModel.isNotFirstTimeValidation = true
+                binding.passwordStrengthProgress.setProgressCompat(
+                    passwordError.strength.indicator,
+                    true
+                )
+                if (!viewModel.isNotFirstTimeValidation) viewModel.isNotFirstTimeValidation = true
                 binding.editTextRepeatPassword.requestFocus()
                 return@setOnClickListener
             } else {
@@ -111,7 +114,7 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
 
             if (password != repeatPassword) {
                 binding.layoutRepeatPassword.error = "repeat passwords do not match with password"
-                if(!viewModel.isNotFirstTimeValidation)viewModel.isNotFirstTimeValidation = true
+                if (!viewModel.isNotFirstTimeValidation) viewModel.isNotFirstTimeValidation = true
                 binding.editTextRepeatPassword.requestFocus()
                 return@setOnClickListener
             } else {
@@ -121,9 +124,10 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
             showLoading()
             val cleanedPhoneNumber = phoneNumber.replace(Regex("[+]"), "")
             val dob = binding.dateOfBirth.text.toString().ifEmpty { null }
-            viewModel.signUp(name, cleanedPhoneNumber.toLong(),dob, password, repeatPassword)
+            viewModel.signUp(name, cleanedPhoneNumber.toLong(), dob, password, repeatPassword)
         }
     }
+
     private fun setListener() {
         binding.dateOfBirth.setOnClickListener {
             showDatePicker()
@@ -166,27 +170,30 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
             }
         }
 
-        binding.editTextPassword.addTextChangedListener{
+        binding.editTextPassword.addTextChangedListener {
             binding.passwordStrength.visibility = View.VISIBLE
             val password = it.toString()
             val passwordError = validator.validatePassword(password)
             binding.passwordStrengthIndicator.text = passwordError.strength.text
             binding.passwordStrengthProgress.setIndicatorColor(setProgressBarColor(passwordError.strength))
-            binding.passwordStrengthProgress.setProgressCompat(passwordError.strength.indicator,true)
-                if (viewModel.isNotFirstTimeValidation){
-                    binding.layoutPassword.error = passwordError.errorMessage
-                }
+            binding.passwordStrengthProgress.setProgressCompat(
+                passwordError.strength.indicator,
+                true
+            )
+            if (viewModel.isNotFirstTimeValidation) {
+                binding.layoutPassword.error = passwordError.errorMessage
+            }
         }
 
-        binding.editTextRepeatPassword.addTextChangedListener{
-                val repeatPassword = it.toString()
-                val password = binding.editTextPassword.text.toString()
-                if (password != repeatPassword) {
-                    binding.layoutRepeatPassword.error = "repeat passwords do not match with password"
-                } else {
-                    binding.layoutRepeatPassword.error = null
-                }
+        binding.editTextRepeatPassword.addTextChangedListener {
+            val repeatPassword = it.toString()
+            val password = binding.editTextPassword.text.toString()
+            if (password != repeatPassword) {
+                binding.layoutRepeatPassword.error = "repeat passwords do not match with password"
+            } else {
+                binding.layoutRepeatPassword.error = null
             }
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -237,7 +244,7 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    if (it.message == "user exist"){
+                    if (it.message == "user exist") {
                         binding.layoutPhoneNumber.error = "phone number already exist"
                     }
                     Toast.makeText(requireActivity(), "Signup failed", Toast.LENGTH_SHORT).show()
@@ -272,18 +279,38 @@ class SignUpScreenFragment : Fragment(R.layout.sign_up_screen_fragment) {
         binding.loadingScreen.loadingScreen.visibility = View.GONE
     }
 
-    private fun setProgressBarColor(strength : FieldValidator.PasswordStrength): Int{
+    private fun setProgressBarColor(strength: FieldValidator.PasswordStrength): Int {
         return when (strength) {
-            FieldValidator.PasswordStrength.VERY_WEAK -> ContextCompat.getColor(requireActivity(), R.color.progress_color_very_weak)
-            FieldValidator.PasswordStrength.WEAK -> ContextCompat.getColor(requireActivity(), R.color.progress_color_weak)
-            FieldValidator.PasswordStrength.REASONABLE -> ContextCompat.getColor(requireActivity(), R.color.progress_color_reasonable)
-            FieldValidator.PasswordStrength.MEDIUM -> ContextCompat.getColor(requireActivity(), R.color.progress_color_medium)
-            FieldValidator.PasswordStrength.STRONG -> ContextCompat.getColor(requireActivity(), R.color.progress_color_strong)
+            FieldValidator.PasswordStrength.VERY_WEAK -> ContextCompat.getColor(
+                requireActivity(),
+                R.color.progress_color_very_weak
+            )
+
+            FieldValidator.PasswordStrength.WEAK -> ContextCompat.getColor(
+                requireActivity(),
+                R.color.progress_color_weak
+            )
+
+            FieldValidator.PasswordStrength.REASONABLE -> ContextCompat.getColor(
+                requireActivity(),
+                R.color.progress_color_reasonable
+            )
+
+            FieldValidator.PasswordStrength.MEDIUM -> ContextCompat.getColor(
+                requireActivity(),
+                R.color.progress_color_medium
+            )
+
+            FieldValidator.PasswordStrength.STRONG -> ContextCompat.getColor(
+                requireActivity(),
+                R.color.progress_color_strong
+            )
         }
     }
 
     private fun openKeyboard(view: View) {
-        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 }

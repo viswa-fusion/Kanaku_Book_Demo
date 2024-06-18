@@ -29,8 +29,9 @@ class GroupsListAdapter(
     private val context: Context,
     private val callback: CallBack
 ) : RecyclerView.Adapter<GroupsListAdapter.GroupListViewHolder>() {
-    private var searchText:String = ""
-    interface CallBack{
+    private var searchText: String = ""
+
+    interface CallBack {
         suspend fun getImage(groupId: Long): Bitmap?
         fun onClickItemListener(groupData: GroupData)
 
@@ -61,7 +62,7 @@ class GroupsListAdapter(
         asyncListDiffer.submitList(dataResponse)
     }
 
-    fun getData():List<GroupData>{
+    fun getData(): List<GroupData> {
         return asyncListDiffer.currentList
     }
 
@@ -80,8 +81,9 @@ class GroupsListAdapter(
         holder.bind(group)
     }
 
-    inner class GroupListViewHolder(binding: GroupViewHolderCardTestBinding) : RecyclerView.ViewHolder(binding.root){
-        private var bindImageReferenceCheck : Long = -1
+    inner class GroupListViewHolder(binding: GroupViewHolderCardTestBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var bindImageReferenceCheck: Long = -1
         private val profile = binding.shapeableImageView2
         private val groupName = binding.textViewName
         private val amount = binding.textViewAmount
@@ -96,14 +98,14 @@ class GroupsListAdapter(
             }
         }
 
-        private fun resetViewHolder(){
+        private fun resetViewHolder() {
             bindImageReferenceCheck = -1
             groupName.text = ""
             amount.text = ""
             profile.setImageResource(R.drawable.default_group_profile12)
         }
 
-        fun bind(groupData: GroupData){
+        fun bind(groupData: GroupData) {
             resetViewHolder()
             bindImageReferenceCheck = groupData.id
 
@@ -120,7 +122,8 @@ class GroupsListAdapter(
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                val colorSpan = ForegroundColorSpan(context.getColor(R.color.md_theme_primaryContainer_mediumContrast))
+                val colorSpan =
+                    ForegroundColorSpan(context.getColor(R.color.md_theme_primaryContainer_mediumContrast))
                 spannable.setSpan(
                     colorSpan,
                     startIndex,
@@ -134,15 +137,17 @@ class GroupsListAdapter(
             val calculateAmount = groupData.get - groupData.pay
             val absAmount = abs(calculateAmount)
             val formattedAmount = "₹${decimalFormat.format(absAmount)}"
-            when{
+            when {
                 calculateAmount > 0 -> {
                     amount.setTextColor(context.getColor(R.color.amount_Green_text))
                     amount.text = formattedAmount
                 }
+
                 calculateAmount < 0 -> {
                     amount.setTextColor(context.getColor(R.color.amount_Red_text))
                     amount.text = formattedAmount
                 }
+
                 else -> {
                     amount.setTextColor(Color.GRAY)
                     amount.text = "no pending"
@@ -150,14 +155,14 @@ class GroupsListAdapter(
             }
 
 
-            if(groupData.profile != null){
+            if (groupData.profile != null) {
                 profile.setImageBitmap(groupData.profile)
-            }else {
+            } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     val bitmap = callback.getImage(groupData.id)
                     groupData.profile = bitmap
-                    withContext(Dispatchers.Main){
-                        if(bindImageReferenceCheck  == groupData.id && groupData.profile != null) {
+                    withContext(Dispatchers.Main) {
+                        if (bindImageReferenceCheck == groupData.id && groupData.profile != null) {
                             profile.setImageBitmap(groupData.profile)
                         }
                     }
@@ -165,6 +170,7 @@ class GroupsListAdapter(
             }
         }
     }
+
     fun highlightText(searchText: String) {
         this.searchText = searchText
         notifyDataSetChanged()

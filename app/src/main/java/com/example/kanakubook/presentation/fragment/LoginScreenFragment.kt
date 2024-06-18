@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.example.data.util.PreferenceHelper
+import com.example.domain.repository.response.DataLayerResponse
 import com.example.domain.usecase.response.PresentationLayerResponse
 import com.example.kanakubook.R
 import com.example.kanakubook.databinding.LoginScreenFragmentBinding
@@ -52,27 +53,6 @@ class LoginScreenFragment : Fragment(R.layout.login_screen_fragment) {
 
     private fun setupValidation() {
         binding.buttonLogIn.setOnClickListener {
-            val phoneNumber = binding.editTextPhoneNumber.text.toString()
-            val password = binding.editTextPassword.text.toString()
-            val phoneError = validator.validatePhoneNumber(phoneNumber,false)
-            val passwordError = validator.validatePassword(password)
-
-            if (phoneError != null) {
-                binding.layoutPhoneNumber.error = phoneError
-                if (!viewModel.isNotFirstTimeValidation) viewModel.isNotFirstTimeValidation = true
-                return@setOnClickListener
-            } else {
-                binding.layoutPhoneNumber.error = null
-            }
-
-            if (passwordError.errorMessage != null) {
-                binding.layoutPassword.error = passwordError.errorMessage
-                if (!viewModel.isNotFirstTimeValidation) viewModel.isNotFirstTimeValidation = true
-                return@setOnClickListener
-            } else {
-                binding.layoutPassword.error = null
-            }
-
             viewModel.authenticateUser(
                 binding.editTextPhoneNumber.text.toString().toLong(),
                 binding.editTextPassword.text.toString()
@@ -85,7 +65,7 @@ class LoginScreenFragment : Fragment(R.layout.login_screen_fragment) {
         binding.editTextPhoneNumber.addTextChangedListener {
             if (viewModel.isNotFirstTimeValidation) {
                 val phoneNumber = it.toString()
-                val phoneError = validator.validatePhoneNumber(phoneNumber,false)
+                val phoneError = validator.validatePhoneNumber(phoneNumber, false)
                 binding.layoutPhoneNumber.error = phoneError
             }
         }
@@ -108,7 +88,20 @@ class LoginScreenFragment : Fragment(R.layout.login_screen_fragment) {
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(context, "error", Toast.LENGTH_SHORT).show()
+                    when {
+                        it.message == "wrong password" -> {
+                            binding.layoutPhoneNumber.error = null
+                            binding.layoutPassword.error = "incorrect password"
+                        }
+
+                        it.message == "user not found" -> {
+                            binding.layoutPhoneNumber.error = "user not found"
+                        }
+
+                        else -> {
+                            Toast.makeText(context, "login failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }

@@ -18,24 +18,29 @@ class FieldValidator {
             name.isBlank() -> {
                 "Name field cannot be left blank."
             }
+
             name.length < minLength -> {
                 "Name must be at least $minLength characters long."
             }
+
             name.length > maxLength -> {
                 "Name exceeds maximum length of $maxLength characters."
             }
+
             !name.matches(nameRegex) -> {
                 "Invalid name format. Please use letters, numbers, and spaces only."
             }
+
             containsProfanity(name) -> {
                 "Name contains inappropriate language."
             }
+
             else -> null
         }
     }
 
-    fun validatePhoneNumber(phoneNumber: String, type:Boolean = true): String? {
-        if (type){
+    fun validatePhoneNumber(phoneNumber: String, type: Boolean = true): String? {
+        if (type) {
             val maxLength = 15
             val minLength = 10
 
@@ -58,7 +63,7 @@ class FieldValidator {
 
                 else -> null
             }
-        }else{
+        } else {
             val minLength = 10
             return when {
                 phoneNumber.isBlank() -> {
@@ -80,14 +85,13 @@ class FieldValidator {
     }
 
 
-    enum class PasswordStrength(val indicator: Int,val text: String) {
+    enum class PasswordStrength(val indicator: Int, val text: String) {
         VERY_WEAK(20, "very weak"),
-        WEAK(40,"weak"),
-        REASONABLE(60,"reasonable"),
-        MEDIUM(80,"medium"),
-        STRONG(100,"strong")
+        WEAK(40, "weak"),
+        REASONABLE(60, "reasonable"),
+        MEDIUM(80, "medium"),
+        STRONG(100, "strong")
     }
-
 
 
     data class PasswordValidationResult(
@@ -107,27 +111,36 @@ class FieldValidator {
             password.isBlank() -> {
                 errorMessage = "Password field cannot be left blank."
             }
+
             password.length < minLength -> {
                 errorMessage = "Password must be at least $minLength characters long."
             }
+
             password.length > maxLength -> {
                 errorMessage = "Password exceeds maximum length of $maxLength characters."
             }
+
             !password.matches(passwordRegex) -> {
-                errorMessage = "Password contains invalid characters. Please use only letters, numbers, and special characters like !@#\$%^&*()-_=+`~<>?,./;:'\"[]{}|\\."
+                errorMessage =
+                    "Password contains invalid characters. Please use only letters, numbers, and special characters like !@#\$%^&*()-_=+`~<>?,./;:'\"[]{}|\\."
             }
+
             !password.any { it.isDigit() } -> {
                 errorMessage = "Password must contain at least one digit (0-9)."
             }
+
             !password.any { it.isLowerCase() } -> {
                 errorMessage = "Password must contain at least one lowercase letter (a-z)."
             }
+
             !password.any { it.isUpperCase() } -> {
                 errorMessage = "Password must contain at least one uppercase letter (A-Z)."
             }
+
             !password.any { it in "!@#\$%^&*()-_=+`~<>?,./;:'\"[]{}|\\" } -> {
                 errorMessage = "Password must contain at least one special character."
             }
+
             else -> {
                 strength = when {
                     password.length >= 16 && password.contains(Regex("[a-zA-Z]")) &&
@@ -135,18 +148,22 @@ class FieldValidator {
                             password.contains(Regex("[!@#\$%^&*()-_=+`~<>?,./;:'\"\\[\\]{}|\\\\]")) -> {
                         PasswordStrength.STRONG
                     }
+
                     password.length >= 12 && password.contains(Regex("[a-zA-Z]")) &&
                             (password.contains(Regex("[0-9]")) ||
                                     password.contains(Regex("[!@#\$%^&*()-_=+`~<>?,./;:'\"\\[\\]{}|\\\\]"))) -> {
                         PasswordStrength.MEDIUM
                     }
+
                     password.length >= 10 && password.contains(Regex("[a-zA-Z]")) &&
                             password.contains(Regex("[0-9]")) -> {
                         PasswordStrength.REASONABLE
                     }
+
                     password.length >= 8 && password.contains(Regex("[a-zA-Z]")) -> {
                         PasswordStrength.WEAK
                     }
+
                     else -> PasswordStrength.VERY_WEAK
                 }
             }
@@ -154,7 +171,6 @@ class FieldValidator {
 
         return PasswordValidationResult(errorMessage, strength)
     }
-
 
 
     private fun containsProfanity(text: String): Boolean {
@@ -213,7 +229,6 @@ class FieldValidator {
             "\\u0064\\u0069\\u006c\\u006c\\u0068\\u006f\\u006c\\u0065",
             "\\u0061\\u0073\\u0073\\u006e\\u0075\\u0067\\u0067\\u0065\\u0072"
         )
-
 
 
         val combinedPattern = profanePatterns.joinToString(separator = "|")

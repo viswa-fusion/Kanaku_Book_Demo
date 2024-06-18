@@ -1,13 +1,9 @@
 package com.example.kanakunote.data_layer.dao
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.ExifInterface
 import android.graphics.Matrix
-import android.net.Uri
-import android.util.Log
-import androidx.core.content.FileProvider
 import androidx.room.Dao
 import com.example.domain.repository.response.DataLayerErrorCode
 import com.example.domain.repository.response.DataLayerResponse
@@ -58,10 +54,8 @@ interface ProfilePhotoDao {
     }
 
 
-
     suspend fun getProfilePhoto(filePath: String): DataLayerResponse<Bitmap> =
         withContext(Dispatchers.IO) {
-
 
             return@withContext try {
                 val bitmap = BitmapFactory.decodeFile(filePath)
@@ -74,8 +68,6 @@ interface ProfilePhotoDao {
                 DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
             }
         }
-
-
 
 
     fun rotateBitmap(bitmap: Bitmap?, orientation: Int): Bitmap? {

@@ -29,13 +29,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FriendProfilePageActivity: AppCompatActivity() {
+class FriendProfilePageActivity : AppCompatActivity() {
 
     private lateinit var binding: GroupProfilePageBinding
-    private lateinit var friendName :String
-    private lateinit var friendNumber :String
-    private var friendId :Long = -1L
-    private var loginUserId :Long = -1L
+    private lateinit var friendName: String
+    private lateinit var friendNumber: String
+    private var friendId: Long = -1L
+    private var loginUserId: Long = -1L
     private val friendViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private val groupViewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
     private lateinit var adapter: CommonGroupListAdapter
@@ -51,19 +51,20 @@ class FriendProfilePageActivity: AppCompatActivity() {
     }
 
     private fun setAdapter() {
-        adapter = CommonGroupListAdapter(this,object :CommonGroupListAdapter.CallBack{
+        adapter = CommonGroupListAdapter(this, object : CommonGroupListAdapter.CallBack {
             override suspend fun getImage(groupId: Long): Bitmap? {
                 return groupViewModel.getProfile(groupId)
             }
 
             override fun onClickItemListener(groupData: CommonGroupWIthAmountData) {
-                val intent = Intent(this@FriendProfilePageActivity, GroupDetailPageActivity::class.java)
-                intent.putExtra("groupName",groupData.group.name)
-                intent.putExtra("groupId",groupData.group.id)
-                intent.putExtra("createdBy",groupData.group.createdBy)
+                val intent =
+                    Intent(this@FriendProfilePageActivity, GroupDetailPageActivity::class.java)
+                intent.putExtra("groupName", groupData.group.name)
+                intent.putExtra("groupId", groupData.group.id)
+                intent.putExtra("createdBy", groupData.group.createdBy)
                 val bundle = Bundle()
-                bundle.putLongArray("members",groupData.members.map { it.userId }.toLongArray())
-                intent.putExtra("bundle",bundle)
+                bundle.putLongArray("members", groupData.members.map { it.userId }.toLongArray())
+                intent.putExtra("bundle", bundle)
                 startActivity(intent)
             }
 
@@ -72,36 +73,38 @@ class FriendProfilePageActivity: AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         val dividerDrawable = ContextCompat.getDrawable(this, R.drawable.divider)
         binding.recyclerView.addItemDecoration(
-            CustomDividerItemDecoration(this, dividerDrawable, 200,16)
+            CustomDividerItemDecoration(this, dividerDrawable, 200, 16)
         )
     }
 
     override fun onResume() {
         super.onResume()
         showLoading()
-        friendViewModel.getCommonGroupWithFriendIdWithCalculatedAmount(loginUserId,friendId)
+        friendViewModel.getCommonGroupWithFriendIdWithCalculatedAmount(loginUserId, friendId)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i("TAG","")
+        Log.i("TAG", "")
     }
+
     private fun setObserver() {
 //        Toast.makeText(this,"${friendViewModel.commonGroupResponse.hasActiveObservers()}",Toast.LENGTH_SHORT).show()
-        friendViewModel.commonGroupResponse.observe(this){
-            when(it){
+        friendViewModel.commonGroupResponse.observe(this) {
+            when (it) {
                 is PresentationLayerResponse.Success -> {
-                    if(it.data.isNotEmpty()){
+                    if (it.data.isNotEmpty()) {
                         binding.notInSameGroup.emptyTemplate.visibility = View.GONE
                         adapter.updateData(it.data)
                         binding.groupMemberTitle.text = "Common Groups(${it.data.size})"
-                    }else{
+                    } else {
                         binding.notInSameGroup.emptyTemplate.visibility = View.VISIBLE
                     }
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(this,"no common groups for this friend",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "no common groups for this friend", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
             hideLoading()
@@ -136,10 +139,10 @@ class FriendProfilePageActivity: AppCompatActivity() {
     }
 
     private fun getIntentData() {
-        loginUserId = intent.getLongExtra("userId",-1)
-        friendId = intent.getLongExtra("friendId",-1)
-        friendName = intent.getStringExtra("friendName")?:""
-        friendNumber = intent.getStringExtra("friendNumber")?:""
+        loginUserId = intent.getLongExtra("userId", -1)
+        friendId = intent.getLongExtra("friendId", -1)
+        friendName = intent.getStringExtra("friendName") ?: ""
+        friendNumber = intent.getStringExtra("friendNumber") ?: ""
     }
 
     private fun initialSetUp() {

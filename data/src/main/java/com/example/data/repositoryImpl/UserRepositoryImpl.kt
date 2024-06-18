@@ -1,7 +1,6 @@
 package com.example.data.repositoryImpl
 
 import android.graphics.Bitmap
-import android.util.Log
 import com.example.kanakunote.data_layer.dao.ProfilePhotoDao
 import com.example.data.dao.UserDao
 import com.example.data.util.StorageHelper
@@ -46,11 +45,15 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun updateUser(userId: Long,username:String?,dob:Long?): DataLayerResponse<Boolean> {
-        return try{
+    override suspend fun updateUser(
+        userId: Long,
+        username: String?,
+        dob: Long?
+    ): DataLayerResponse<Boolean> {
+        return try {
             userDao.updateUser(userId, username, dob)
             DataLayerResponse.Success(true)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
     }

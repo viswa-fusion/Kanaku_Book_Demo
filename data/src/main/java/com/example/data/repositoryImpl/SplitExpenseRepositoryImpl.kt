@@ -23,27 +23,30 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val splitDao: SplitDao, private val userDao: UserDao) :
+class SplitExpenseRepositoryImpl(
+    private val expenseDao: ExpenseDao,
+    private val splitDao: SplitDao,
+    private val userDao: UserDao
+) :
     SplitExpenseRepository.GroupExpense, SplitExpenseRepository.FriendExpense {
     override suspend fun insertGroupExpenseWithSplits(
         groupId: Long,
         expense: ExpenseEntry,
         splits: List<SplitEntry>
     ): DataLayerResponse<Boolean> {
-        return commonInsertionOfExpenseAndSplit(groupId,ExpenseType.GroupExpense,expense,splits)
+        return commonInsertionOfExpenseAndSplit(groupId, ExpenseType.GroupExpense, expense, splits)
     }
 
     override suspend fun getGroupExpenseWithSplitsByGroupId(groupId: Long): DataLayerResponse<List<ExpenseData>> {
         val data = commonGetOfExpenseAndSplit(groupId, ExpenseType.GroupExpense)
-        Log.i("coroutineDataTest","data c: $data id = $groupId")
         return data
     }
 
     override suspend fun payForExpense(expenseId: Long, userId: Long): DataLayerResponse<Boolean> {
-        return try{
+        return try {
             splitDao.makePaidForTheSplitOfExpenseId(expenseId, userId)
             DataLayerResponse.Success(true)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
     }
@@ -53,7 +56,12 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
         expense: ExpenseEntry,
         splits: List<SplitEntry>
     ): DataLayerResponse<Boolean> {
-        return commonInsertionOfExpenseAndSplit(connectionId,ExpenseType.FriendsExpense,expense,splits)
+        return commonInsertionOfExpenseAndSplit(
+            connectionId,
+            ExpenseType.FriendsExpense,
+            expense,
+            splits
+        )
     }
 
     override suspend fun getFriendExpenseWithSplitsByConnectionId(connectionId: Long): DataLayerResponse<List<ExpenseData>> {
@@ -66,38 +74,40 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
 
 
     private suspend fun commonGetOfExpenseAndSplit(
-        id:Long,
+        id: Long,
         expenseType: ExpenseType
     ): DataLayerResponse<List<ExpenseData>> {
-        return try{
+        return try {
             val result = expenseDao.getExpensesByTypeAndAssociatedId(expenseType, id)
-            Log.i("coroutineDataTest","data result: $result")
+            Log.i("coroutineDataTest", "data result: $result")
             val defArray = mutableListOf<Deferred<ExpenseData>>()
             coroutineScope {
                 result.forEach {
-                    val data =  async{
+                    val data = async {
                         val list = async { splitDao.getSplitsByExpenseId(it.expenseId) }
-                        val user = async { userDao.getUserById(it.spenderId)?.toUserProfileSummery()!!}
+                        val user =
+                            async { userDao.getUserById(it.spenderId)?.toUserProfileSummery()!! }
                         val userData = user.await()
                         val listData = list.await()
-                        it.toExpenseData(userData, listData.map{it.toSplitEntry()})
+                        it.toExpenseData(userData, listData.map { it.toSplitEntry() })
                     }
                     defArray.add(data)
                 }
             }
             val resultList = defArray.awaitAll()
             DataLayerResponse.Success(resultList)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             println(e.stackTrace)
             DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
     }
+
     private suspend fun commonInsertionOfExpenseAndSplit(
-        id:Long,
+        id: Long,
         expenseType: ExpenseType,
         expense: ExpenseEntry,
         splits: List<SplitEntry>
-    ): DataLayerResponse<Boolean>{
+    ): DataLayerResponse<Boolean> {
         val expenseId = expenseDao.insertExpense(expense.toExpenseEntity())
         return coroutineScope {
             val defArray = mutableListOf<Deferred<Boolean>>()
@@ -116,11 +126,11 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
             }
             defArray.add(
                 async {
-                    val crossRef = ExpenseCrossRef(expenseType,id,expenseId)
-                    try{
+                    val crossRef = ExpenseCrossRef(expenseType, id, expenseId)
+                    try {
                         expenseDao.insertExpenseCrossRef(crossRef)
                         true
-                    }catch (e: Exception){
+                    } catch (e: Exception) {
                         println(e.stackTrace)
                         false
                     }
@@ -128,7 +138,7 @@ class SplitExpenseRepositoryImpl(private val expenseDao: ExpenseDao, private val
             )
             val result = defArray.awaitAll()
 
-            result.forEach{
+            result.forEach {
                 if (!it) return@coroutineScope DataLayerResponse.Error<Boolean>(DataLayerErrorCode.OPERATION_FAILED)
             }
             DataLayerResponse.Success(true)

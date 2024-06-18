@@ -44,28 +44,8 @@ internal fun UserEntity.toUserProfileSummery(connectionId: Long? = null, pay:Dou
     }
 }
 
-internal fun UserEntity.toUserProfileData(
-    profilePhotoFilePath: String,
-    amountToGet: Double,
-    amountToGive: Double
-): UserProfileData {
-    return UserProfileData(
-        this.userId,
-        this.name,
-        this.phone,
-        amountToGet,
-        amountToGive
-    )
-}
 
-internal fun GroupWithMembers.toGroupSummery(profilePhotoFilePath: String): GroupSummery {
-    return GroupSummery(
-        this.group.groupId,
-        this.group.groupName,
-        this.group.createdBy,
-        this.group.lastActive
-    )
-}
+
 internal fun GroupWithMembersOnly.toGroupData():GroupData{
     return GroupData(
         this.group.groupId,
@@ -95,13 +75,6 @@ internal fun CommonGroupWithAmount.toCommonGroupWithAmountData(): CommonGroupWIt
 }
 
 
-internal fun GroupData.toGroupEntity(time: Long): GroupEntity {
-    return GroupEntity(
-        this.name,
-        this.createdBy,
-        time
-    )
-}
 
 internal fun GroupEntry.toGroupEntity(): GroupEntity {
     return GroupEntity(

@@ -35,22 +35,23 @@ class AddExpenseActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels { UserViewModel.FACTORY }
     private val groupViewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
     private val friendsViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private val commonViewModel: CommonViewModel by viewModels ()
+    private val commonViewModel: CommonViewModel by viewModels()
 
     private lateinit var preferenceHelper: PreferenceHelper
     private lateinit var expenseType: ExpenseType
 
-    private val resultActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+    private val resultActivity =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 
-        if(it.resultCode == Activity.RESULT_OK){
-            commonViewModel.needToGetSplitWith = false
-            commonViewModel.isNextButtonClicked = true
-            commonViewModel.haveSplitWithData = true
-            getIntentExtras(it.data)
-            setObserve()
-            getMembersDetail()
+            if (it.resultCode == Activity.RESULT_OK) {
+                commonViewModel.needToGetSplitWith = false
+                commonViewModel.isNextButtonClicked = true
+                commonViewModel.haveSplitWithData = true
+                getIntentExtras(it.data)
+                setObserve()
+                getMembersDetail()
+            }
         }
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,15 +71,15 @@ class AddExpenseActivity : AppCompatActivity() {
         resultActivity.launch(intent)
     }
 
-    private fun checkLayout(){
+    private fun checkLayout() {
         val gId = intent.getLongExtra("groupId", -1L)
-        val uId = intent.getLongExtra("connectionId",-1)
-        if (uId == -1L && gId == -1L && !commonViewModel.haveSplitWithData){
+        val uId = intent.getLongExtra("connectionId", -1)
+        if (uId == -1L && gId == -1L && !commonViewModel.haveSplitWithData) {
             commonViewModel.needToGetSplitWith = true
         }
     }
 
-    private fun initialSetUp(){
+    private fun initialSetUp() {
         binding = AddExpenseScreenActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -89,18 +90,19 @@ class AddExpenseActivity : AppCompatActivity() {
         preferenceHelper = PreferenceHelper(this)
         binding.mainButton.isEnabled = false
     }
-    private fun getIntentExtras(getIntent: Intent? = null){
-        val currentIntent = getIntent?:intent
+
+    private fun getIntentExtras(getIntent: Intent? = null) {
+        val currentIntent = getIntent ?: intent
         val bundle = currentIntent.getBundleExtra("bundleFromDetailPage")
         bundle?.let {
             it.getLongArray("members")?.toList()?.let { data ->
                 commonViewModel.membersId = data
             }
         }
-       commonViewModel.id = currentIntent.getLongExtra("groupId", -1L).let {
+        commonViewModel.id = currentIntent.getLongExtra("groupId", -1L).let {
             if (it == -1L) {
-                currentIntent.getLongExtra("connectionId",-1)
-            }else it
+                currentIntent.getLongExtra("connectionId", -1)
+            } else it
         }
         expenseType = if (currentIntent.getBooleanExtra(
                 "ExpenseType",
@@ -109,7 +111,7 @@ class AddExpenseActivity : AppCompatActivity() {
         ) ExpenseType.FriendsExpense else ExpenseType.GroupExpense
     }
 
-    private fun setListener(){
+    private fun setListener() {
         binding.amount.addTextChangedListener(NumberTextWatcher(binding.amount) {
             binding.mainButton.isEnabled = it
         })
@@ -117,7 +119,10 @@ class AddExpenseActivity : AppCompatActivity() {
         binding.amount.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 commonViewModel.isNextButtonClicked = false
-                if (commonViewModel.isFragmentAdded && supportFragmentManager.fragments.contains(commonViewModel.fragment)) {
+                if (commonViewModel.isFragmentAdded && supportFragmentManager.fragments.contains(
+                        commonViewModel.fragment
+                    )
+                ) {
                     supportFragmentManager.commit {
                         remove(commonViewModel.fragment)
                     }
@@ -132,7 +137,7 @@ class AddExpenseActivity : AppCompatActivity() {
         }
 
         binding.mainButton.setOnClickListener {
-            if(commonViewModel.needToGetSplitWith){
+            if (commonViewModel.needToGetSplitWith) {
                 getWhoSplitWith()
             } else {
                 commonViewModel.isNextButtonClicked = true
@@ -146,13 +151,15 @@ class AddExpenseActivity : AppCompatActivity() {
 
                 val value = String.format("%.2f", calculateAmount)
                 if (commonViewModel.members != null) {
-                    commonViewModel.fragment.setList(totalAmount, commonViewModel.members!!.map { userData ->
-                        SplitListAdapter.SplitList(
-                            userData.userId,
-                            userData.name,
-                            value
-                        )
-                    })
+                    commonViewModel.fragment.setList(
+                        totalAmount,
+                        commonViewModel.members!!.map { userData ->
+                            SplitListAdapter.SplitList(
+                                userData.userId,
+                                userData.name,
+                                value
+                            )
+                        })
                     binding.note.visibility = View.VISIBLE
                     switchButton(true)
                     binding.amount.clearFocus()
@@ -168,10 +175,10 @@ class AddExpenseActivity : AppCompatActivity() {
     }
 
 
-    private fun submitData(){
+    private fun submitData() {
         val finalList = commonViewModel.fragment.getList()
         val totalAmount = binding.amount.text.toString().replace(",", "").toDouble()
-        when(expenseType){
+        when (expenseType) {
             ExpenseType.GroupExpense -> {
                 groupViewModel.createExpense(
                     commonViewModel.id,
@@ -197,6 +204,7 @@ class AddExpenseActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun getMembersDetail() {
         userViewModel.getUser(commonViewModel.membersId)
     }
@@ -210,7 +218,7 @@ class AddExpenseActivity : AppCompatActivity() {
             binding.submitButton.isEnabled = it
         }
 
-        when(expenseType){
+        when (expenseType) {
             ExpenseType.GroupExpense -> {
                 groupViewModel.groupExpenseCreateResponse.observe(this) {
                     when (it) {
@@ -229,8 +237,8 @@ class AddExpenseActivity : AppCompatActivity() {
                 }
             }
 
-            ExpenseType.FriendsExpense ->{
-                friendsViewModel.friendsExpenseCreateResponse.observe(this){
+            ExpenseType.FriendsExpense -> {
+                friendsViewModel.friendsExpenseCreateResponse.observe(this) {
                     when (it) {
                         is PresentationLayerResponse.Success -> {
                             Toast.makeText(this, "new expense created", Toast.LENGTH_SHORT).show()
@@ -251,9 +259,9 @@ class AddExpenseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if(commonViewModel.isNextButtonClicked){
+        if (commonViewModel.isNextButtonClicked) {
             binding.mainButton.callOnClick()
-        }else{
+        } else {
             binding.amount.requestFocus()
         }
     }

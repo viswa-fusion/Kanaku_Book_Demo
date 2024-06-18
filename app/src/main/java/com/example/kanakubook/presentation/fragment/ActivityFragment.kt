@@ -79,10 +79,10 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                 when (activity.activityType) {
                     ActivityType.ADD_FRIEND -> {
                         val intent = Intent(requireActivity(), FriendDetailPageActivity::class.java)
-                        intent.putExtra("name",activity.friend?.name)
-                        intent.putExtra("phone",activity.friend?.phone)
-                        intent.putExtra("userId",activity.friend?.userId)
-                        intent.putExtra("connectionId",activity.connectionId)
+                        intent.putExtra("name", activity.friend?.name)
+                        intent.putExtra("phone", activity.friend?.phone)
+                        intent.putExtra("userId", activity.friend?.userId)
+                        intent.putExtra("connectionId", activity.connectionId)
 
                         startActivity(intent)
                     }
@@ -100,7 +100,7 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                     }
 
                     ActivityType.PAY_FOR_EXPENSE -> {
-                        val item :ExpenseData = activity.expense!!
+                        val item: ExpenseData = activity.expense!!
 
                         val intent =
                             Intent(requireActivity(), ExpenseDetailActivity::class.java)
@@ -109,13 +109,16 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                         intent.putExtra("ownerId", item.spender.userId)
                         intent.putExtra("totalAmount", item.totalAmount)
                         intent.putExtra("ownerName", item.spender.name)
-                        intent.putParcelableArrayListExtra("splitList", ArrayList(item.listOfSplits))
+                        intent.putParcelableArrayListExtra(
+                            "splitList",
+                            ArrayList(item.listOfSplits)
+                        )
 
                         startActivity(intent)
                     }
 
                     ActivityType.SPLIT_MEMBER_PAY -> {
-                        val item :ExpenseData = activity.expense!!
+                        val item: ExpenseData = activity.expense!!
 
                         val intent =
                             Intent(requireActivity(), ExpenseDetailActivity::class.java)
@@ -124,20 +127,24 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                         intent.putExtra("ownerId", item.spender.userId)
                         intent.putExtra("totalAmount", item.totalAmount)
                         intent.putExtra("ownerName", item.spender.name)
-                        intent.putParcelableArrayListExtra("splitList", ArrayList(item.listOfSplits))
+                        intent.putParcelableArrayListExtra(
+                            "splitList",
+                            ArrayList(item.listOfSplits)
+                        )
 
                         startActivity(intent)
                     }
                 }
             }
 
-            fun launchGroup(activity: ActivityModel){
+            fun launchGroup(activity: ActivityModel) {
 
-                if(activity.group !=null) {
+                if (activity.group != null) {
                     groupViewModel.getGroup.removeObservers(viewLifecycleOwner)
-                    groupViewModel.getGroup.observe(viewLifecycleOwner){
-                        if (it != null){
-                            val intent = Intent(requireActivity(), GroupDetailPageActivity::class.java)
+                    groupViewModel.getGroup.observe(viewLifecycleOwner) {
+                        if (it != null) {
+                            val intent =
+                                Intent(requireActivity(), GroupDetailPageActivity::class.java)
                             intent.putExtra("groupName", activity.group?.name)
                             intent.putExtra("groupId", activity.group?.id)
                             intent.putExtra("createdBy", activity.group?.createdBy)
@@ -155,14 +162,14 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                     }
                     groupViewModel.getGroupByGroupId(activity.group?.id)
 
-                }else{
+                } else {
 
-                    val intent = Intent(requireActivity(),FriendDetailPageActivity::class.java)
-                    intent.putExtra("name",activity.friend?.name)
-                    intent.putExtra("phone",activity.friend?.phone)
-                    intent.putExtra("userId",activity.friend?.userId)
-                    intent.putExtra("connectionId",activity.connectionId)
-                    Log.i("intentData","data: ${intent.extras}")
+                    val intent = Intent(requireActivity(), FriendDetailPageActivity::class.java)
+                    intent.putExtra("name", activity.friend?.name)
+                    intent.putExtra("phone", activity.friend?.phone)
+                    intent.putExtra("userId", activity.friend?.userId)
+                    intent.putExtra("connectionId", activity.connectionId)
+                    Log.i("intentData", "data: ${intent.extras}")
                     startActivity(intent)
                 }
             }

@@ -1,6 +1,5 @@
 package com.example.kanakubook.util
 
-import android.accessibilityservice.AccessibilityButtonController.AccessibilityButtonCallback
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -16,7 +15,11 @@ internal object CustomAnimationUtil {
     const val GROUP_SCREEN_FAB = 1
     const val FRIEND_SCREEN_FAB = 2
 
-    fun rotateFab(mainFab: FloatingActionButton,blurFadeScreen: View, isFabRotated: Boolean): Boolean {
+    fun rotateFab(
+        mainFab: FloatingActionButton,
+        blurFadeScreen: View,
+        isFabRotated: Boolean
+    ): Boolean {
         val fromDegrees = if (isFabRotated) 45f else 0f
         val toDegrees = if (isFabRotated) 0f else 45f
         if (!isFabRotated) {
@@ -41,7 +44,12 @@ internal object CustomAnimationUtil {
         return !isFabRotated
     }
 
-    fun showFABs(groupFab: ExtendedFloatingActionButton, friendFab: ExtendedFloatingActionButton, expenseFab: ExtendedFloatingActionButton, fabScreenId: Int) {
+    fun showFABs(
+        groupFab: ExtendedFloatingActionButton,
+        friendFab: ExtendedFloatingActionButton,
+        expenseFab: ExtendedFloatingActionButton,
+        fabScreenId: Int
+    ) {
         expenseFab.visibility = View.VISIBLE
         when (fabScreenId) {
             GROUP_SCREEN_FAB -> {
@@ -62,7 +70,11 @@ internal object CustomAnimationUtil {
         }
     }
 
-    fun hideFABs(groupFab: ExtendedFloatingActionButton, friendFab: ExtendedFloatingActionButton, expenseFab: ExtendedFloatingActionButton) {
+    fun hideFABs(
+        groupFab: ExtendedFloatingActionButton,
+        friendFab: ExtendedFloatingActionButton,
+        expenseFab: ExtendedFloatingActionButton
+    ) {
         val translationY = groupFab.height.toFloat()
 
         groupFab.animate().translationY(translationY).alpha(0f).setDuration(300).start()
@@ -75,7 +87,11 @@ internal object CustomAnimationUtil {
 
 
 }
-class NumberTextWatcher(private val editText: EditText, private val buttonCallback: (Boolean) -> Unit) : TextWatcher {
+
+class NumberTextWatcher(
+    private val editText: EditText,
+    private val buttonCallback: (Boolean) -> Unit
+) : TextWatcher {
 
     private val df = DecimalFormat("#,###.##")
 
@@ -90,7 +106,7 @@ class NumberTextWatcher(private val editText: EditText, private val buttonCallba
 
         val formatted = if (input.isNotEmpty()) {
             val value = input.toDouble()
-            if(value > 0) buttonCallback(true)
+            if (value > 0) buttonCallback(true)
             else buttonCallback(false)
             df.format(value)
         } else {

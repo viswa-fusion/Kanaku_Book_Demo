@@ -13,7 +13,7 @@ data class CommonGroupWithAmount(
         parentColumn = "groupId",
         entityColumn = "userId",
         associateBy = Junction(GroupMemberCrossRef::class)
-    )val members : List<UserEntity>,
-    val give:Double,
-    val get:Double
+    ) val members: List<UserEntity>,
+    val give: Double,
+    val get: Double
 )

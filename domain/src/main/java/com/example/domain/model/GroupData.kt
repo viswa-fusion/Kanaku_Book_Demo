@@ -10,7 +10,7 @@ data class GroupData(
     val members: List<UserProfileSummary>,
     val pay: Double = 0.0,
     val get: Double = 0.0
-){
+) {
     var profile: Bitmap? = null
 }
 

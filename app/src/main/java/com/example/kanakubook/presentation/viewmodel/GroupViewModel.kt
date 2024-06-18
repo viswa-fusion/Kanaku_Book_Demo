@@ -29,7 +29,7 @@ class GroupViewModel(
 ) : ViewModel() {
 
     var isBottomSheetOpen = false
-    var groupProfileUri : Uri? = null
+    var groupProfileUri: Uri? = null
 
     private val _groupCreateResponse = MutableLiveData<PresentationLayerResponse<Boolean>>()
     val groupCreateResponse: LiveData<PresentationLayerResponse<Boolean>> = _groupCreateResponse

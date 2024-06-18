@@ -22,8 +22,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class UserListingAdapter(private val context: Context,private val callback: Callback): RecyclerView.Adapter<UserListingAdapter.MyViewHolder>() {
+class UserListingAdapter(private val context: Context, private val callback: Callback) :
+    RecyclerView.Adapter<UserListingAdapter.MyViewHolder>() {
 
+    private var adminUserId: Long? = null
     private var searchText: String = ""
 
     private val diffUtil = object :
@@ -47,9 +49,14 @@ class UserListingAdapter(private val context: Context,private val callback: Call
     private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
 
 
+    fun setGroupAdmin(adminUserId: Long?) {
+        this.adminUserId = adminUserId
+    }
+
     fun updateData(dataResponse: List<UserProfileSummary>) {
         asyncListDiffer.submitList(dataResponse)
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.search_user_list_layout_1, parent, false)
@@ -63,8 +70,10 @@ class UserListingAdapter(private val context: Context,private val callback: Call
         holder.bind(item)
     }
 
-    inner class MyViewHolder(val binding: SearchUserListLayout1Binding) : RecyclerView.ViewHolder(binding.root){
-        private var bindImageReferenceCheck : Long = -1
+    inner class MyViewHolder(val binding: SearchUserListLayout1Binding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var bindImageReferenceCheck: Long = -1
+
         init {
             binding.checkIcon.visibility = View.GONE
             binding.main.setOnClickListener {
@@ -72,15 +81,19 @@ class UserListingAdapter(private val context: Context,private val callback: Call
             }
         }
 
-        private fun resetViewHolder(){
+        private fun resetViewHolder() {
             binding.textview.text = ""
             binding.imageProfile.setImageResource(R.drawable.default_profile_image)
         }
-        fun bind(item: UserProfileSummary){
+
+        fun bind(item: UserProfileSummary) {
             resetViewHolder()
             bindImageReferenceCheck = item.userId
-
-
+            if (item.userId == adminUserId) {
+                binding.adminIndicator.visibility = View.VISIBLE
+            } else {
+                binding.adminIndicator.visibility = View.GONE
+            }
             val name = item.name.lowercase(Locale.ROOT)
             val spannable = SpannableString(name)
             val startIndex = name.indexOf(searchText)
@@ -92,7 +105,8 @@ class UserListingAdapter(private val context: Context,private val callback: Call
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                val colorSpan = ForegroundColorSpan(context.getColor(R.color.md_theme_primaryContainer_mediumContrast))
+                val colorSpan =
+                    ForegroundColorSpan(context.getColor(R.color.md_theme_primaryContainer_mediumContrast))
                 spannable.setSpan(
                     colorSpan,
                     startIndex,
@@ -103,14 +117,14 @@ class UserListingAdapter(private val context: Context,private val callback: Call
             binding.textview.text = spannable
 
 
-            if(item.profile != null){
+            if (item.profile != null) {
                 binding.imageProfile.setImageBitmap(item.profile)
-            }else {
+            } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     val bitmap = callback.getImage(item.userId)
                     item.profile = bitmap
-                    withContext(Dispatchers.Main){
-                        if(bindImageReferenceCheck  == item.userId && item.profile != null) {
+                    withContext(Dispatchers.Main) {
+                        if (bindImageReferenceCheck == item.userId && item.profile != null) {
                             binding.imageProfile.setImageBitmap(item.profile)
                         }
                     }
@@ -123,8 +137,9 @@ class UserListingAdapter(private val context: Context,private val callback: Call
         this.searchText = searchText
         notifyDataSetChanged()
     }
-    interface Callback{
-        suspend fun getImage(userId:Long):Bitmap?
+
+    interface Callback {
+        suspend fun getImage(userId: Long): Bitmap?
         fun clickListener(user: UserProfileSummary)
     }
 }

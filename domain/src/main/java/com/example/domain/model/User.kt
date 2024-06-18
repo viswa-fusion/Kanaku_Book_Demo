@@ -10,7 +10,7 @@ data class UserEntryData(
 )
 
 data class UserProfileData(
-    val userId:Long,
+    val userId: Long,
     val name: String,
     val phone: Long,
     val amountToGet: Double,
@@ -19,9 +19,9 @@ data class UserProfileData(
 
 data class UserProfileSummary(
     val userId: Long,
-    val name:String,
+    val name: String,
     val phone: Long
-){
+) {
     var profile: Bitmap? = null
     var connectionId: Long? = null
     var pay: Double = 0.0

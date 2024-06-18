@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 class SplitListAdapter(
     private val context: Context,
     private val callback: Callback
-): RecyclerView.Adapter<SplitListAdapter.SplitViewHolder>() {
+) : RecyclerView.Adapter<SplitListAdapter.SplitViewHolder>() {
 
 
     private val diffUtil = object :
@@ -43,29 +43,30 @@ class SplitListAdapter(
     private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SplitViewHolder {
-            val view = LayoutInflater.from(parent.context)
+        val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.split_user_card, parent, false)
         return SplitViewHolder(SplitUserCardBinding.bind(view))
     }
 
-    override fun getItemCount(): Int  = asyncListDiffer.currentList.size
+    override fun getItemCount(): Int = asyncListDiffer.currentList.size
 
     override fun onBindViewHolder(holder: SplitViewHolder, position: Int) {
         val item = asyncListDiffer.currentList[position]
         holder.bind(item)
     }
 
-    inner class SplitViewHolder(val binding: SplitUserCardBinding): RecyclerView.ViewHolder(binding.root){
-        private var bindImageReferenceCheck : Long = -1
+    inner class SplitViewHolder(val binding: SplitUserCardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var bindImageReferenceCheck: Long = -1
 
         init {
             binding.main.setOnClickListener {
                 val item = asyncListDiffer.currentList[absoluteAdapterPosition]
-                if(item.isSelected) {
+                if (item.isSelected) {
                     item.isSelected = false
                     binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GRAY)
                     binding.checkIcon.visibility = View.INVISIBLE
-                }else{
+                } else {
                     item.isSelected = true
                     binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GREEN)
                     binding.checkIcon.visibility = View.VISIBLE
@@ -74,64 +75,67 @@ class SplitListAdapter(
                 callback.reEvaluateAmount(cData)
             }
         }
-        private fun reSetViewHolder(){
+
+        private fun reSetViewHolder() {
             bindImageReferenceCheck = -1
             binding.textviewName.text = ""
             binding.textviewAmount.text = ""
             binding.imageProfile.setImageResource(R.drawable.default_profile_image)
         }
-        fun bind(item: SplitList){
+
+        fun bind(item: SplitList) {
             reSetViewHolder()
             bindImageReferenceCheck = item.userId
             binding.textviewName.text = item.name
             val amount = "₹${item.amount}"
             binding.textviewAmount.text = amount
-            if(item.amount.toDouble() == 0.0) {
+            if (item.amount.toDouble() == 0.0) {
                 binding.textviewAmount.setTextColor(Color.GRAY)
-            }else{
+            } else {
                 binding.textviewAmount.setTextColor(context.resources.getColor(R.color.black))
             }
-            if(item.isSelected) {
+            if (item.isSelected) {
                 binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GREEN)
                 binding.checkIcon.visibility = View.VISIBLE
 
-            }else{
+            } else {
                 binding.imageProfileOuterCircle.setCardBackgroundColor(Color.GRAY)
                 binding.checkIcon.visibility = View.INVISIBLE
             }
 
-           if(item.profile != null) {
-               binding.imageProfile.setImageBitmap(item.profile)
-           }else{
-               CoroutineScope(Dispatchers.IO).launch {
-                   val image = callback.getProfile(item.userId)
-                   item.profile = image
-                   withContext(Dispatchers.Main){
-                       if(bindImageReferenceCheck == item.userId && item.profile != null){
-                           binding.imageProfile.setImageBitmap(image)
-                       }
-                   }
-               }
-           }
+            if (item.profile != null) {
+                binding.imageProfile.setImageBitmap(item.profile)
+            } else {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val image = callback.getProfile(item.userId)
+                    item.profile = image
+                    withContext(Dispatchers.Main) {
+                        if (bindImageReferenceCheck == item.userId && item.profile != null) {
+                            binding.imageProfile.setImageBitmap(image)
+                        }
+                    }
+                }
+            }
         }
     }
 
-    fun updateList(data: List<SplitList>){
+    fun updateList(data: List<SplitList>) {
         asyncListDiffer.submitList(data)
     }
 
-    fun getCurrentList(): List<SplitList>{
+    fun getCurrentList(): List<SplitList> {
         return asyncListDiffer.currentList
     }
+
     data class SplitList(
         val userId: Long,
-        val name : String,
+        val name: String,
         var amount: String,
         var profile: Bitmap? = null,
         var isSelected: Boolean = true
     )
 
-    interface Callback{
+    interface Callback {
         suspend fun getProfile(userId: Long): Bitmap?
         fun reEvaluateAmount(listCopy: List<SplitList>)
     }

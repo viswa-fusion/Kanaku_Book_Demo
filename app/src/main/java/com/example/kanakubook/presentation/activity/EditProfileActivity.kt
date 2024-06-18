@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 
-class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
+class EditProfileActivity : AppCompatActivity(R.layout.profile_edit_activity) {
 
     private lateinit var binding: ProfileEditActivityBinding
     private val viewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
@@ -43,6 +43,7 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
             }
             isBottomSheetOpen = false
         }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initialSetUp()
@@ -51,16 +52,16 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
     }
 
     private fun setObserver() {
-        viewModel.userUpdateResponse.observe(this){
-            when(it){
+        viewModel.userUpdateResponse.observe(this) {
+            when (it) {
                 is PresentationLayerResponse.Success -> {
                     setResult(Activity.RESULT_OK)
                     finish()
-                    Toast.makeText(this, "successfully Profile edited",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "successfully Profile edited", Toast.LENGTH_SHORT).show()
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(this, "edit Profile failed try later",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "edit Profile failed try later", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -72,16 +73,15 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(!isTaskRoot)
 
-        viewModel.userId = intent.getLongExtra("userId",-1)
+        viewModel.userId = intent.getLongExtra("userId", -1)
         viewModel.name = intent.getStringExtra("name")
-        viewModel.phone = intent.getLongExtra("phone",-1)
+        viewModel.phone = intent.getLongExtra("phone", -1)
 
-        if(viewModel.profileUri != null){
+        if (viewModel.profileUri != null) {
             binding.profile.setImageURI(viewModel.profileUri)
-        }
-        else if(viewModel.profileImage != null){
+        } else if (viewModel.profileImage != null) {
             binding.profile.setImageBitmap(viewModel.profileImage)
-        }else {
+        } else {
             lifecycleScope.launch(Dispatchers.IO) {
                 val profile = viewModel.getProfile(viewModel.userId!!)
                 withContext(Dispatchers.Main) {
@@ -97,7 +97,7 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
 
     }
 
-    private fun setListener(){
+    private fun setListener() {
         binding.dateOfBirth.setOnClickListener {
             showDatePicker()
         }
@@ -113,7 +113,7 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
 
         binding.editButton.setOnClickListener {
             val name = binding.nameText.text.toString()
-            if(!checkOriginal()) {
+            if (!checkOriginal()) {
                 val nameError = validator.validateName(name)
                 if (nameError != null) {
                     binding.name.error = nameError
@@ -125,16 +125,22 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
                     binding.name.error = null
                 }
 
-                viewModel.updateUser(viewModel.userId!!,name,binding.dateOfBirth.text.toString(),viewModel.profileUri,this)
-            }else{
-                Toast.makeText(this,"no changes",Toast.LENGTH_SHORT).show()
+                viewModel.updateUser(
+                    viewModel.userId!!,
+                    name,
+                    binding.dateOfBirth.text.toString(),
+                    viewModel.profileUri,
+                    this
+                )
+            } else {
+                Toast.makeText(this, "no changes", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.nameText.addTextChangedListener {
-                val name = it.toString()
-                val nameError = validator.validateName(name)
-                binding.name.error = nameError
+            val name = it.toString()
+            val nameError = validator.validateName(name)
+            binding.name.error = nameError
         }
     }
 
@@ -145,7 +151,7 @@ class EditProfileActivity: AppCompatActivity(R.layout.profile_edit_activity) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        when(item.itemId){
+        when (item.itemId) {
             android.R.id.home -> {
                 finish()
                 return true

@@ -16,7 +16,12 @@ import com.google.android.material.search.SearchView
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: HomeScreenActivityBinding
-    private val fragment: ViewPagerFragment by lazy { ViewPagerFragment(Constants.NORMAL_LAYOUT,true) }
+    private val fragment: ViewPagerFragment by lazy {
+        ViewPagerFragment(
+            Constants.NORMAL_LAYOUT,
+            true
+        )
+    }
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,10 +32,10 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setupWithNavController(navController)
 
 
-        supportFragmentManager.commitNow{
+        supportFragmentManager.commitNow {
             replace(R.id.search_view_fragment_container, fragment)
         }
-        val searchView : SearchView = binding.homeScreenSearchView
+        val searchView: SearchView = binding.homeScreenSearchView
 
         searchView.editText.addTextChangedListener {
             filterViewPagerFragments(it.toString())

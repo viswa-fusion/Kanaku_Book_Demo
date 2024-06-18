@@ -37,7 +37,10 @@ import com.example.kanakubook.util.CustomAnimationUtil
 import com.google.android.material.imageview.ShapeableImageView
 
 
-class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, private val withoutToolbar: Boolean = false) : BaseHomeFragment(R.layout.main_screen_fragment) {
+class FriendsFragment(
+    private var layoutTag: String = Constants.NORMAL_LAYOUT,
+    private val withoutToolbar: Boolean = false
+) : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private lateinit var preferenceHelper: PreferenceHelper
     private var isFabRotated = false
@@ -45,7 +48,7 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
 
     private val FAB_STATE = "fab state"
     private val viewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
-    private val commonViewModel: CommonViewModel by activityViewModels ()
+    private val commonViewModel: CommonViewModel by activityViewModels()
     private lateinit var adapter: FriendsProfileListAdapter
 
     override fun onAttach(context: Context) {
@@ -62,19 +65,19 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
         }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("check","data: friend:oncreate")
+        Log.i("check", "data: friend:oncreate")
     }
 
     override fun onResume() {
         super.onResume()
         getFriendsList()
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             savedInstanceState.getString("layoutTag")?.let {
                 layoutTag = it
             }
@@ -88,7 +91,7 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(FAB_STATE, isFabRotated)
-        outState.putString("layoutTag",layoutTag)
+        outState.putString("layoutTag", layoutTag)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -132,8 +135,10 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
 
 
     }
+
     fun Fragment.hideKeyboard() {
-        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
@@ -163,16 +168,25 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
                     } else {
                         binding.emptyTemplate.emptyTemplate.visibility = View.GONE
                         val adapter = binding.recyclerview.adapter
-                        if(adapter is FriendsProfileListAdapter){
-                            val data = if(layoutTag != Constants.NORMAL_LAYOUT || withoutToolbar)it.data.sortedBy {u -> u.name } else it.data
+                        if (adapter is FriendsProfileListAdapter) {
+                            val data =
+                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolbar) it.data.sortedBy { u -> u.name } else it.data
                             commonViewModel.listUserData = data
-                            val filteredUsers = if(layoutTag != Constants.NORMAL_LAYOUT || withoutToolbar) {
-                                data.filter {f-> f.name.contains(commonViewModel.filterString, ignoreCase = true) }
-                            }else { data }
+                            val filteredUsers =
+                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolbar) {
+                                    data.filter { f ->
+                                        f.name.contains(
+                                            commonViewModel.filterString,
+                                            ignoreCase = true
+                                        )
+                                    }
+                                } else {
+                                    data
+                                }
                             adapter.highlightText(commonViewModel.filterString)
-                            if (filteredUsers.isEmpty()){
+                            if (filteredUsers.isEmpty()) {
                                 binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
-                            }else{
+                            } else {
                                 binding.searchNotFound.emptyTemplate.visibility = View.GONE
                                 adapter.updateData(filteredUsers)
                             }
@@ -212,14 +226,13 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
     }
 
 
-
     private fun getFriendsList() {
         if (preferenceHelper.readBooleanFromPreference(KanakuBookApplication.PREF_IS_USER_LOGIN)) {
             val userId = preferenceHelper.readLongFromPreference(KanakuBookApplication.PREF_USER_ID)
             viewModel.getMyFriends(userId)
         } else {
             val intent = Intent(requireActivity(), AppEntryPoint::class.java)
-            intent.flags  = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
     }
@@ -228,38 +241,42 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
         checkLayoutNeed()
         binding.emptyTemplate.content?.text = "You have no connection at this \n moment"
         binding.boxesContainer.visibility = View.INVISIBLE
-        adapter = FriendsProfileListAdapter(requireActivity(),object : FriendsProfileListAdapter.Callbacks{
-            override suspend fun getImage(userId: Long): Bitmap? {
-                return viewModel.getProfile(userId)
-            }
+        adapter = FriendsProfileListAdapter(requireActivity(),
+            object : FriendsProfileListAdapter.Callbacks {
+                override suspend fun getImage(userId: Long): Bitmap? {
+                    return viewModel.getProfile(userId)
+                }
 
-            override fun onClickItemListener(userProfileSummary: UserProfileSummary) {
-               when(layoutTag){
-                   Constants.NORMAL_LAYOUT ->{
-                       val intent = Intent(requireActivity(),FriendDetailPageActivity::class.java)
-                       intent.putExtra("name",userProfileSummary.name)
-                       intent.putExtra("phone",userProfileSummary.phone)
-                       intent.putExtra("userId",userProfileSummary.userId)
-                       intent.putExtra("connectionId",userProfileSummary.connectionId)
+                override fun onClickItemListener(userProfileSummary: UserProfileSummary) {
+                    when (layoutTag) {
+                        Constants.NORMAL_LAYOUT -> {
+                            val intent =
+                                Intent(requireActivity(), FriendDetailPageActivity::class.java)
+                            intent.putExtra("name", userProfileSummary.name)
+                            intent.putExtra("phone", userProfileSummary.phone)
+                            intent.putExtra("userId", userProfileSummary.userId)
+                            intent.putExtra("connectionId", userProfileSummary.connectionId)
 
-                       startActivity(intent)
-                   }
-                   Constants.FOR_TAB_LAYOUT ->{
-                       showLoading()
-                       commonViewModel.selectSplitWithListener.value = CommonViewModel.SelectionData(
-                           listOf(getLoggedUserId(),userProfileSummary.userId),
-                           userProfileSummary.connectionId!!,
-                           true
-                       )
-                   }
-               }
-            }
+                            startActivity(intent)
+                        }
+
+                        Constants.FOR_TAB_LAYOUT -> {
+                            showLoading()
+                            commonViewModel.selectSplitWithListener.value =
+                                CommonViewModel.SelectionData(
+                                    listOf(getLoggedUserId(), userProfileSummary.userId),
+                                    userProfileSummary.connectionId!!,
+                                    true
+                                )
+                        }
+                    }
+                }
 
 
-            override fun clickImage(drawable: Drawable?) {
-               showEnlargedImage(drawable)
-            }
-        })
+                override fun clickImage(drawable: Drawable?) {
+                    showEnlargedImage(drawable)
+                }
+            })
         binding.recyclerview.adapter = adapter
         binding.recyclerview.layoutManager = LinearLayoutManager(requireActivity())
     }
@@ -286,17 +303,19 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
         if (!isAdded || activity == null) {
             return
         }
-        val filteredFriends = commonViewModel.listUserData.filter { it.name.contains(query, ignoreCase = true) }
+        val filteredFriends =
+            commonViewModel.listUserData.filter { it.name.contains(query, ignoreCase = true) }
 
-        if (filteredFriends.isEmpty()){
+        if (filteredFriends.isEmpty()) {
             binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.searchNotFound.emptyTemplate.visibility = View.GONE
             adapter.highlightText(query)
             adapter.updateData(filteredFriends)
         }
 
     }
+
     private fun showLoading() {
         binding.loadingScreen.loadingScreen.visibility = View.VISIBLE
     }
@@ -306,12 +325,12 @@ class FriendsFragment(private var layoutTag: String = Constants.NORMAL_LAYOUT, p
     }
 
     private fun checkLayoutNeed() {
-        if(layoutTag == Constants.FOR_TAB_LAYOUT){
+        if (layoutTag == Constants.FOR_TAB_LAYOUT) {
             binding.createFab.visibility = View.GONE
             binding.appbar.visibility = View.GONE
         }
 
-        if(withoutToolbar){
+        if (withoutToolbar) {
             binding.appbar.visibility = View.GONE
         }
     }

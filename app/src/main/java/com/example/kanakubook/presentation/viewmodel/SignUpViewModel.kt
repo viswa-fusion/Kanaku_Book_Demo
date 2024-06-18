@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class SignUpViewModel (
+class SignUpViewModel(
     private val signUpUseCase: SignUpUseCase
 ) : ViewModel() {
 
@@ -25,23 +25,23 @@ class SignUpViewModel (
     fun signUp(name: String, phone: Long, dob: String?, password: String, repeatPassword: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val value = signUpUseCase.addUser(name, phone, dob, password, repeatPassword)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 _userId.value = value
             }
-
         }
     }
 
-    companion object{
-        val FACTORY = object : ViewModelProvider.Factory{
+    companion object {
+        val FACTORY = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
 
                 val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                val applicationDataInjection = application!!.applicationContext as KanakuBookApplication
+                val applicationDataInjection =
+                    application!!.applicationContext as KanakuBookApplication
                 val loginUseCase = applicationDataInjection.signUpUseCase
 
-                return SignUpViewModel(loginUseCase)as T
+                return SignUpViewModel(loginUseCase) as T
             }
         }
     }

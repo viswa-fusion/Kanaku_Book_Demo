@@ -1,6 +1,6 @@
 package com.example.domain.repository.response
 
-enum class DataLayerErrorCode(val code:Int) {
+enum class DataLayerErrorCode(val code: Int) {
     NOT_FOUND(404),
     FORBIDDEN(403),
     OPERATION_FAILED(402),

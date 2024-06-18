@@ -40,9 +40,9 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var preferenceHelper: PreferenceHelper
     private val viewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private lateinit var name: String
-    private var phone : Long = -1
+    private var phone: Long = -1
     private var isBottomSheetOpen = false
-    private var profileUri : Uri? = null
+    private var profileUri: Uri? = null
     private val PROFILE_URI_KEY = "person profile"
     private var startX: Float = 0f
     private var originalX: Float = 0f
@@ -56,8 +56,11 @@ class ProfileActivity : AppCompatActivity() {
                     profileUri = selectedImageUri
                     binding.profile.setImageURI(selectedImageUri)
                     lifecycleScope.launch(Dispatchers.IO) {
-                    val bitmap = ImageConversionHelper.loadBitmapFromUri(this@ProfileActivity,profileUri!!)
-                    bitmap?.let { viewModel.addProfile(getLoggedUserId(),bitmap)}
+                        val bitmap = ImageConversionHelper.loadBitmapFromUri(
+                            this@ProfileActivity,
+                            profileUri!!
+                        )
+                        bitmap?.let { viewModel.addProfile(getLoggedUserId(), bitmap) }
                     }
                 }
             }
@@ -76,12 +79,11 @@ class ProfileActivity : AppCompatActivity() {
         val phoneFormat = if (phone != -1L) "+91 $phone" else "- empty -"
         binding.phone.text = phoneFormat
 
-        if(profileUri != null){
+        if (profileUri != null) {
             binding.profile.setImageURI(profileUri)
-        }
-        else if(viewModel.profileImage != null){
+        } else if (viewModel.profileImage != null) {
             binding.profile.setImageBitmap(viewModel.profileImage)
-        }else {
+        } else {
             lifecycleScope.launch(Dispatchers.IO) {
                 val profile = viewModel.getProfile(getLoggedUserId())
                 withContext(Dispatchers.Main) {
@@ -125,7 +127,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun setListener() {
 
         binding.logoutButton.setOnClickListener {
-            Toast.makeText(this,"Swipe to logout",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Swipe to logout", Toast.LENGTH_SHORT).show()
         }
 
         val logoutIcon = binding.iconCard
@@ -139,18 +141,20 @@ class ProfileActivity : AppCompatActivity() {
                     startX = event.rawX - view.translationX
                     true
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     val endBoundary = binding.linearLayout.right.toFloat() - 16
 
                     val thresholds = endBoundary - (logoutIcon.width + 16)
                     val newX = event.rawX - startX
 
-                    if (newX >= thresholds) return@setOnTouchListener false
+                    if (newX >= thresholds || newX < 0) return@setOnTouchListener false
                     view.translationX = newX
                     val alpha = 1 - (newX / thresholds) + 0.2f
                     binding.linearLayout.alpha = alpha.coerceIn(0f, 1f)
                     true
                 }
+
                 MotionEvent.ACTION_UP -> {
                     val endBoundary = binding.linearLayout.right.toFloat() - 16
                     val threshold = endBoundary - logoutIcon.width + 16 / 2
@@ -164,6 +168,7 @@ class ProfileActivity : AppCompatActivity() {
                     }
                     true
                 }
+
                 else -> false
             }
         }
@@ -216,7 +221,7 @@ class ProfileActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun showLogoutDialog() : AlertDialog{
+    private fun showLogoutDialog(): AlertDialog {
         val dialogView = layoutInflater.inflate(R.layout.logout_confirmation_dialog, null)
         val binding = LogoutConfirmationDialogBinding.bind(dialogView)
         val builder = AlertDialog.Builder(this)
@@ -226,7 +231,7 @@ class ProfileActivity : AppCompatActivity() {
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         binding.cancelButton.setOnClickListener {
             alertDialog.dismiss()
-                this.binding.iconCard.animate()?.translationX(0f)
+            this.binding.iconCard.animate()?.translationX(0f)
             this.binding.linearLayout.alpha = 1f
         }
         binding.yesButton.setOnClickListener {
