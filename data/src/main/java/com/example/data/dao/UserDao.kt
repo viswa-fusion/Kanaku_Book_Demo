@@ -11,8 +11,8 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUser(user: UserEntity): Long
 
-    @Update
-    suspend fun updateUser(user: UserEntity): Int
+    @Query("UPDATE users SET name = CASE WHEN :username IS NOT NULL THEN :username ELSE name END, dateOfBirth = CASE WHEN :dob IS NOT NULL THEN :dob ELSE dateOfBirth END WHERE userId = :userId")
+    suspend fun updateUser(userId: Long,username:String?,dob:Long?)
 
     @Delete
     suspend fun deleteUser(user: UserEntity): Int
@@ -38,7 +38,7 @@ interface UserDao {
     suspend fun getUserIdByPhone(phone: Long): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFriendsConnection(connection: FriendsConnectionCrossRef)
+    suspend fun insertFriendsConnection(connection: FriendsConnectionCrossRef) :Long
 
     @Query("SELECT * FROM users WHERE userId IN (SELECT user2Id FROM FriendsConnectionCrossRef WHERE user1Id = :userId) OR userId IN(SELECT user1Id FROM FriendsConnectionCrossRef WHERE user2Id = :userId)")
     suspend fun getFriendsOfUser(userId: Long): List<UserEntity>

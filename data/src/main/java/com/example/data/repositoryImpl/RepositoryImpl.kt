@@ -84,6 +84,14 @@ class RepositoryImpl(
 
     }
 
+    override suspend fun getGroupByGroupId(groupId: Long): DataLayerResponse<GroupData> {
+        return try{
+            DataLayerResponse.Success(groupDao.getGroupByGroupId(groupId).toGroupData())
+        }catch (e:Exception){
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+        }
+    }
+
     override suspend fun getCommonGroupsWithCalculatedBalance(
         userId: Long,
         friendId: Long

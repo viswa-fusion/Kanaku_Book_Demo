@@ -10,7 +10,7 @@ import com.example.data.crossreference.GroupMemberCrossRef
 import com.example.data.entity.GroupEntity
 import com.example.data.relation.CommonGroupWithAmount
 import com.example.data.relation.GroupWithMembers
-import com.example.data.relation.GroupWithMembers1
+import com.example.data.relation.GroupWithMembersOnly
 
 @Dao
 interface GroupDao {
@@ -22,6 +22,10 @@ interface GroupDao {
 
     @Query("SELECT * FROM groups WHERE groupId = :groupId")
     suspend fun getGroupEntity(groupId: Long): GroupEntity
+    @Query("SELECT * FROM groups WHERE groupId = :groupId")
+    suspend fun getGroupByGroupId(groupId: Long): GroupWithMembersOnly
+
+
 
 @Transaction
 @Query("""

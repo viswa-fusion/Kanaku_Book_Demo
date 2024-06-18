@@ -3,6 +3,7 @@ package com.example.domain.helper
 
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -29,6 +30,18 @@ object DateTimeHelper {
         } catch (e: Exception) {
             null
         }
+    }
+
+
+    fun dateStringToMillis(dateString: String): Long? {
+        try {
+            val formatter = SimpleDateFormat("d/M/yyyy")
+            val date = formatter.parse(dateString)
+            return date?.time
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 
 }

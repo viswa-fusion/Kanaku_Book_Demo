@@ -12,6 +12,7 @@ import com.example.data.relation.GroupWithMembers
 import com.example.data.entity.UserEntity
 import com.example.data.relation.ActivityRelation
 import com.example.data.relation.CommonGroupWithAmount
+import com.example.data.relation.GroupWithMembersOnly
 import com.example.domain.model.ActivityModel
 import com.example.domain.model.ActivityModelEntry
 import com.example.domain.model.CommonGroupWIthAmountData
@@ -26,7 +27,8 @@ internal fun UserEntryData.toUserEntity(password: String = "fakePassword"): User
     return UserEntity(
         this.name,
         this.phone,
-        password
+        password,
+        this.dateOfBirth
     )
 }
 
@@ -62,6 +64,17 @@ internal fun GroupWithMembers.toGroupSummery(profilePhotoFilePath: String): Grou
         this.group.groupName,
         this.group.createdBy,
         this.group.lastActive
+    )
+}
+internal fun GroupWithMembersOnly.toGroupData():GroupData{
+    return GroupData(
+        this.group.groupId,
+        this.group.groupName,
+        this.group.createdBy,
+        this.group.lastActive,
+        this.members.map {
+            it.toUserProfileSummery()
+        }
     )
 }
 
@@ -166,7 +179,8 @@ internal fun ActivityModelEntry.toActivityEntity(): ActivityEntity{
         this.details,
         this.friendId,
         this.groupId,
-        this.expenseId
+        this.expenseId,
+        this.connectionId
     )
 }
 
@@ -181,7 +195,8 @@ internal fun ActivityRelation.toActivityModelEntry(spenderData: UserProfileSumma
         this.activity.details,
         this.friend?.toUserProfileSummery(),
         groupEntity?.toGroupSummery(),
-        this.expense?.toExpenseData(spenderData!!,listOfSplit!!)
+        this.expense?.toExpenseData(spenderData!!,listOfSplit!!),
+        this.activity.connectionId
     )
 }
 

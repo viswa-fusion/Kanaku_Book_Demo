@@ -5,7 +5,8 @@ import android.graphics.Bitmap
 data class UserEntryData(
     val name: String,
     val phone: Long,
-    val password: String
+    val password: String,
+    val dateOfBirth: Long?
 )
 
 data class UserProfileData(

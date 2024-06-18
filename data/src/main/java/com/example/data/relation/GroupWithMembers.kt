@@ -14,16 +14,15 @@ data class GroupWithMembers(
         entityColumn = "userId",
         associateBy = Junction(GroupMemberCrossRef::class)
     )val members : List<UserEntity>,
-    val pay: Double,
-    val get: Double
+    val pay: Double = 0.0,
+    val get: Double = 0.0
 )
-data class GroupWithMembers1(
+
+data class GroupWithMembersOnly(
     @Embedded val group : GroupEntity,
     @Relation(
         parentColumn = "groupId",
         entityColumn = "userId",
         associateBy = Junction(GroupMemberCrossRef::class)
-    )val members : List<UserEntity>,
-    val pay: Double,
-    val get: Double
+    )val members : List<UserEntity>
 )

@@ -46,11 +46,12 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun updateUser(userEntryData: UserEntryData): DataLayerResponse<Boolean> {
-        val userEntity = userEntryData.toUserEntity()
-        return userDao.updateUser(userEntity).run {
-            if (this > 0) DataLayerResponse.Success(true)
-            else DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
+    override suspend fun updateUser(userId: Long,username:String?,dob:Long?): DataLayerResponse<Boolean> {
+        return try{
+            userDao.updateUser(userId, username, dob)
+            DataLayerResponse.Success(true)
+        }catch (e:Exception){
+            DataLayerResponse.Error(DataLayerErrorCode.OPERATION_FAILED)
         }
     }
 
@@ -83,13 +84,12 @@ class UserRepositoryImpl(
         userId: Long,
         friendId: Long,
         timestamp: Long
-    ): DataLayerResponse<Boolean> {
+    ): DataLayerResponse<Long> {
         val friendsConnectionCrossRefMe = FriendsConnectionCrossRef(userId, friendId, timestamp)
 
+        val result = userDao.insertFriendsConnection(friendsConnectionCrossRefMe)
 
-        userDao.insertFriendsConnection(friendsConnectionCrossRefMe)
-
-        return DataLayerResponse.Success(true)
+        return DataLayerResponse.Success(result)
     }
 
     override suspend fun getFriendsOfUser(userId: Long): DataLayerResponse<List<UserProfileSummary>> {

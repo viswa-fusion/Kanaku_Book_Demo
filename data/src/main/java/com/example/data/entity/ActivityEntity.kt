@@ -2,6 +2,7 @@ package com.example.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.data.relation.FriendsWithConnectionId
 import com.example.domain.Converters.ActivityType
 
 @Entity(tableName = "activity")
@@ -13,6 +14,7 @@ data class ActivityEntity(
     val friendId: Long? = null,
     val groupId: Long? = null,
     val expenseId: Long? = null,
+    val connectionId: Long? = null,
 
     @PrimaryKey(autoGenerate = true)
     val activityId: Long = 0,

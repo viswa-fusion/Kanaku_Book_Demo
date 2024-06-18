@@ -10,6 +10,7 @@ data class UserEntity(
     val name: String,
     val phone: Long,
     val password: String,
+    val dateOfBirth: Long?,
     val amountToGet: Double = 0.0,
     val amountToGive: Double = 0.0,
 ){

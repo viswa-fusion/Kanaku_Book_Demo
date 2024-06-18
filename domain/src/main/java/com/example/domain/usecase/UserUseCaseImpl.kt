@@ -34,6 +34,7 @@ class UserUseCaseImpl(
     override suspend fun addUser(
         name: String,
         phone: Long,
+        dob:String?,
         password: String,
         repeatPassword: String
     ): PresentationLayerResponse<Long> {
@@ -41,7 +42,8 @@ class UserUseCaseImpl(
         val userEntryData = UserEntryData(
             name,
             phone,
-            password
+            password,
+            dob?.let {DateTimeHelper.dateStringToMillis(dob)}
         )
         return when(val checkValid = userInfoRepo.checkPhoneNumberExist(phone)){
             is DataLayerResponse.Success -> {
@@ -104,7 +106,7 @@ class UserUseCaseImpl(
             }
 
             is ImageDirectoryType.Group -> {
-                when (val result = groupRepo.saveProfileImage(imageDirectoryType.groupId, image)) {
+                when (val result = groupRepo.saveProfileImage(CryptoHelper.decrypt(imageDirectoryType.groupId), image)) {
                     is DataLayerResponse.Success -> PresentationLayerResponse.Success(result.data)
                     is DataLayerResponse.Error -> PresentationLayerResponse.Error(result.errorCode.toString())
                 }
@@ -148,7 +150,8 @@ class UserUseCaseImpl(
                             ActivityType.ADD_FRIEND,
                             DateTimeHelper.getCurrentTime(),
                             null,
-                            friendId = friendUserId.data
+                            friendId = friendUserId.data,
+                            connectionId = result.data
                         )
                         when(val activityResult = activityRepo.insertActivity(activity)){
                             is DataLayerResponse.Success -> PresentationLayerResponse.Success(true)
@@ -180,6 +183,26 @@ class UserUseCaseImpl(
             is DataLayerResponse.Error -> PresentationLayerResponse.Error(listOfUsers.errorCode.toString())
 
         }
+    }
+
+    override suspend fun updateUser(
+        userId: Long,
+        userName: String?,
+        dob: String?,
+        profile: Bitmap?
+    ): PresentationLayerResponse<Boolean> {
+        return try{
+            val decryptUserId = CryptoHelper.decrypt(userId)
+            profile?.let { userProfile.saveUserProfileImage(decryptUserId, profile) }
+            userName?.let {
+                val dateOfBirth = dob?.let { it1 -> DateTimeHelper.dateStringToMillis(it1) }
+                userInfoRepo.updateUser(decryptUserId, userName, dateOfBirth)
+            }
+            PresentationLayerResponse.Success(true)
+        }catch (e:Exception){
+            PresentationLayerResponse.Error("edit profile failed")
+        }
+
     }
 
     override suspend fun getUserById(userId: Long): PresentationLayerResponse<UserProfileSummary> {
@@ -233,7 +256,8 @@ class UserUseCaseImpl(
                                    splitUserId = CryptoHelper.encrypt(list.splitUserId)
                                )
                            }
-                       ) }
+                       ) },
+                       connectionId = it.connectionId?.let {_-> CryptoHelper.encrypt(it.connectionId)}
                    )
                }
                PresentationLayerResponse.Success(encryptData)

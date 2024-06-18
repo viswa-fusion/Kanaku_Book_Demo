@@ -7,16 +7,16 @@ import com.example.domain.helper.DateTimeHelper
 import com.example.domain.model.ActivityModelEntry
 import com.example.domain.model.GroupData
 import com.example.domain.model.GroupEntry
+import com.example.domain.repository.GroupRepository
 import com.example.domain.repository.response.ActivityRepository
 import com.example.domain.repository.response.DataLayerResponse
-import com.example.domain.usecase.delegate.GroupRepositoryFunctionProviderDelegate
 import com.example.domain.usecase.response.PresentationLayerResponse
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
 class GroupUseCaseImpl(
-    private val repo: GroupRepositoryFunctionProviderDelegate,
+    private val repo: GroupRepository.Info,
     private val activityRepo: ActivityRepository
     ) :
     UserUseCase.GroupUseCase {
@@ -38,6 +38,25 @@ class GroupUseCaseImpl(
             }
             is DataLayerResponse.Error -> PresentationLayerResponse.Error("Authentication Failed")
         }
+    }
+
+    override suspend fun getGroupByGroupId(groupId: Long): PresentationLayerResponse<GroupData> {
+       return when( val result = repo.getGroupByGroupId(CryptoHelper.decrypt(groupId))){
+           is DataLayerResponse.Success ->{
+               PresentationLayerResponse.Success(result.data.copy(
+                   id = CryptoHelper.encrypt(result.data.id),
+                   members = result.data.members.map {
+                       it.copy(
+                           userId = CryptoHelper.encrypt(it.userId)
+                       )
+                   }
+               ))
+           }
+
+           is DataLayerResponse.Error -> {
+               PresentationLayerResponse.Error(result.errorCode.toString())
+           }
+       }
     }
 
     override suspend fun addMembers(

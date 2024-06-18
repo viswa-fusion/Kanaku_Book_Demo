@@ -6,7 +6,6 @@ enum class ActivityType {
     ADD_FRIEND,
     CREATE_GROUP,
     ADD_EXPENSE,
-    EDIT_PROFILE,
     ADD_MEMBER_TO_GROUP,
     PAY_FOR_EXPENSE,
     SPLIT_MEMBER_PAY;

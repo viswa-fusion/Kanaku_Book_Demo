@@ -113,10 +113,13 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent">
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/fade_black"
             android:orientation="horizontal">
         <androidx.cardview.widget.CardView
+            android:id="@+id/iconCard"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="8dp"

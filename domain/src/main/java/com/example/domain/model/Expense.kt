@@ -1,14 +1,5 @@
 package com.example.domain.model
 
-//data class OneOnOneExpense(
-//    val id: Long,
-//    val sender: UserData,
-//    val receiver: UserData,
-//    val amount: Double,
-//    val date: Long,
-//    val note: String,
-//    val title: String
-//)
 
 data class ExpenseEntry(
     val spenderId: Long,

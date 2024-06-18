@@ -7,17 +7,17 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.kanakubook.pre.fragment.GroupFragment"
+        android:name="com.example.kanakubook.presentation.fragment.GroupFragment"
         android:label="HomeFragment"
         tools:layout="@layout/main_screen_fragment"/>
     <fragment
         android:id="@+id/navigation_friends"
-        android:name="com.example.kanakubook.pre.fragment.FriendsFragment"
+        android:name="com.example.kanakubook.presentation.fragment.FriendsFragment"
         android:label="FriendsScreenFragment"
         tools:layout="@layout/main_screen_fragment"/>
     <fragment
         android:id="@+id/navigation_activity"
-        android:name="com.example.kanakubook.pre.fragment.ActivityFragment"
+        android:name="com.example.kanakubook.presentation.fragment.ActivityFragment"
         android:label="ActivityScreenFragment"
         tools:layout="@layout/login_screen_fragment"/>
 </navigation>

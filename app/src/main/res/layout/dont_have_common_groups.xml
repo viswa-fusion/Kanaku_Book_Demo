@@ -11,7 +11,7 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/shapeableImageView"
-        android:layout_width="280dp"
+        android:layout_width="250dp"
         android:layout_height="280dp"
         android:padding="-20dp"
         android:src="@drawable/not_in_same_community"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_large"
         android:text="Not connected in groups"
-        android:textSize="16pt"
+        android:textSize="13pt"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

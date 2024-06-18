@@ -16,11 +16,11 @@ interface UserRepository {
 
     interface Info{
         suspend fun insertUser(userEntryData: UserEntryData, password: String): DataLayerResponse<Long>
-        suspend fun updateUser(userEntryData: UserEntryData): DataLayerResponse<Boolean>
+        suspend fun updateUser(userId: Long,username:String?,dob:Long?): DataLayerResponse<Boolean>
         suspend fun getUser(userId: Long): DataLayerResponse<UserProfileSummary>
         suspend fun deleteUser(userEntryData: UserEntryData): DataLayerResponse<Boolean>
         suspend fun getUserIdByPhone(phone: Long): DataLayerResponse<Long>
-        suspend fun addFriend(userId: Long, friendId: Long, timestamp: Long): DataLayerResponse<Boolean>
+        suspend fun addFriend(userId: Long, friendId: Long, timestamp: Long): DataLayerResponse<Long>
         suspend fun getFriendsOfUser(userId: Long): DataLayerResponse<List<UserProfileSummary>>
         suspend fun checkPhoneNumberExist(phone: Long): DataLayerResponse<Boolean>
         suspend fun getUserProfileSummeryByUserId(userId: Long): DataLayerResponse<UserProfileSummary>

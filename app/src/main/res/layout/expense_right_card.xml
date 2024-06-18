@@ -16,6 +16,7 @@
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
             android:minHeight="200dp"
+            android:layout_marginEnd="@dimen/spacing_medium"
             app:cardBackgroundColor="@color/card_background"
             app:cardCornerRadius="25dp"
             app:layout_constraintBottom_toBottomOf="parent"

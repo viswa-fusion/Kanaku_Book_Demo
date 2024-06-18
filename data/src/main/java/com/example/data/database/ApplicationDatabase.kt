@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.crossreference.ExpenseCrossRef
 import com.example.data.dao.ExpenseDao
 import com.example.data.crossreference.FriendsConnectionCrossRef
@@ -21,7 +22,8 @@ import com.example.domain.Converters.Converters
 import com.example.data.crossreference.SplitExpenseCrossRef
 import com.example.data.dao.ActivityDao
 import com.example.data.entity.ActivityEntity
-
+import java.io.BufferedReader
+import java.io.InputStreamReader
 @Database(
     entities = [
         UserEntity::class,
@@ -44,21 +46,26 @@ abstract class ApplicationDatabase : RoomDatabase() {
     abstract fun getMySplitDao(): SplitDao
     abstract fun getMyActivityDao(): ActivityDao
 
-
     companion object {
+        @Volatile
         private var INSTANCE: ApplicationDatabase? = null
+
         fun getDatabase(context: Context): ApplicationDatabase {
-            return if (INSTANCE == null) {
-                val builder = Room.databaseBuilder(
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ApplicationDatabase::class.java,
                     "kanaku_note_database"
                 )
-                builder.fallbackToDestructiveMigration()
-                builder.build()
-            } else {
-                INSTANCE!!
+                    .fallbackToDestructiveMigration()
+//                    .createFromAsset("kanaku_note_database.db")
+                    .build()
+
+                INSTANCE = instance
+                instance
             }
         }
     }
 }
+
+

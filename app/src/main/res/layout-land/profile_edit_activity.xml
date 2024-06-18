@@ -82,7 +82,7 @@
                     android:id="@+id/name_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone"
+                    android:inputType="textPersonName"
                     android:paddingVertical="20dp"
                     android:paddingStart="50dp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -95,10 +95,14 @@
                 android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:hint="@string/phone_number"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/baseline_lock_outline_24"
                 app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
                 app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
                 app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
                 app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
+                android:clickable="false"
+                android:focusable="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/name"
@@ -109,10 +113,10 @@
                     android:id="@+id/phone_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="true"
+                    android:clickable="false"
                     android:clipToOutline="true"
+                    android:enabled="false"
                     android:focusable="false"
-                    android:foreground="@color/fade_black"
                     android:inputType="none"
                     android:paddingVertical="20dp"
                     android:paddingStart="50dp" />
@@ -141,6 +145,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
+                    android:longClickable="false"
                     android:focusable="false"
                     android:inputType="none"
                     android:paddingVertical="20dp"
@@ -148,62 +153,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/old_password_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:hint="@string/old_password"
-                app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
-                app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
-                app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
-                app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
-                app:endIconMode="password_toggle"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layout_date_of_birth"
-                app:startIconDrawable="@drawable/key_24px"
-                tools:layout_editor_absoluteX="24dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:paddingVertical="20dp"
-                    android:paddingStart="50dp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/new_password_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/spacing_extra_large_plus_spacing_medium"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:hint="@string/new_password"
-                app:boxCornerRadiusBottomEnd="@dimen/spacing_extra_large"
-                app:boxCornerRadiusBottomStart="@dimen/spacing_extra_large"
-                app:boxCornerRadiusTopEnd="@dimen/spacing_extra_large"
-                app:boxCornerRadiusTopStart="@dimen/spacing_extra_large"
-                app:endIconMode="password_toggle"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/old_password_layout"
-                app:startIconDrawable="@drawable/key_24px"
-                tools:layout_editor_absoluteX="24dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:paddingVertical="20dp"
-                    android:paddingStart="50dp" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/edit_button"
@@ -219,7 +168,7 @@
                 android:textSize="@dimen/text_size_medium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/new_password_layout" />
+                app:layout_constraintTop_toBottomOf="@id/layout_date_of_birth" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

@@ -98,12 +98,13 @@
         android:id="@+id/logout_Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="40dp"
+        android:layout_marginVertical="40dp"
         android:clickable="true"
         android:elevation="0dp"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
+        android:layout_marginHorizontal="80dp"
         android:outlineAmbientShadowColor="@color/transparent"
         android:outlineSpotShadowColor="@color/transparent"
         app:cardBackgroundColor="@color/transparent"
@@ -113,12 +114,14 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:background="@color/fade_black"
             android:orientation="horizontal">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/iconCard"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_margin="8dp"

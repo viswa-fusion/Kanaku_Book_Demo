@@ -36,17 +36,6 @@ class PreferenceHelper(private val context: Context) {
         return sharedPreferences!!.getBoolean(key, false)
     }
 
-    fun writeStringToPreference(key: String?, value: String) {
-        sharedPreference()
-        sharedPreferences!!.edit {
-            putString(key, value)
-        }
-    }
-
-    fun readStringFromPreference(key: String?): String {
-        sharedPreference()
-        return sharedPreferences!!.getString(key, "").toString()
-    }
 
     fun readLongFromPreference(key: String?): Long {
         sharedPreference()

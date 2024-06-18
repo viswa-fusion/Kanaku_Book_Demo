@@ -35,6 +35,10 @@
         android:layout_height="120dp"
         android:layout_marginTop="@dimen/spacing_large"
         android:scaleType="centerCrop"
+        android:clickable="true"
+        android:focusable="true"
+        android:clipToOutline="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:src="@drawable/default_group_profile12"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,6 +46,7 @@
         app:shapeAppearanceOverlay="@style/roundedShape" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/edit_icon"
         android:layout_width="30dp"
         android:layout_height="0dp"
         android:layout_margin="3dp"
@@ -51,7 +56,6 @@
         app:layout_constraintEnd_toEndOf="@id/profile">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/edit_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="2dp"

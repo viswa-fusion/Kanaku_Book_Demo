@@ -182,7 +182,8 @@ class SplitExpenseUseCaseImpl(
                     ActivityType.ADD_EXPENSE,
                     DateTimeHelper.getCurrentTime(),
                     null,
-                    friendId = friendId
+                    friendId = friendId,
+                    connectionId = CryptoHelper.decrypt(connectionId)
                 )
                 coroutineScope {
                     launch { activityRepository.insertActivity(activity) }

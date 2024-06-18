@@ -27,13 +27,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:nestedScrollingEnabled="true">
-
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/searchViewLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/spacing_medium"
+    app:hintEnabled="false"
+    android:layout_marginBottom="@dimen/spacing_medium"
+    app:endIconMode="clear_text"
+    android:layout_toStartOf="@id/shapeableImageView3">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/spacing_medium"
-            android:layout_marginBottom="@dimen/spacing_medium"
             android:background="@drawable/search_background"
             android:drawableStart="@drawable/search_background"
             android:drawablePadding="8dp"
@@ -46,42 +52,26 @@
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:textColor="@color/hint_enhance_black"
-            android:layout_toStartOf="@id/shapeableImageView3"/>
-<androidx.cardview.widget.CardView
-    android:id="@+id/shapeableImageView3"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:focusable="true"
-    android:visibility="gone"
-    app:cardCornerRadius="50dp"
-    android:elevation="0dp"
-    android:layout_marginEnd="@dimen/spacing_small"
-    android:layout_alignParentEnd="true"
-    android:foreground="?android:attr/selectableItemBackground">
-<!--        <com.google.android.material.imageview.ShapeableImageView-->
-<!--            android:layout_width="30dp"-->
-<!--            android:layout_height="30dp"-->
-<!--            android:layout_margin="3dp"-->
-<!--            android:src="@drawable/check_24px"-->
-<!--            />-->
+           />
+</com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.button.MaterialButton
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:clickable="false"
-            android:focusable="false"
-            android:paddingHorizontal="2dp"
-            android:backgroundTint="@color/transparent"
-            android:textSize="@dimen/text_size_medium"
+            android:id="@+id/shapeableImageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_small"
             android:text="Done"
-            android:src="@drawable/check_24px"
+            style="@style/Widget.Material3.Button"
+            android:enabled="false"
+            android:visibility="gone"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:layout_alignParentEnd="true"
             />
-</androidx.cardview.widget.CardView>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/horizontalRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/searchView"
+            android:layout_below="@id/searchViewLayout"
             android:splitMotionEvents="false" />
 
         <com.google.android.material.textview.MaterialTextView
