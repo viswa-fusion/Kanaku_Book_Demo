@@ -19,9 +19,13 @@ import com.example.kanakubook.presentation.activity.FriendDetailPageActivity
 import com.example.kanakubook.presentation.activity.GroupDetailPageActivity
 import com.example.kanakubook.presentation.adapter.ActivityListingAdapter
 import com.example.kanakubook.presentation.viewmodel.ActivityViewModel
+import com.example.kanakubook.presentation.viewmodel.CommonViewModel
 import com.example.kanakubook.presentation.viewmodel.FriendsViewModel
 import com.example.kanakubook.presentation.viewmodel.GroupViewModel
 import com.example.kanakubook.util.CustomDividerItemDecoration
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.search.SearchView
 import java.util.ArrayList
 
 class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
@@ -30,6 +34,8 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
     private val friendViewModel: FriendsViewModel by viewModels { FriendsViewModel.FACTORY }
     private val groupViewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
     private val activityViewModel: ActivityViewModel by viewModels { ActivityViewModel.FACTORY }
+    private val commonViewModel: CommonViewModel by viewModels()
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -137,6 +143,7 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                 }
             }
 
+
             fun launchGroup(activity: ActivityModel) {
 
                 if (activity.group != null) {
@@ -192,10 +199,34 @@ class ActivityFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
         binding.loadingScreen.loadingScreen.visibility = View.GONE
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if(commonViewModel.isVisible){
+            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                View.GONE
+        }
+    }
     private fun initialSetUp() {
         binding.emptyTemplate.content?.text = "You have no activitys at this \n moment"
         binding.createFab.visibility = View.GONE
         binding.boxesContainer.visibility = View.GONE
+
+
+
+        binding.homeScreenSearchView1.addTransitionListener { searchView, previousState, newState ->
+            if (newState == SearchView.TransitionState.SHOWING) {
+                commonViewModel.isVisible = true
+                activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                    View.GONE
+
+            }
+            if (newState == SearchView.TransitionState.HIDING) {
+                commonViewModel.isVisible = false
+                activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                    View.VISIBLE
+
+            }
+        }
     }
 
 }

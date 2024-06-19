@@ -5,7 +5,12 @@
     android:id="@+id/enlarged_image_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+<androidx.cardview.widget.CardView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="50dp"
+    app:layout_constraintBottom_toTopOf="@id/enlarged_image"
+    app:layout_constraintEnd_toEndOf="@id/enlarged_image">
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/close"
         android:layout_width="wrap_content"
@@ -16,8 +21,8 @@
         android:clipToOutline="true"
         android:foreground="?android:attr/selectableItemBackground"
         app:shapeAppearanceOverlay="@style/roundedShape"
-        app:layout_constraintBottom_toTopOf="@id/enlarged_image"
-        app:layout_constraintEnd_toEndOf="@id/enlarged_image"/>
+        />
+</androidx.cardview.widget.CardView>
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/enlarged_image"
         android:layout_width="400dp"

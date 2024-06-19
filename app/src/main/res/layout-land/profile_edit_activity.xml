@@ -162,7 +162,7 @@
                 android:backgroundTint="@color/md_theme_surfaceVariant_mediumContrast"
                 android:paddingHorizontal="70dp"
                 android:paddingVertical="@dimen/spacing_medium"
-                android:text="Edit Profile"
+                android:text="Save Changes"
                 android:textColor="@color/black"
                 android:textFontWeight="600"
                 android:textSize="@dimen/text_size_medium"

@@ -1,5 +1,6 @@
 package com.example.kanakubook.presentation.activity
 
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
@@ -14,8 +15,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.ExpenseData
 import com.example.domain.usecase.response.PresentationLayerResponse
@@ -25,10 +28,12 @@ import com.example.kanakubook.databinding.PayExpenseDialogBinding
 import com.example.kanakubook.presentation.KanakuBookApplication
 import com.example.kanakubook.presentation.adapter.ExpenseDetailScreenAdapter
 import com.example.kanakubook.presentation.viewmodel.FriendsViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.ArrayList
+import androidx.core.util.Pair
 
 class FriendDetailPageActivity : AppCompatActivity() {
 
@@ -40,6 +45,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
     private lateinit var alertDialog: Dialog
     private lateinit var number: String
     private lateinit var friendName: String
+    private var needToNotifyParent = false
 
     private lateinit var adapter: ExpenseDetailScreenAdapter
 
@@ -48,17 +54,29 @@ class FriendDetailPageActivity : AppCompatActivity() {
             if (it.resultCode == Activity.RESULT_OK) {
                 if (connectionId != null) {
                     friendViewModel.getAllExpenseByConnectionId(connectionId!!)
+                    needToNotifyParent = true
                 } else {
                     Toast.makeText(this, "No connection id", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initialSetUp()
         setListener()
         setObserver()
+        friendViewModel.getAllExpenseByConnectionId(connectionId!!)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        needToNotifyParent = savedInstanceState.getBoolean("needToNotify")
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("needToNotify", needToNotifyParent)
     }
 
     private fun initialSetUp() {
@@ -126,13 +144,46 @@ class FriendDetailPageActivity : AppCompatActivity() {
 
 
     }
+    fun showFab(fab: FloatingActionButton) {
+        fab.visibility = View.VISIBLE
+        ObjectAnimator.ofFloat(fab, "scaleX", 1f).apply {
+            duration = 200
+            start()
+        }
 
-    override fun onResume() {
-        super.onResume()
-        friendViewModel.getAllExpenseByConnectionId(connectionId!!)
+        ObjectAnimator.ofFloat(fab, "scaleY", 1f).apply {
+            duration = 200
+            start()
+        }
+
     }
 
+    fun hideFab(fab: FloatingActionButton) {
+        ObjectAnimator.ofFloat(fab, "scaleX", 0f).apply {
+            duration = 200
+            start()
+        }
+        ObjectAnimator.ofFloat(fab, "scaleY", 0f).apply {
+            duration = 200
+            start()
+        }
+        fab.visibility = View.INVISIBLE
+    }
     private fun setListener() {
+        binding.recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState != RecyclerView.SCREEN_STATE_ON) {
+                    if (binding.createFab.visibility == View.INVISIBLE) {
+                        showFab(binding.createFab)
+                    }
+                }else{
+                    if (binding.createFab.visibility == View.VISIBLE) {
+                        hideFab(binding.createFab)
+                    }
+                }
+            }
+        })
         binding.createFab.setOnClickListener {
             val intent = Intent(this, AddExpenseActivity::class.java)
             val bundle = Bundle()
@@ -152,7 +203,10 @@ class FriendDetailPageActivity : AppCompatActivity() {
             intent.putExtra("friendId", friendId!!)
             intent.putExtra("friendName", friendName)
             intent.putExtra("friendNumber", number)
-            startActivity(intent)
+            val profilePair = Pair<View, String>(binding.profile, "imageT")
+            val pairs = arrayOf(profilePair)
+            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this, *pairs)
+            startActivity(intent,bundle.toBundle())
         }
     }
 
@@ -161,6 +215,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
             if (::alertDialog.isInitialized) {
                 when (it) {
                     is PresentationLayerResponse.Success -> {
+                        needToNotifyParent = true
                         friendViewModel.getAllExpenseByConnectionId(connectionId!!)
                         Toast.makeText(this, "payment Success", Toast.LENGTH_SHORT).show()
                     }
@@ -195,7 +250,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
         super.onOptionsItemSelected(item)
         return when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                onBackPressed()
                 true
             }
 
@@ -234,5 +289,12 @@ class FriendDetailPageActivity : AppCompatActivity() {
             friendViewModel.pay(spenderId, expenseId, getLoggedUserId())
         }
         alertDialog.show()
+    }
+
+    override fun finish() {
+        if (needToNotifyParent) {
+            setResult(Activity.RESULT_OK)
+        }
+        super.finish()
     }
 }

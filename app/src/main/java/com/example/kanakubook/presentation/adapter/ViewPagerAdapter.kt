@@ -7,12 +7,17 @@ import com.example.kanakubook.presentation.fragment.GroupFragment
 
 class ViewPagerAdapter(
     fragment: Fragment,
-    layOutTag: String,
-    private val withoutToolBar: Boolean = false
+    layOutTag: String
 ) : FragmentStateAdapter(fragment) {
 
-    val f1: GroupFragment by lazy { GroupFragment(layOutTag, withoutToolBar) }
-    val f2: FriendsFragment by lazy { FriendsFragment(layOutTag, withoutToolBar) }
+    val f1: GroupFragment by lazy { GroupFragment().apply {
+        this.setWithoutToolbarTrue()
+        this.setTag(layOutTag)
+    } }
+    val f2: FriendsFragment by lazy { FriendsFragment().apply {
+        this.setWithoutToolbarTrue()
+        this.setTag(layOutTag)
+    } }
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {

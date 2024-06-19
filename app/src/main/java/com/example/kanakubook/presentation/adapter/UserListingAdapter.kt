@@ -84,6 +84,7 @@ class UserListingAdapter(private val context: Context, private val callback: Cal
         private fun resetViewHolder() {
             binding.textview.text = ""
             binding.imageProfile.setImageResource(R.drawable.default_profile_image)
+            binding.adminIndicator.visibility = View.GONE
         }
 
         fun bind(item: UserProfileSummary) {
@@ -91,8 +92,6 @@ class UserListingAdapter(private val context: Context, private val callback: Cal
             bindImageReferenceCheck = item.userId
             if (item.userId == adminUserId) {
                 binding.adminIndicator.visibility = View.VISIBLE
-            } else {
-                binding.adminIndicator.visibility = View.GONE
             }
             val name = item.name.lowercase(Locale.ROOT)
             val spannable = SpannableString(name)

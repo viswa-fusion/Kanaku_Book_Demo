@@ -67,7 +67,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="phone"
                     android:maxLength="10"
-                    android:text="948721"
                     android:paddingVertical="20dp"
                     android:paddingStart="50dp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -98,7 +97,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:text="Test@123"
                     android:paddingVertical="20dp"
                     android:paddingStart="50dp" />
             </com.google.android.material.textfield.TextInputLayout>

@@ -15,6 +15,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -34,13 +36,14 @@ import com.example.kanakubook.presentation.viewmodel.FabViewModel
 import com.example.kanakubook.presentation.viewmodel.FriendsViewModel
 import com.example.kanakubook.util.Constants
 import com.example.kanakubook.util.CustomAnimationUtil
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.search.SearchView
+import java.util.Locale
 
 
-class FriendsFragment(
-    private var layoutTag: String = Constants.NORMAL_LAYOUT,
-    private val withoutToolbar: Boolean = false
-) : BaseHomeFragment(R.layout.main_screen_fragment) {
+class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private lateinit var preferenceHelper: PreferenceHelper
     private var isFabRotated = false
@@ -51,8 +54,13 @@ class FriendsFragment(
     private val commonViewModel: CommonViewModel by activityViewModels()
     private lateinit var adapter: FriendsProfileListAdapter
 
+    private var layoutTag: String = Constants.NORMAL_LAYOUT
+    private var withoutToolBar: Boolean = false
+
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         preferenceHelper = PreferenceHelper(context)
     }
 
@@ -60,37 +68,33 @@ class FriendsFragment(
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 getFriendsList()
-
             }
         }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("check", "data: friend:oncreate")
-    }
 
-    override fun onResume() {
-        super.onResume()
-        getFriendsList()
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState != null) {
             savedInstanceState.getString("layoutTag")?.let {
                 layoutTag = it
             }
+            savedInstanceState.getBoolean("withoutToolbar")
         }
         layoutInitialSetup()
         setListener()
         setObserver()
         showLoading()
+        getFriendsList()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(FAB_STATE, isFabRotated)
+        outState.putBoolean("withoutToolbar", withoutToolBar)
         outState.putString("layoutTag", layoutTag)
     }
 
@@ -99,6 +103,12 @@ class FriendsFragment(
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(FAB_STATE))
                 binding.createFab.callOnClick()
+        }
+        if(withoutToolBar && commonViewModel.isVisible){
+            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                View.GONE
+            activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+                View.GONE
         }
     }
 
@@ -132,6 +142,25 @@ class FriendsFragment(
                 }
             }
         })
+
+        if (!withoutToolBar){
+            binding.homeScreenSearchView1.addTransitionListener { searchView, previousState, newState ->
+                if (newState == SearchView.TransitionState.SHOWING) {
+                    commonViewModel.isVisible = true
+                    activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                        View.GONE
+                    activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+                        View.GONE
+                }
+                if (newState == SearchView.TransitionState.HIDING) {
+                    commonViewModel.isVisible = false
+                    activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                        View.VISIBLE
+                    activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+                        View.VISIBLE
+                }
+            }
+        }
 
 
     }
@@ -170,10 +199,10 @@ class FriendsFragment(
                         val adapter = binding.recyclerview.adapter
                         if (adapter is FriendsProfileListAdapter) {
                             val data =
-                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolbar) it.data.sortedBy { u -> u.name } else it.data
+                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) it.data.sortedBy { u -> u.name } else it.data
                             commonViewModel.listUserData = data
                             val filteredUsers =
-                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolbar) {
+                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) {
                                     data.filter { f ->
                                         f.name.contains(
                                             commonViewModel.filterString,
@@ -237,6 +266,12 @@ class FriendsFragment(
         }
     }
 
+    fun setTag(tag: String) {
+        layoutTag = tag
+    }
+    fun setWithoutToolbarTrue(){
+        withoutToolBar = true
+    }
     private fun layoutInitialSetup() {
         checkLayoutNeed()
         binding.emptyTemplate.content?.text = "You have no connection at this \n moment"
@@ -247,17 +282,19 @@ class FriendsFragment(
                     return viewModel.getProfile(userId)
                 }
 
-                override fun onClickItemListener(userProfileSummary: UserProfileSummary) {
+                override fun onClickItemListener(userProfileSummary: UserProfileSummary, view:View) {
                     when (layoutTag) {
                         Constants.NORMAL_LAYOUT -> {
-                            val intent =
-                                Intent(requireActivity(), FriendDetailPageActivity::class.java)
+                            val intent = Intent(requireActivity(), FriendDetailPageActivity::class.java)
                             intent.putExtra("name", userProfileSummary.name)
                             intent.putExtra("phone", userProfileSummary.phone)
                             intent.putExtra("userId", userProfileSummary.userId)
                             intent.putExtra("connectionId", userProfileSummary.connectionId)
 
-                            startActivity(intent)
+                            val mainPair = Pair(view, "card")
+                            val pairs = arrayOf( mainPair)
+                            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *pairs)
+                            addFriendResultLauncher.launch(intent,bundle)
                         }
 
                         Constants.FOR_TAB_LAYOUT -> {
@@ -303,8 +340,10 @@ class FriendsFragment(
         if (!isAdded || activity == null) {
             return
         }
+
+        val data = if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) commonViewModel.listUserData.sortedBy { u -> u.name } else commonViewModel.listUserData
         val filteredFriends =
-            commonViewModel.listUserData.filter { it.name.contains(query, ignoreCase = true) }
+            data.filter { it.name.contains(query, ignoreCase = true) }
 
         if (filteredFriends.isEmpty()) {
             binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
@@ -330,11 +369,31 @@ class FriendsFragment(
             binding.appbar.visibility = View.GONE
         }
 
-        if (withoutToolbar) {
+        if (withoutToolBar) {
             binding.appbar.visibility = View.GONE
+            binding.createFab.visibility = View.GONE
         }
     }
 
 
 }
 
+
+
+
+
+
+fun main(){
+
+    val w1 = A("a",1)
+    val w2 = A("b",1)
+
+    val s1 = Person("a",1)
+    val s2 = Person("b",1)
+
+    println(w1 == w2)
+    println(s1 == s2)
+}
+class A(val name:String,val age :Int)
+
+data class Person(val name :String,val age:Int)

@@ -10,12 +10,15 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -36,19 +39,23 @@ import com.example.kanakubook.presentation.viewmodel.GroupViewModel
 import com.example.kanakubook.util.Constants
 import com.example.kanakubook.util.CustomAnimationUtil
 import com.example.kanakubook.util.CustomDividerItemDecoration
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.search.SearchView
 
-class GroupFragment(
-    private var layoutTag: String = Constants.NORMAL_LAYOUT,
-    private val withoutToolBar: Boolean = false
-) : BaseHomeFragment(R.layout.main_screen_fragment) {
+class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
 
     private val fabViewModel: FabViewModel by viewModels()
     private val viewModel: GroupViewModel by viewModels { GroupViewModel.FACTORY }
     private val commonViewModel: CommonViewModel by activityViewModels()
 
+    private var layoutTag: String = Constants.NORMAL_LAYOUT
+    private var withoutToolBar: Boolean = false
+
     private var isFabRotated = false
     private val FAB_STATE = "fab state"
+
 
     private lateinit var preferenceHelper: PreferenceHelper
     private lateinit var adapter: GroupsListAdapter
@@ -60,29 +67,49 @@ class GroupFragment(
             }
         }
 
+    fun setTag(tag: String) {
+        layoutTag = tag
+    }
+
+    fun setWithoutToolbarTrue() {
+        withoutToolBar = true
+    }
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState != null) {
             savedInstanceState.getString("layoutTag")?.let {
                 layoutTag = it
             }
+            withoutToolBar = savedInstanceState.getBoolean("withoutToolBar")
         }
         initialSetUp()
         setListener()
         setObserver()
+        getGroupList()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(FAB_STATE, isFabRotated)
+        outState.putBoolean("withoutToolBar", withoutToolBar)
         outState.putString("layoutTag", layoutTag)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         if (savedInstanceState != null) {
-            if (savedInstanceState.getBoolean(FAB_STATE))
+            if (savedInstanceState.getBoolean(FAB_STATE)) {
                 binding.createFab.callOnClick()
+            }
+        }
+
+        if(withoutToolBar && commonViewModel.isVisible){
+            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                View.GONE
+            activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+                View.GONE
         }
     }
 
@@ -97,6 +124,7 @@ class GroupFragment(
             fabViewModel.setFabVisibility(!fabViewModel.fabVisibility.value!!)
         }
     }
+
 
     private fun setListener() {
 
@@ -126,7 +154,24 @@ class GroupFragment(
                 }
             }
         })
-
+        if (!withoutToolBar){
+            binding.homeScreenSearchView1.addTransitionListener { searchView, previousState, newState ->
+                if (newState == SearchView.TransitionState.SHOWING) {
+                    commonViewModel.isVisible = true
+                    activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                        View.GONE
+                    activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+                        View.GONE
+                }
+                if (newState == SearchView.TransitionState.HIDING) {
+                    commonViewModel.isVisible = false
+                    activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+                        View.VISIBLE
+                    activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+                        View.VISIBLE
+                }
+            }
+        }
 
     }
 
@@ -141,14 +186,10 @@ class GroupFragment(
         preferenceHelper = PreferenceHelper(context)
     }
 
-    override fun onResume() {
-        super.onResume()
-        getGroupList()
-
-    }
 
     private fun setObserver() {
         viewModel.getAllGroups.observe(viewLifecycleOwner) {
+
             when (it) {
                 is PresentationLayerResponse.Success -> {
                     if (it.data.isEmpty()) {
@@ -157,8 +198,7 @@ class GroupFragment(
                         binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
                         val adapter = binding.recyclerview.adapter
                         if (adapter is GroupsListAdapter) {
-                            val data =
-                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) it.data.sortedBy { u -> u.name } else it.data
+                            val data = if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) it.data.sortedBy { u -> u.name } else it.data
 
                             commonViewModel.listGroupData = data
                             val filteredGroups =
@@ -184,7 +224,8 @@ class GroupFragment(
                 }
 
                 is PresentationLayerResponse.Error -> {
-                    Toast.makeText(requireActivity(), "fail fetching", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), "fail fetching", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -228,7 +269,7 @@ class GroupFragment(
                 return viewModel.getProfile(groupId)
             }
 
-            override fun onClickItemListener(groupData: GroupData) {
+            override fun onClickItemListener(groupData: GroupData, view: View) {
                 when (layoutTag) {
                     Constants.NORMAL_LAYOUT -> {
                         val intent = Intent(requireActivity(), GroupDetailPageActivity::class.java)
@@ -241,7 +282,14 @@ class GroupFragment(
                             groupData.members.map { it.userId }.toLongArray()
                         )
                         intent.putExtra("bundle", bundle)
-                        startActivity(intent)
+
+                        val profilePair = Pair(view, "card")
+                        val pairs = arrayOf(profilePair)
+                        val bundle1 = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            requireActivity(),
+                            *pairs
+                        )
+                        addGroupResultLauncher.launch(intent, bundle1)
                     }
 
                     Constants.FOR_TAB_LAYOUT -> {
@@ -255,7 +303,7 @@ class GroupFragment(
                 }
             }
 
-            override fun clickImage(drawable: Drawable?) {
+            override fun clickImage(drawable: Drawable?, view: View) {
                 showEnlargedImage(drawable)
             }
         })
@@ -265,6 +313,16 @@ class GroupFragment(
         binding.recyclerview.addItemDecoration(
             CustomDividerItemDecoration(requireActivity(), dividerDrawable, 200, 16)
         )
+
+//        if (!isVisible) {
+//            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility = View.GONE
+//            activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility = View.GONE
+//        } else {
+//            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
+//                View.VISIBLE
+//            activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
+//                View.VISIBLE
+//        }
     }
 
     private fun showEnlargedImage(imageDrawable: Drawable?) {
@@ -287,9 +345,10 @@ class GroupFragment(
         if (!isAdded || activity == null) {
             return
         }
+        val data =
+            if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) commonViewModel.listGroupData.sortedBy { u -> u.name } else commonViewModel.listGroupData
         commonViewModel.filterString = query
-        val filteredGroups =
-            commonViewModel.listGroupData.filter { it.name.contains(query, ignoreCase = true) }
+        val filteredGroups = data.filter { it.name.contains(query, ignoreCase = true) }
         if (filteredGroups.isEmpty()) {
             binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
         } else {
@@ -307,6 +366,7 @@ class GroupFragment(
 
         if (withoutToolBar) {
             binding.appbar.visibility = View.GONE
+            binding.createFab.visibility = View.GONE
         }
     }
 }

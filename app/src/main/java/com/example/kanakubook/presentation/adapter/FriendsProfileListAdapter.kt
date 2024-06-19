@@ -32,8 +32,7 @@ import kotlin.math.abs
 class FriendsProfileListAdapter(
     private val context: Context,
     private val callback: Callbacks
-) :
-    RecyclerView.Adapter<FriendsProfileListAdapter.ProfileViewHolder>() {
+) : RecyclerView.Adapter<FriendsProfileListAdapter.ProfileViewHolder>() {
     private var searchText: String = ""
 
 
@@ -62,9 +61,7 @@ class FriendsProfileListAdapter(
         asyncListDiffer.submitList(dataResponse)
     }
 
-    fun getData(): List<UserProfileSummary> {
-        return asyncListDiffer.currentList
-    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -91,7 +88,7 @@ class FriendsProfileListAdapter(
 
         init {
             binding.cardView.setOnClickListener {
-                callback.onClickItemListener(asyncListDiffer.currentList[absoluteAdapterPosition])
+                callback.onClickItemListener(asyncListDiffer.currentList[absoluteAdapterPosition], binding.root)
             }
 
             binding.imageViewProfile.setOnClickListener {
@@ -103,7 +100,6 @@ class FriendsProfileListAdapter(
             bindImageReferenceCheck = -1
             textViewName.text = ""
             textViewAmount.text = ""
-            image.setImageResource(R.drawable.default_profile_image)
         }
 
         fun bind(profile: UserProfileSummary) {
@@ -178,7 +174,7 @@ class FriendsProfileListAdapter(
 
     interface Callbacks {
         suspend fun getImage(userId: Long): Bitmap?
-        fun onClickItemListener(userProfileSummary: UserProfileSummary)
+        fun onClickItemListener(userProfileSummary: UserProfileSummary, view: View)
         fun clickImage(drawable: Drawable?)
     }
 

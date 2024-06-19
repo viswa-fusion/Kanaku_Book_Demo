@@ -53,10 +53,14 @@ class LoginScreenFragment : Fragment(R.layout.login_screen_fragment) {
 
     private fun setupValidation() {
         binding.buttonLogIn.setOnClickListener {
-            viewModel.authenticateUser(
-                binding.editTextPhoneNumber.text.toString().toLong(),
-                binding.editTextPassword.text.toString()
-            )
+            try{
+                val num = binding.editTextPhoneNumber.text.toString().toLong()
+                viewModel.authenticateUser(num, binding.editTextPassword.text.toString())
+            }catch (e:Exception){
+                binding.layoutPhoneNumber.error = "invalid credential"
+                return@setOnClickListener
+            }
+
         }
     }
 

@@ -10,6 +10,7 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -33,9 +34,9 @@ class GroupsListAdapter(
 
     interface CallBack {
         suspend fun getImage(groupId: Long): Bitmap?
-        fun onClickItemListener(groupData: GroupData)
+        fun onClickItemListener(groupData: GroupData, view: View)
 
-        fun clickImage(drawable: Drawable?)
+        fun clickImage(drawable: Drawable?,view :View)
     }
 
     private val diffUtil = object :
@@ -90,11 +91,11 @@ class GroupsListAdapter(
 
         init {
             binding.root.setOnClickListener {
-                callback.onClickItemListener(asyncListDiffer.currentList[bindingAdapterPosition])
+                callback.onClickItemListener(asyncListDiffer.currentList[bindingAdapterPosition], binding.root)
             }
 
             binding.shapeableImageView2.setOnClickListener {
-                callback.clickImage(binding.shapeableImageView2.drawable)
+                callback.clickImage(binding.shapeableImageView2.drawable, binding.shapeableImageView2)
             }
         }
 

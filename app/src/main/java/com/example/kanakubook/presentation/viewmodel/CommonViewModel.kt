@@ -6,6 +6,7 @@ import com.example.domain.model.GroupData
 import com.example.domain.model.UserProfileSummary
 import com.example.kanakubook.presentation.adapter.SplitListAdapter
 import com.example.kanakubook.presentation.fragment.SplitUserListFragment
+import com.example.kanakubook.util.Constants
 
 class CommonViewModel : ViewModel() {
     val selectSplitWithListener = MutableLiveData<SelectionData>()
@@ -18,9 +19,16 @@ class CommonViewModel : ViewModel() {
     var haveSplitWithData = false
     var id: Long = 0
 
+    var isVisible = false
+
+    var layoutTag = Constants.NORMAL_LAYOUT
+
+
+
     var listUserData: List<UserProfileSummary> = emptyList()
     var listGroupData: List<GroupData> = emptyList()
     var filterString: String = ""
+
 
 
     var totalAmountSplitUserListFragment = 0.0

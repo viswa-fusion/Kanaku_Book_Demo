@@ -67,7 +67,7 @@
         android:layout_height="wrap_content"
         android:autoLink="phone"
         android:maxLength="80"
-        android:text="+91 9487212887"
+        android:text="9487212887"
         android:textColor="@color/black"
         android:textColorLink="@color/black"
         android:textFontWeight="450"

@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
@@ -45,6 +46,7 @@
                         app:navigationIcon="@drawable/ic_discover_24"
                         android:focusable="true"
                         android:clickable="true"/>
+
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/image_profile"
@@ -163,6 +165,21 @@
                 app:shapeAppearanceOverlay="@style/roundedShape"
                 android:layout_alignParentEnd="true"/>
         </RelativeLayout>
+
+        <com.google.android.material.search.SearchView
+            android:id="@+id/homeScreenSearchView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_anchor="@id/search_bar"
+            android:elevation="10sp"
+            android:hint="@string/search">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/search_view_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </com.google.android.material.search.SearchView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 

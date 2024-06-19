@@ -57,9 +57,10 @@ class FieldValidator {
                     "Phone number exceeds maximum length of $maxLength digits."
                 }
 
-                !phoneNumber.matches(phoneRegex) -> {
+                !phoneNumber.matches(phoneRegex) || phoneNumber.toLong() < 1000000000L -> {
                     "Invalid phone number format. Please use only digits and optional '+' symbol in before number."
                 }
+
 
                 else -> null
             }

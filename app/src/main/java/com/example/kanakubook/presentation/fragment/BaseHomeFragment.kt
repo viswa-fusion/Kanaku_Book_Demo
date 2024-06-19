@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.UserProfileData
@@ -19,8 +23,13 @@ import com.example.kanakubook.presentation.KanakuBookApplication
 import com.example.kanakubook.presentation.activity.AddExpenseActivity
 import com.example.kanakubook.presentation.activity.AppEntryPoint
 import com.example.kanakubook.presentation.activity.ProfileActivity
+import com.example.kanakubook.presentation.viewmodel.CommonViewModel
 import com.example.kanakubook.presentation.viewmodel.FriendsViewModel
 import com.example.kanakubook.presentation.viewmodel.LoginViewModel
+import com.example.kanakubook.util.Constants
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.search.SearchView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +45,15 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
     private lateinit var userData: UserProfileData
     private var profileImage: Bitmap? = null
     private lateinit var preferenceHelper: PreferenceHelper
+
+
+
+    private val fragment: ViewPagerFragment by lazy {
+        ViewPagerFragment(
+            Constants.NORMAL_LAYOUT
+        )
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         preferenceHelper = PreferenceHelper(context)
@@ -55,9 +73,7 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
         super.onViewCreated(view, savedInstanceState)
         binding = MainScreenFragmentBinding.bind(view)
 
-
         setObserver()
-
         if (profileImage != null) {
             binding.imageProfile.setImageBitmap(profileImage)
         } else {
@@ -78,16 +94,25 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
             activityResult.launch(intent)
         }
 
-    }
-
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         val searchBar = binding.searchBar
-        val homeScreenSearchView = activity?.findViewById<SearchView>(R.id.homeScreenSearchView)
-        homeScreenSearchView?.setupWithSearchBar(searchBar)
+        val homeScreenSearchView1 = binding.homeScreenSearchView1
+        homeScreenSearchView1.setupWithSearchBar(searchBar)
+
+        childFragmentManager.commit {
+            replace(R.id.search_view_fragment_container, fragment)
+        }
+        homeScreenSearchView1.editText.addTextChangedListener {
+            filterViewPagerFragments(it.toString())
+        }
+        homeScreenSearchView1.toolbar.setBackgroundColor(requireActivity().getColor(R.color.white))
+
     }
 
+
+
+    private fun filterViewPagerFragments(query: String) {
+        fragment.filterData(query)
+    }
 
     private fun setObserver() {
         viewModel.loggedUserProfile.observe(viewLifecycleOwner) {

@@ -1,5 +1,6 @@
 package com.example.kanakubook.presentation.activity
 
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
@@ -15,8 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.ExpenseData
 import com.example.domain.usecase.response.PresentationLayerResponse
@@ -27,6 +30,7 @@ import com.example.kanakubook.presentation.KanakuBookApplication
 import com.example.kanakubook.presentation.adapter.ExpenseDetailScreenAdapter
 import com.example.kanakubook.presentation.viewmodel.FriendsViewModel
 import com.example.kanakubook.presentation.viewmodel.GroupViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,11 +48,13 @@ class GroupDetailPageActivity : AppCompatActivity() {
     private var createBy: Long = 0
     private lateinit var adapter: ExpenseDetailScreenAdapter
     private lateinit var alertDialog: Dialog
+    private var needToNotifyParent = false
 
 
     private val addExpenseActivityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
+                needToNotifyParent = true
                 groupViewModel.getAllExpenseByGroupId(groupId)
             }
         }
@@ -67,12 +73,9 @@ class GroupDetailPageActivity : AppCompatActivity() {
         initialSetUp()
         setListener()
         setObserver()
-    }
-
-    override fun onResume() {
-        super.onResume()
         groupViewModel.getAllExpenseByGroupId(groupId)
     }
+
 
     private fun setObserver() {
         groupViewModel.payResponse.observe(this) {
@@ -80,6 +83,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
                 when (it) {
                     is PresentationLayerResponse.Success -> {
                         groupViewModel.getAllExpenseByGroupId(groupId)
+                        needToNotifyParent = true
                         Toast.makeText(this, "payment Success", Toast.LENGTH_SHORT).show()
                     }
 
@@ -101,10 +105,6 @@ class GroupDetailPageActivity : AppCompatActivity() {
                         adapter.updateData(it.data)
                     }
 
-                    it.data.forEach {
-                        Log.i("dataTest", "test : $it")
-                    }
-
                 }
 
                 is PresentationLayerResponse.Error -> {
@@ -114,7 +114,42 @@ class GroupDetailPageActivity : AppCompatActivity() {
         }
     }
 
+    fun showFab(fab: FloatingActionButton) {
+        fab.visibility = View.VISIBLE
+        ObjectAnimator.ofFloat(fab, "scaleX", 1f).apply {
+            duration = 200
+            start()
+        }
+
+        ObjectAnimator.ofFloat(fab, "scaleY", 1f).apply {
+            duration = 200
+            start()
+        }
+
+    }
+
+    fun hideFab(fab: FloatingActionButton) {
+        ObjectAnimator.ofFloat(fab, "scaleX", 0f).apply {
+            duration = 200
+            start()
+        }
+        ObjectAnimator.ofFloat(fab, "scaleY", 0f).apply {
+            duration = 200
+            start()
+        }
+        fab.visibility = View.INVISIBLE
+    }
     private fun setListener() {
+        binding.recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                   hideFab(binding.createFab)
+                }else{
+                   showFab(binding.createFab)
+                }
+            }
+        })
         binding.createFab.setOnClickListener {
             val intent = Intent(this, AddExpenseActivity::class.java)
             val bundle = Bundle()
@@ -127,6 +162,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
         }
 
         binding.toolbar.setOnClickListener {
+            val anim = ActivityOptionsCompat.makeSceneTransitionAnimation(this,binding.profile,"imageMain1")
             val intent = Intent(this, GroupProfilePageActivity::class.java)
             val bundle = Bundle()
             bundle.putLongArray("members", members.toLongArray())
@@ -134,7 +170,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
             intent.putExtra("groupId", groupId)
             intent.putExtra("name", groupName)
             intent.putExtra("createdBy", createBy)
-            profileResultActivity.launch(intent)
+            profileResultActivity.launch(intent,anim)
         }
     }
 
@@ -229,11 +265,29 @@ class GroupDetailPageActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("needToNotify",needToNotifyParent)
+    }
+
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        needToNotifyParent = savedInstanceState.getBoolean("needToNotify")
+    }
+
+    override fun finish() {
+        if (needToNotifyParent) {
+            setResult(Activity.RESULT_OK)
+        }
+        super.finish()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         super.onOptionsItemSelected(item)
         return when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                onBackPressed()
                 true
             }
 

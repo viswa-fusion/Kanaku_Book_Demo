@@ -76,7 +76,7 @@ class ProfileActivity : AppCompatActivity() {
         phone = intent.getLongExtra("phone", -1)
 
         binding.name.text = name
-        val phoneFormat = if (phone != -1L) "+91 $phone" else "- empty -"
+        val phoneFormat = if (phone != -1L) "$phone" else "- empty -"
         binding.phone.text = phoneFormat
 
         if (profileUri != null) {
