@@ -314,15 +314,6 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
             CustomDividerItemDecoration(requireActivity(), dividerDrawable, 200, 16)
         )
 
-//        if (!isVisible) {
-//            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility = View.GONE
-//            activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility = View.GONE
-//        } else {
-//            activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
-//                View.VISIBLE
-//            activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
-//                View.VISIBLE
-//        }
     }
 
     private fun showEnlargedImage(imageDrawable: Drawable?) {

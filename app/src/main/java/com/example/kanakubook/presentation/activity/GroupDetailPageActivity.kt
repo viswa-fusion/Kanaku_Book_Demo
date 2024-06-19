@@ -162,7 +162,7 @@ class GroupDetailPageActivity : AppCompatActivity() {
         }
 
         binding.toolbar.setOnClickListener {
-            val anim = ActivityOptionsCompat.makeSceneTransitionAnimation(this,binding.profile,"imageMain1")
+            val anim = ActivityOptionsCompat.makeSceneTransitionAnimation(this,binding.profile,"imageT")
             val intent = Intent(this, GroupProfilePageActivity::class.java)
             val bundle = Bundle()
             bundle.putLongArray("members", members.toLongArray())
