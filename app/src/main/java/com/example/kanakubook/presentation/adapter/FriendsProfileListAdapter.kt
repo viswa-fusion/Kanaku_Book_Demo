@@ -88,7 +88,7 @@ class FriendsProfileListAdapter(
 
         init {
             binding.cardView.setOnClickListener {
-                callback.onClickItemListener(asyncListDiffer.currentList[absoluteAdapterPosition], binding.root)
+                callback.onClickItemListener(asyncListDiffer.currentList[absoluteAdapterPosition], binding.mainT)
             }
 
             binding.imageViewProfile.setOnClickListener {

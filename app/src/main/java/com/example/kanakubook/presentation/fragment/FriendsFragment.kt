@@ -188,6 +188,12 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
             }
         }
 
+        needReload.observe(requireActivity()){
+            if(it){
+                getFriendsList()
+            }
+        }
+
         viewModel.friendsList.observe(viewLifecycleOwner) {
             hideLoading()
             when (it) {
@@ -217,7 +223,8 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                                 binding.searchNotFound.emptyTemplate.visibility = View.VISIBLE
                             } else {
                                 binding.searchNotFound.emptyTemplate.visibility = View.GONE
-                                adapter.updateData(filteredUsers)
+                                    adapter.updateData(filteredUsers)
+
                             }
                         }
                     }
@@ -285,15 +292,17 @@ class FriendsFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                 override fun onClickItemListener(userProfileSummary: UserProfileSummary, view:View) {
                     when (layoutTag) {
                         Constants.NORMAL_LAYOUT -> {
+                            val mainPair = Pair(view, "cardAnimationT")
+                            val pairs = arrayOf( mainPair)
+                            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *pairs)
+
                             val intent = Intent(requireActivity(), FriendDetailPageActivity::class.java)
                             intent.putExtra("name", userProfileSummary.name)
                             intent.putExtra("phone", userProfileSummary.phone)
                             intent.putExtra("userId", userProfileSummary.userId)
                             intent.putExtra("connectionId", userProfileSummary.connectionId)
 
-                            val mainPair = Pair(view, "card")
-                            val pairs = arrayOf( mainPair)
-                            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *pairs)
+
                             addFriendResultLauncher.launch(intent,bundle)
                         }
 

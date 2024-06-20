@@ -91,7 +91,7 @@ class GroupsListAdapter(
 
         init {
             binding.root.setOnClickListener {
-                callback.onClickItemListener(asyncListDiffer.currentList[bindingAdapterPosition], binding.root)
+                callback.onClickItemListener(asyncListDiffer.currentList[bindingAdapterPosition], binding.main)
             }
 
             binding.shapeableImageView2.setOnClickListener {

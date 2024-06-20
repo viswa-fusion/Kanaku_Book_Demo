@@ -46,6 +46,7 @@ class FriendDetailPageActivity : AppCompatActivity() {
     private lateinit var number: String
     private lateinit var friendName: String
     private var needToNotifyParent = false
+    private var firstTimeAnimateComplete = false
 
     private lateinit var adapter: ExpenseDetailScreenAdapter
 
@@ -235,7 +236,9 @@ class FriendDetailPageActivity : AppCompatActivity() {
                         binding.emptyTemplate.emptyTemplate.visibility = View.VISIBLE
                     } else {
                         binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
-                        adapter.updateData(it.data)
+
+                            adapter.updateData(it.data)
+
                     }
                 }
 

@@ -98,13 +98,12 @@ class GroupDetailPageActivity : AppCompatActivity() {
         groupViewModel.getAllGroupExpenseResponse.observe(this) {
             when (it) {
                 is PresentationLayerResponse.Success -> {
+                    adapter.updateData(it.data)
                     if (it.data.isEmpty()) {
                         binding.emptyTemplate.emptyTemplate.visibility = View.VISIBLE
                     } else {
                         binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
-                        adapter.updateData(it.data)
                     }
-
                 }
 
                 is PresentationLayerResponse.Error -> {

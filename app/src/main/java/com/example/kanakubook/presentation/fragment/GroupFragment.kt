@@ -105,7 +105,7 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
             }
         }
 
-        if(withoutToolBar && commonViewModel.isVisible){
+        if (withoutToolBar && commonViewModel.isVisible) {
             activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility =
                 View.GONE
             activity?.findViewById<FloatingActionButton>(R.id.createFab)?.visibility =
@@ -154,7 +154,7 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                 }
             }
         })
-        if (!withoutToolBar){
+        if (!withoutToolBar) {
             binding.homeScreenSearchView1.addTransitionListener { searchView, previousState, newState ->
                 if (newState == SearchView.TransitionState.SHOWING) {
                     commonViewModel.isVisible = true
@@ -198,7 +198,8 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                         binding.emptyTemplate.emptyTemplate.visibility = View.INVISIBLE
                         val adapter = binding.recyclerview.adapter
                         if (adapter is GroupsListAdapter) {
-                            val data = if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) it.data.sortedBy { u -> u.name } else it.data
+                            val data =
+                                if (layoutTag != Constants.NORMAL_LAYOUT || withoutToolBar) it.data.sortedBy { u -> u.name } else it.data
 
                             commonViewModel.listGroupData = data
                             val filteredGroups =
@@ -227,6 +228,12 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                     Toast.makeText(requireActivity(), "fail fetching", Toast.LENGTH_SHORT)
                         .show()
                 }
+            }
+        }
+
+        needReload.observe(requireActivity()){
+            if(it){
+                getGroupList()
             }
         }
         fabViewModel.fabVisibility.observe(viewLifecycleOwner) { isVisible ->
@@ -272,6 +279,12 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
             override fun onClickItemListener(groupData: GroupData, view: View) {
                 when (layoutTag) {
                     Constants.NORMAL_LAYOUT -> {
+
+
+                        val bundle1 = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            requireActivity(),
+                            view, "cardAnimationT"
+                        )
                         val intent = Intent(requireActivity(), GroupDetailPageActivity::class.java)
                         intent.putExtra("groupName", groupData.name)
                         intent.putExtra("groupId", groupData.id)
@@ -283,13 +296,11 @@ class GroupFragment : BaseHomeFragment(R.layout.main_screen_fragment) {
                         )
                         intent.putExtra("bundle", bundle)
 
-                        val profilePair = Pair(view, "card")
-                        val pairs = arrayOf(profilePair)
-                        val bundle1 = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                            requireActivity(),
-                            *pairs
-                        )
+//                        val profilePair = Pair()
+//                        val pairs = arrayOf(profilePair)
+
                         addGroupResultLauncher.launch(intent, bundle1)
+
                     }
 
                     Constants.FOR_TAB_LAYOUT -> {

@@ -19,7 +19,9 @@ import com.example.kanakubook.presentation.KanakuBookApplication
 import com.example.kanakubook.util.Constants
 import com.example.kanakubook.util.DateConvertor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Delay
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -70,21 +72,24 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            RIGHT_CARD -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.expense_right_card, parent, false)
-                RightViewHolder(ExpenseRightCardBinding.bind(view))
-            }
 
-            LEFT_CARD -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.expense_left_card, parent, false)
-                LeftViewHolder(ExpenseLeftCardBinding.bind(view))
-            }
+            return when (viewType) {
 
-            else -> throw (Exception())
-        }
+                RIGHT_CARD -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.expense_right_card, parent, false)
+
+                    RightViewHolder(ExpenseRightCardBinding.bind(view))
+                }
+
+                LEFT_CARD -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.expense_left_card, parent, false)
+                    LeftViewHolder(ExpenseLeftCardBinding.bind(view))
+                }
+
+                else -> throw (Exception())
+            }
     }
 
     override fun getItemCount(): Int = asyncListDiffer.currentList.size
@@ -93,9 +98,11 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
         val item = asyncListDiffer.currentList[position]
         when (holder) {
             is RightViewHolder -> holder.bind(item)
+
             is LeftViewHolder -> holder.bind(item)
         }
     }
+
 
 
     inner class LeftViewHolder(val binding: ExpenseLeftCardBinding) :
@@ -131,58 +138,62 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
 
         fun bind(item: ExpenseData) {
             resetViewHolder()
-            bindImageReferenceCheck = item.expenseId
-            val mySplit: SplitEntry? =
-                item.listOfSplits.singleOrNull { it.splitUserId == loggedUserId }
-            val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
-            val amount = Constants.RUPEE_SYMBOL + mySplit?.splitAmount.toString()
-            val totalPaid: Int = item.listOfSplits.count { it.paidStatus == PaidStatus.Paid }
-            if (mySplit != null) {
-                if (amount == "${Constants.RUPEE_SYMBOL}0.0") {
-                    binding.amount.visibility = View.GONE
-                    binding.progressBar.visibility = View.GONE
-                    binding.paidStatusText.text = "No payment required"
-                    binding.payButton.visibility = View.GONE
-                    binding.paidStatusIcon.setImageResource(R.drawable.info_24px)
-                } else {
-                    binding.amount.text = amount
-                    val progressLevel: Int = (totalPaid * 100) / totalIncludeCount
-                    binding.progressBar.progress = progressLevel
 
-                    binding.progressText.text = "$totalPaid/${totalIncludeCount} paid"
-                    val time = DateConvertor.millisToDateTime(item.date)
-                    if (mySplit.paidStatus == PaidStatus.Paid) {
-                        binding.paidStatusText.text = "Paid • $time"
-                        binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
-                        binding.payButton.visibility = View.GONE
-                    } else {
-                        binding.paidStatusText.text = "Unpaid • $time"
-                        binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
-                        binding.payButton.visibility = View.VISIBLE
-                    }
-                }
-            }
+                binding.progressBar.postDelayed({
+                    val mySplit: SplitEntry? =
+                        item.listOfSplits.singleOrNull { it.splitUserId == loggedUserId }
+                    val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
+                    val amount = Constants.RUPEE_SYMBOL + mySplit?.splitAmount.toString()
+                    val totalPaid: Int =
+                        item.listOfSplits.count { it.paidStatus == PaidStatus.Paid }
 
-            if (!item.note.isNullOrEmpty()) {
-                binding.note.text = "Request for '${item.note}'"
-            } else {
-                binding.note.text = "Split request"
-            }
-            binding.ownerName.text = item.spender.name
+                    if (mySplit != null) {
+                        if (amount == "${Constants.RUPEE_SYMBOL}0.0") {
+                            binding.amount.visibility = View.GONE
+                            binding.progressBar.visibility = View.GONE
+                            binding.paidStatusText.text = "No payment required"
+                            binding.payButton.visibility = View.GONE
+                            binding.paidStatusIcon.setImageResource(R.drawable.info_24px)
+                        } else {
 
-            if (item.spender.profile != null) {
-                binding.ownerProfile.setImageBitmap(item.spender.profile)
-            } else {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val bitmap = callback.getProfile(item.spender.userId)
-                    item.spender.profile = bitmap
-                    withContext(Dispatchers.Main) {
-                        if (bindImageReferenceCheck == item.expenseId && item.spender.profile != null) {
-                            binding.ownerProfile.setImageBitmap(item.spender.profile)
+                            binding.amount.text = amount
+                            val progressLevel: Int = (totalPaid * 100) / totalIncludeCount
+                            binding.progressBar.progress = progressLevel
+
+                            binding.progressText.text = "$totalPaid/${totalIncludeCount} paid"
+                            val time = DateConvertor.millisToDateTime(item.date)
+                            if (mySplit.paidStatus == PaidStatus.Paid) {
+                                binding.paidStatusText.text = "Paid • $time"
+                                binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
+                                binding.payButton.visibility = View.GONE
+                            } else {
+                                binding.paidStatusText.text = "Unpaid • $time"
+                                binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
+                                binding.payButton.visibility = View.VISIBLE
+                            }
                         }
                     }
-                }
-            }
+
+                    if (!item.note.isNullOrEmpty()) {
+                        binding.note.text = "Request for '${item.note}'"
+                    } else {
+                        binding.note.text = "Split request"
+                    }
+                    binding.ownerName.text = item.spender.name
+                    if (item.spender.profile != null) {
+                        binding.ownerProfile.setImageBitmap(item.spender.profile)
+                    } else {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val bitmap = callback.getProfile(item.spender.userId)
+                            item.spender.profile = bitmap
+                            withContext(Dispatchers.Main) {
+                                if (bindImageReferenceCheck == item.expenseId && item.spender.profile != null) {
+                                    binding.ownerProfile.setImageBitmap(item.spender.profile)
+                                }
+                            }
+                        }
+                    }
+                },50)
         }
     }
 
@@ -210,38 +221,41 @@ class ExpenseDetailScreenAdapter(val context: Context, val callback: Callback) :
 
         fun bind(item: ExpenseData) {
 
-            val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
-            resetViewHolder()
-            if (!item.note.isNullOrEmpty()) {
-                binding.note.text = "Request for '${item.note}'"
-            } else {
-                binding.note.text = "Split request"
-            }
-            val amount = Constants.RUPEE_SYMBOL + item.totalAmount
-            binding.amount.text = amount
-            val totalPaid: Int =
-                item.listOfSplits.count { it.paidStatus == PaidStatus.Paid && it.splitAmount != 0.0 }
-            val progressLevel: Int = (totalPaid * 100) / totalIncludeCount
-            binding.progressBar.progress = progressLevel
-            var leftAmount = 0.0
-            item.listOfSplits.forEach {
-                if (it.paidStatus == PaidStatus.UnPaid && it.splitAmount != 0.0) {
-                    leftAmount += it.splitAmount
+            binding.progressBar.postDelayed({
+                val totalIncludeCount = item.listOfSplits.count { it.splitAmount != 0.0 }
+                resetViewHolder()
+                if (!item.note.isNullOrEmpty()) {
+                    binding.note.text = "Request for '${item.note}'"
+                } else {
+                    binding.note.text = "Split request"
                 }
-            }
-            binding.progressText.text =
-                "${Constants.RUPEE_SYMBOL}${String.format("%.2f", leftAmount)} left"
-            val time = DateConvertor.millisToDateTime(item.date)
-            if (totalPaid == item.listOfSplits.size) {
-                binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
-                binding.paidStatusText.text = "All paid • $time"
-                binding.progressBar.visibility = View.GONE
-                binding.progressText.visibility = View.GONE
-            } else {
-                binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
-                val str = "$totalPaid of $totalIncludeCount paid • $time"
-                binding.paidStatusText.text = str
-            }
+                val amount = Constants.RUPEE_SYMBOL + item.totalAmount
+                binding.amount.text = amount
+                val totalPaid: Int =
+                    item.listOfSplits.count { it.paidStatus == PaidStatus.Paid && it.splitAmount != 0.0 }
+
+                var leftAmount = 0.0
+                item.listOfSplits.forEach {
+                    if (it.paidStatus == PaidStatus.UnPaid && it.splitAmount != 0.0) {
+                        leftAmount += it.splitAmount
+                    }
+                }
+                binding.progressText.text =
+                    "${Constants.RUPEE_SYMBOL}${String.format("%.2f", leftAmount)} left"
+                val time = DateConvertor.millisToDateTime(item.date)
+                if (totalPaid == item.listOfSplits.size) {
+                    binding.paidStatusIcon.setImageResource(R.drawable.check_circle_24px)
+                    binding.paidStatusText.text = "All paid • $time"
+                    binding.progressBar.visibility = View.GONE
+                    binding.progressText.visibility = View.GONE
+                } else {
+                    binding.paidStatusIcon.setImageResource(R.drawable.pace_24px)
+                    val str = "$totalPaid of $totalIncludeCount paid • $time"
+                    binding.paidStatusText.text = str
+                }
+                val progressLevel: Int = (totalPaid * 100) / totalIncludeCount
+                binding.progressBar.progress = progressLevel
+            },50)
         }
     }
 

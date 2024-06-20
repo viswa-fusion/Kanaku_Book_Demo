@@ -14,6 +14,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import com.example.data.util.PreferenceHelper
 import com.example.domain.model.UserProfileData
 import com.example.domain.usecase.response.PresentationLayerResponse
@@ -45,6 +46,7 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
     private lateinit var userData: UserProfileData
     private var profileImage: Bitmap? = null
     private lateinit var preferenceHelper: PreferenceHelper
+    val needReload = MutableLiveData<Boolean>()
 
 
 
@@ -62,6 +64,7 @@ open class BaseHomeFragment(@LayoutRes contentLayoutId: Int) : Fragment(contentL
     private val activityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             binding.createFab.callOnClick()
+            needReload.value = true
         }
 
     override fun onResume() {
