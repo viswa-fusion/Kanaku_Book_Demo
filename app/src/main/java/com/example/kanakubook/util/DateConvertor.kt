@@ -10,6 +10,7 @@ object DateConvertor {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = millis
 
+
         val sdfTime = if (isToday(calendar, currentTime)) {
             SimpleDateFormat("hh:mm a", Locale.getDefault())
         } else {
