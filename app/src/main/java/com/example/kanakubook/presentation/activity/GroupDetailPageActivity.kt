@@ -190,7 +190,8 @@ class GroupDetailPageActivity : AppCompatActivity() {
     private fun setAdapter() {
         adapter = ExpenseDetailScreenAdapter(this, object : ExpenseDetailScreenAdapter.Callback {
             override suspend fun getProfile(userId: Long): Bitmap? {
-                return friendsViewModel.getProfile(userId)
+                val w = friendsViewModel.getProfile(userId)
+                return w
             }
 
             override fun onclickCard(item: ExpenseData, view: View) {
