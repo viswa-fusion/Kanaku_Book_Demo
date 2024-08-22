@@ -52,6 +52,7 @@ class ProfileActivity : AppCompatActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 val selectedImageUri = data?.data
+
                 if (selectedImageUri != null) {
                     profileUri = selectedImageUri
                     binding.profile.setImageURI(selectedImageUri)
